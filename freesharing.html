@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 무료나눔 커뮤니티</title>
+    <link rel="stylesheet" href="freesharing.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="logo">
+                    <img src="img/logo.png" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html#home">홈</a></li>
+                    <li><a href="index.html#services">서비스</a></li>
+                    <li><a href="waste-sorting.html">분리배출</a></li>
+                    <li><a href="free-sharing.html" class="active">무료나눔</a></li>
+                    <li><a href="eco-market.html">에코마켓</a></li>
+                    <li><a href="eco-talk.html">환경독톡</a></li>
+                    <li><a href="notices.html">공지사항</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn-login">로그인</a>
+                    <a href="signup.html" class="btn-signup">회원가입</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>🤝 무료나눔 커뮤니티</h1>
+                    <p>사용하지 않는 물건을 이웃과 나누며 자원 순환을 실현하세요</p>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">1,247</span>
+                            <span class="stat-label">오늘 나눔 완료</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">15,382</span>
+                            <span class="stat-label">총 나눔 건수</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">8,941</span>
+                            <span class="stat-label">활성 회원</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter and Actions -->
+        <section class="filter-section">
+            <div class="container">
+                <div class="filter-header">
+                    <div class="filter-left">
+                        <h2>우리 동네 나눔</h2>
+                        <p>📍 서울 강남구 역삼동</p>
+                    </div>
+                    <div class="filter-right">
+                        <button class="btn btn-primary" id="addItemBtn">
+                            <span>+</span> 나눔 등록
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="filter-controls">
+                    <div class="filter-group">
+                        <label>카테고리</label>
+                        <select id="categoryFilter">
+                            <option value="">전체</option>
+                            <option value="clothes">의류/잡화</option>
+                            <option value="electronics">전자제품</option>
+                            <option value="furniture">가구/인테리어</option>
+                            <option value="books">도서/문구</option>
+                            <option value="kids">유아/아동용품</option>
+                            <option value="etc">기타</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>거리</label>
+                        <select id="distanceFilter">
+                            <option value="">전체</option>
+                            <option value="500">500m 이내</option>
+                            <option value="1000">1km 이내</option>
+                            <option value="3000">3km 이내</option>
+                            <option value="5000">5km 이내</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>상태</label>
+                        <select id="statusFilter">
+                            <option value="">전체</option>
+                            <option value="available">나눔중</option>
+                            <option value="reserved">예약중</option>
+                            <option value="completed">완료</option>
+                        </select>
+                    </div>
+                    
+                    <div class="search-group">
+                        <input type="text" id="searchInput" placeholder="원하는 물건을 검색하세요...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Items Grid -->
+        <section class="items-section">
+            <div class="container">
+                <div class="items-header">
+                    <div class="items-count">
+                        <span id="totalItems">총 47개</span>의 나눔 물건
+                    </div>
+                    <div class="sort-options">
+                        <select id="sortSelect">
+                            <option value="recent">최신순</option>
+                            <option value="distance">거리순</option>
+                            <option value="popular">인기순</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="items-grid" id="itemsGrid">
+                    <!-- Items will be loaded here by JavaScript -->
+                </div>
+                
+                <div class="load-more">
+                    <button class="btn btn-secondary" id="loadMoreBtn">더 보기</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Item Modal -->
+    <div class="modal" id="addItemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>나눔 물건 등록</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addItemForm">
+                    <div class="form-group">
+                        <label for="itemTitle">제목 *</label>
+                        <input type="text" id="itemTitle" required placeholder="나눔할 물건의 제목을 입력하세요">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemCategory">카테고리 *</label>
+                        <select id="itemCategory" required>
+                            <option value="">선택하세요</option>
+                            <option value="clothes">의류/잡화</option>
+                            <option value="electronics">전자제품</option>
+                            <option value="furniture">가구/인테리어</option>
+                            <option value="books">도서/문구</option>
+                            <option value="kids">유아/아동용품</option>
+                            <option value="etc">기타</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemDescription">상세 설명</label>
+                        <textarea id="itemDescription" rows="4" placeholder="물건의 상태, 사용 기간, 특징 등을 설명해주세요"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemLocation">나눔 장소</label>
+                        <input type="text" id="itemLocation" placeholder="예: 강남역 2번 출구 앞">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemImages">사진 업로드</label>
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-placeholder">
+                                <span class="upload-icon">📷</span>
+                                <p>사진을 드래그하거나 클릭하여 업로드하세요</p>
+                                <p class="upload-limit">최대 5장까지 업로드 가능</p>
+                            </div>
+                            <input type="file" id="itemImages" multiple accept="image/*" style="display: none;">
+                        </div>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">취소</button>
+                        <button type="submit" class="btn btn-primary">등록하기</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div class="modal" id="itemDetailModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="detailTitle">물건 상세정보</h3>
+                <button class="modal-close" id="closeDetailModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-content" id="detailContent">
+                    <!-- Content will be loaded by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="waste-sorting.html">스마트 분리배출</a></li>
+                        <li><a href="free-sharing.html">무료나눔</a></li>
+                        <li><a href="eco-market.html">에코마켓</a></li>
+                        <li><a href="eco-talk.html">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">기술 특허</a></li>
+                        <li><a href="#">연구개발</a></li>
+                        <li><a href="#">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">기술지원</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="freesharing.js"></script>
+</body>
+</html>

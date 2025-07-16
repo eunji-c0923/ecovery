@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 첨단 기술 기반 스마트 폐기물 관리 솔루션</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="#home" class="logo">
+                    <img src="img/logo.png" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#home">홈</a></li>
+                    <li><a href="#services">서비스</a></li>
+                    <li><a href="#waste-sorting">분리배출</a></li>
+                    <li><a href="#free-sharing">무료나눔</a></li>
+                    <li><a href="#eco-market">에코마켓</a></li>
+                    <li><a href="#eco-talk">환경독톡</a></li>
+                    <li><a href="#notices">공지사항</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn-login">로그인</a>
+                    <a href="signup.html" class="btn-signup">회원가입</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-bg-slider">
+                <div class="hero-slide active" style="background-image: url('img/1\ \(1\).jpg')"></div>
+                <div class="hero-slide" style="background-image: url('img/1\ \(2\).jpg')"></div>
+                <div class="hero-slide" style="background-image: url('img/1\ \(3\).jpg')"></div>
+            </div>
+
+                    <!-- Overlay -->
+            <div class="hero-overlay"></div>
+            
+            <!-- Floating Elements -->
+            <div class="hero-floating-elements">
+                <div class="floating-shape shape-1"></div>
+                <div class="floating-shape shape-2"></div>
+                <div class="floating-shape shape-3"></div>
+            </div>
+            <div class="hero-container">
+                
+                <div class="hero-content fade-in">
+                    <h1>첨단 기술로 실현하는<br><span class="highlight">스마트 환경 플랫폼</span></h1>
+                    <p>20년의 경험과 최신 기술을 결합하여 폐기물 관리부터 친환경 마켓플레이스까지, 지속가능한 미래를 위한 통합 솔루션을 제공합니다.</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="scrollToSection('services')">서비스 체험</button>
+                        <a href="signup.html" class="btn btn-secondary">무료 가입</a>
+                    </div>
+                    <div class="hero-features">
+                        <div class="feature-badge">
+                            <span class="badge-icon">⚡</span>
+                            <span class="badge-text">자동 분류</span>
+                        </div>
+                        <div class="feature-badge">
+                            <span class="badge-icon">🔄</span>
+                            <span class="badge-text">실시간 처리</span>
+                        </div>
+                        <div class="feature-badge">
+                            <span class="badge-icon">📊</span>
+                            <span class="badge-text">99.7% 정확도</span>
+                        </div>
+                        <div class="feature-badge">
+                            <span class="badge-icon">🌍</span>
+                            <span class="badge-text">친환경 커뮤니티</span>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="hero-image">
+                    <div class="hero-card">
+                        <div class="card-icon">♻️</div>
+                        <h3>통합 환경 플랫폼</h3>
+                        <p>폐기물 관리부터 친환경 쇼핑, 커뮤니티까지 한 번에 해결하는 스마트 솔루션</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="50000">0</div>
+                        <div class="stat-label">월간 처리량 (톤)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="15000">0</div>
+                        <div class="stat-label">활성 사용자</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="99.7">0</div>
+                        <div class="stat-label">분류 정확도 (%)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="24">0</div>
+                        <div class="stat-label">시간 무중단 운영</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Slider Section -->
+        <section id="services" class="services-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>통합 환경 서비스</h2>
+                    <p>첨단 기술과 커뮤니티의 힘으로 환경 보호의 새로운 기준을 제시합니다</p>
+                </div>
+                
+                <div class="services-slider-container">
+                    <div class="services-slider" id="servicesSlider">
+                        <div class="services-slides-wrapper" id="slidesWrapper">
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">⚡</div>
+                                    <h3>스마트 분리배출</h3>
+                                    <p>AI 기반 자동 분류 시스템으로 폐기물을 정확하게 분류하고 처리합니다. 첨단 센서와 머신러닝 기술을 활용하여 99.7%의 높은 정확도를 자랑합니다.</p>
+                                    <ul class="service-features">
+                                        <li>실시간 자동 인식</li>
+                                        <li>정밀 분류 및 분리</li>
+                                        <li>오분류 자동 감지</li>
+                                        <li>포인트 적립 시스템</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">🤝</div>
+                                    <h3>무료나눔 커뮤니티</h3>
+                                    <p>사용하지 않는 물건을 이웃과 나누며 자원 순환을 실현합니다. 지역 기반 매칭 시스템으로 안전하고 편리한 나눔 문화를 만들어갑니다.</p>
+                                    <ul class="service-features">
+                                        <li>지역별 매칭 시스템</li>
+                                        <li>안전한 거래 보장</li>
+                                        <li>나눔 인증 제도</li>
+                                        <li>환경 기여도 측정</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">🛒</div>
+                                    <h3>친환경 에코마켓</h3>
+                                    <p>검증된 친환경 제품만을 판매하는 전문 마켓플레이스입니다. 엄격한 심사를 거친 친환경 인증 제품들로 구성되어 있습니다.</p>
+                                    <ul class="service-features">
+                                        <li>친환경 인증 제품만</li>
+                                        <li>탄소발자국 표시</li>
+                                        <li>리뷰 및 평점 시스템</li>
+                                        <li>에코포인트 적립</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">💬</div>
+                                    <h3>환경독톡</h3>
+                                    <p>환경 보호에 관심있는 사람들이 모여 정보를 공유하는 커뮤니티입니다. 전문가 팁부터 일상 속 환경 실천법까지 다양한 정보를 나눕니다.</p>
+                                    <ul class="service-features">
+                                        <li>전문가 환경 팁</li>
+                                        <li>실천 후기 공유</li>
+                                        <li>챌린지 이벤트</li>
+                                        <li>커뮤니티 랭킹</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real-time Impact Dashboard -->
+        <section class="impact-dashboard">
+            <div class="container">
+                <div class="section-header">
+                    <h2>실시간 환경 임팩트</h2>
+                    <p>지금 이 순간 우리가 함께 만들어가는 지속가능한 변화</p>
+                </div>
+                
+                <div class="impact-grid flexible-grid">
+                    <div class="impact-card highlight">
+                        <div class="impact-icon">🌍</div>
+                        <div class="impact-data">
+                            <div class="impact-number" data-count="1247">0</div>
+                            <div class="impact-unit">kg CO₂</div>
+                            <div class="impact-label">오늘 절약된 탄소</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">↗️</span>
+                                <span class="trend-text">전일 대비 +23%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon">♻️</div>
+                        <div class="impact-data">
+                            <div class="impact-number" data-count="892">0</div>
+                            <div class="impact-unit">톤</div>
+                            <div class="impact-label">재활용된 폐기물</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">↗️</span>
+                                <span class="trend-text">전주 대비 +15%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon">🤝</div>
+                        <div class="impact-data">
+                            <div class="impact-number" data-count="156">0</div>
+                            <div class="impact-unit">개</div>
+                            <div class="impact-label">무료나눔 완료</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">🔥</span>
+                                <span class="trend-text">실시간 활발</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon">🛒</div>
+                        <div class="impact-data">
+                            <div class="impact-number" data-count="89">0</div>
+                            <div class="impact-unit">건</div>
+                            <div class="impact-label">친환경 제품 판매</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">💚</span>
+                                <span class="trend-text">고객 만족도 98%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="impact-visual">
+                    <div class="impact-chart">
+                        <h3>월별 환경 성과 추이</h3>
+                        <div class="chart-container">
+                            <div class="chart-bar" style="height: 65%">
+                                <span class="bar-value">65%</span>
+                                <span class="bar-month">5월</span>
+                            </div>
+                            <div class="chart-bar" style="height: 78%">
+                                <span class="bar-value">78%</span>
+                                <span class="bar-month">6월</span>
+                            </div>
+                            <div class="chart-bar active" style="height: 92%">
+                                <span class="bar-value">92%</span>
+                                <span class="bar-month">7월</span>
+                            </div>
+                            <div class="chart-bar future" style="height: 100%">
+                                <span class="bar-value">100%</span>
+                                <span class="bar-month">목표</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-goal">
+                        <h3>2025년 목표</h3>
+                        <div class="goal-progress">
+                            <div class="goal-item">
+                                <span class="goal-label">탄소 중립</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 73%"></div>
+                                    <span class="progress-text">73%</span>
+                                </div>
+                            </div>
+                            <div class="goal-item">
+                                <span class="goal-label">재활용율</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 86%"></div>
+                                    <span class="progress-text">86%</span>
+                                </div>
+                            </div>
+                            <div class="goal-item">
+                                <span class="goal-label">사용자 증가</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 94%"></div>
+                                    <span class="progress-text">94%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Activity Feed -->
+        <section class="activity-feed">
+            <div class="container">
+                <div class="section-header">
+                    <h2>지금 일어나고 있는 환경 액션</h2>
+                    <p>실시간으로 펼쳐지는 환경 보호 활동들</p>
+                </div>
+                
+                <div class="activity-container">
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <div class="activity-time">방금 전</div>
+                            <div class="activity-content">
+                                <div class="activity-icon waste">⚡</div>
+                                <div class="activity-text">
+                                    <strong>김○○님</strong>이 플라스틱 용기를 정확히 분리배출했습니다
+                                    <span class="activity-reward">+10P 적립</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-time">2분 전</div>
+                            <div class="activity-content">
+                                <div class="activity-icon sharing">🤝</div>
+                                <div class="activity-text">
+                                    <strong>서울 강남구</strong>에서 원목 책상 무료나눔이 완료되었습니다
+                                    <span class="activity-location">📍 역삼동</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-time">5분 전</div>
+                            <div class="activity-content">
+                                <div class="activity-icon market">🛒</div>
+                                <div class="activity-text">
+                                    <strong>박○○님</strong>이 친환경 세제를 구매하여 <strong>3kg CO₂</strong>를 절약했습니다
+                                    <span class="activity-impact">🌱 환경 기여도 +25P</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-time">8분 전</div>
+                            <div class="activity-content">
+                                <div class="activity-icon community">💬</div>
+                                <div class="activity-text">
+                                    <strong>환경독톡</strong>에 "제로웨이스트 실천법" 새 글이 등록되었습니다
+                                    <span class="activity-engagement">👍 12개 좋아요</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-time">12분 전</div>
+                            <div class="activity-content">
+                                <div class="activity-icon achievement">🏆</div>
+                                <div class="activity-text">
+                                    <strong>이○○님</strong>이 "친환경 실천왕" 배지를 획득했습니다
+                                    <span class="activity-badge">🎖️ 30일 연속 실천</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-time">15분 전</div>
+                            <div class="activity-content">
+                                <div class="activity-icon waste">⚡</div>
+                                <div class="activity-text">
+                                    <strong>최○○님</strong>이 AI 분류 시스템으로 유리병을 정확히 분류했습니다
+                                    <span class="activity-accuracy">🎯 정확도 99.8%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-stats">
+                        <h3>오늘의 활동 현황</h3>
+                        <div class="stats-mini">
+                            <div class="stat-mini">
+                                <span class="stat-number">1,247</span>
+                                <span class="stat-label">분리배출</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="stat-number">89</span>
+                                <span class="stat-label">무료나눔</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="stat-number">156</span>
+                                <span class="stat-label">친환경 구매</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="stat-number">234</span>
+                                <span class="stat-label">커뮤니티 참여</span>
+                            </div>
+                        </div>
+                        
+                        <div class="live-indicator">
+                            <div class="pulse-dot"></div>
+                            <span>실시간 업데이트</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Service Previews -->
+        <section class="service-previews">
+            <div class="container">
+                <div class="section-header">
+                    <h2>서비스 미리보기</h2>
+                    <p>GreenCycle의 핵심 서비스들을 직접 체험해보세요</p>
+                </div>
+                
+                <!-- AI 분리배출 체험 - 큰 섹션 -->
+                <div class="ai-demo-main">
+                    <div class="preview-card ai-demo-large">
+                        <div class="preview-header">
+                            <h3>🤖 AI 분리배출 체험</h3>
+                            <p>사진만 찍으면 즉시 분류 방법을 알려드려요</p>
+                        </div>
+                        <div class="demo-container-large">
+                            <div class="demo-content">
+                                <div class="upload-zone-large">
+                                    <div class="upload-icon-large">📷</div>
+                                    <h4>사진을 업로드하거나 여기를 클릭하세요</h4>
+                                    <p>AI가 자동으로 폐기물 종류를 분석하여 정확한 분리배출 방법을 알려드립니다</p>
+                                    <button class="demo-btn-large">체험해보기</button>
+                                </div>
+                                <div class="demo-result-large">
+                                    <div class="result-item-large">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23e3f2fd' width='100' height='100'/><text x='50' y='55' font-size='40' text-anchor='middle'>🍼</text></svg>" alt="플라스틱 병" />
+                                        <div class="result-info-large">
+                                            <span class="result-type-large">플라스틱 병</span>
+                                            <span class="result-category-large">플라스틱류</span>
+                                            <span class="confidence-large">정확도 99.2%</span>
+                                            <div class="result-guide">
+                                                <h5>분리배출 방법</h5>
+                                                <ul>
+                                                    <li>라벨과 뚜껑 제거</li>
+                                                    <li>내용물을 완전히 비우기</li>
+                                                    <li>물로 헹구어 이물질 제거</li>
+                                                    <li>플라스틱 전용 수거함에 배출</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 나머지 3개 서비스 - 일렬 배치 -->
+                <div class="other-services-row">
+                    <div class="preview-card sharing-demo">
+                        <div class="preview-header">
+                            <h3>🤝 실시간 무료나눔</h3>
+                            <p>우리 동네에서 나누고 있는 물건들</p>
+                        </div>
+                        <div class="sharing-list">
+                            <div class="sharing-item">
+                                <div class="item-image">📚</div>
+                                <div class="item-info">
+                                    <h4>아이 전집 (상태 좋음)</h4>
+                                    <p>📍 서울 강남구 역삼동</p>
+                                    <span class="time-ago">10분 전</span>
+                                </div>
+                                <div class="item-status available">나눔중</div>
+                            </div>
+                            <div class="sharing-item">
+                                <div class="item-image">🪑</div>
+                                <div class="item-info">
+                                    <h4>원목 의자 2개</h4>
+                                    <p>📍 서울 서초구 반포동</p>
+                                    <span class="time-ago">23분 전</span>
+                                </div>
+                                <div class="item-status reserved">예약중</div>
+                            </div>
+                            <div class="sharing-item">
+                                <div class="item-image">👔</div>
+                                <div class="item-info">
+                                    <h4>정장 셔츠 (새제품)</h4>
+                                    <p>📍 서울 마포구 홍대</p>
+                                    <span class="time-ago">1시간 전</span>
+                                </div>
+                                <div class="item-status completed">완료</div>
+                            </div>
+                        </div>
+                        <button class="preview-more">더 많은 나눔 보기</button>
+                    </div>
+                    
+                    <div class="preview-card market-demo">
+                        <div class="preview-header">
+                            <h3>🛒 친환경 에코마켓</h3>
+                            <p>검증된 친환경 제품만을 엄선</p>
+                        </div>
+                        <div class="product-grid">
+                            <div class="product-item">
+                                <div class="product-image eco">🧴</div>
+                                <div class="product-info">
+                                    <h4>천연 세제 세트</h4>
+                                    <p class="price">32,000원</p>
+                                    <div class="eco-badge">🌿 탄소중립 인증</div>
+                                    <div class="rating">⭐ 4.9 (127)</div>
+                                </div>
+                            </div>
+                            <div class="product-item">
+                                <div class="product-image eco">🌱</div>
+                                <div class="product-info">
+                                    <h4>유기농 면 티셔츠</h4>
+                                    <p class="price">25,000원</p>
+                                    <div class="eco-badge">♻️ 재활용 소재</div>
+                                    <div class="rating">⭐ 4.8 (89)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="preview-more">에코마켓 둘러보기</button>
+                    </div>
+                    
+                    <div class="preview-card community-demo">
+                        <div class="preview-header">
+                            <h3>💬 환경독톡 커뮤니티</h3>
+                            <p>환경 실천가들과 함께하는 소통 공간</p>
+                        </div>
+                        <div class="community-posts">
+                            <div class="post-item hot">
+                                <div class="post-tag">🔥 HOT</div>
+                                <h4>30일 제로웨이스트 챌린지 후기</h4>
+                                <p>한 달간 플라스틱 사용을 최소화하며 느낀 점들을...</p>
+                                <div class="post-meta">
+                                    <span>👤 환경러버</span>
+                                    <span>👍 89</span>
+                                    <span>💬 23</span>
+                                </div>
+                            </div>
+                            <div class="post-item">
+                                <h4>우리 동네 재활용 분리수거 꿀팁</h4>
+                                <p>헷갈리기 쉬운 분리수거 방법들을 정리해봤어요...</p>
+                                <div class="post-meta">
+                                    <span>👤 그린워리어</span>
+                                    <span>👍 56</span>
+                                    <span>💬 12</span>
+                                </div>
+                            </div>
+                            <div class="post-item">
+                                <h4>친환경 제품 추천 리스트</h4>
+                                <p>실제로 사용해보고 추천하는 친환경 제품들...</p>
+                                <div class="post-meta">
+                                    <span>👤 에코라이프</span>
+                                    <span>👍 34</span>
+                                    <span>💬 8</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="preview-more">커뮤니티 참여하기</button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Environmental Info Center -->
+        <section class="env-info">
+            <div class="container">
+                <div class="section-header">
+                    <h2>오늘의 환경 정보</h2>
+                    <p>실시간 환경 데이터와 유용한 정보를 제공합니다</p>
+                </div>
+                
+                <div class="info-grid flexible-grid">
+                    <div class="info-card air-quality">
+                        <div class="info-header">
+                            <h3>🌬️ 대기질 현황</h3>
+                            <span class="location">서울시 기준</span>
+                        </div>
+                        <div class="air-data">
+                            <div class="aqi-value good">
+                                <span class="aqi-number">42</span>
+                                <span class="aqi-grade">좋음</span>
+                            </div>
+                            <div class="air-details">
+                                <div class="air-item">
+                                    <span class="air-type">미세먼지 PM2.5</span>
+                                    <span class="air-value good">18 ㎍/㎥</span>
+                                </div>
+                                <div class="air-item">
+                                    <span class="air-type">미세먼지 PM10</span>
+                                    <span class="air-value good">35 ㎍/㎥</span>
+                                </div>
+                                <div class="air-item">
+                                    <span class="air-type">오존 O₃</span>
+                                    <span class="air-value moderate">0.078 ppm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="air-tip">
+                            💡 야외 활동하기 좋은 날씨입니다
+                        </div>
+                    </div>
+                    
+                    <div class="info-card recycling-calendar">
+                        <div class="info-header">
+                            <h3>📅 분리수거 캘린더</h3>
+                            <span class="location">우리 동네</span>
+                        </div>
+                        <div class="calendar-grid">
+                            <div class="calendar-day">
+                                <span class="day-name">월</span>
+                                <span class="day-type">일반쓰레기</span>
+                            </div>
+                            <div class="calendar-day">
+                                <span class="day-name">화</span>
+                                <span class="day-type">재활용</span>
+                            </div>
+                            <div class="calendar-day today">
+                                <span class="day-name">수</span>
+                                <span class="day-type">음식물</span>
+                            </div>
+                            <div class="calendar-day">
+                                <span class="day-name">목</span>
+                                <span class="day-type">일반쓰레기</span>
+                            </div>
+                            <div class="calendar-day">
+                                <span class="day-name">금</span>
+                                <span class="day-type">재활용</span>
+                            </div>
+                        </div>
+                        <div class="recycling-tip">
+                            ♻️ 오늘은 음식물쓰레기 배출일입니다
+                        </div>
+                    </div>
+                    
+                    <div class="info-card env-news">
+                        <div class="info-header">
+                            <h3>🌍 환경 뉴스</h3>
+                            <span class="update-time">1시간 전 업데이트</span>
+                        </div>
+                        <div class="news-list">
+                            <div class="news-item">
+                                <h4>🇰🇷 한국, 2030년 온실가스 40% 감축 목표 발표</h4>
+                                <p>정부가 탄소중립 실현을 위한 구체적 로드맵을 제시했습니다...</p>
+                                <span class="news-time">2시간 전</span>
+                            </div>
+                            <div class="news-item">
+                                <h4>🌊 해양 플라스틱 정화 기술 개발 성공</h4>
+                                <p>새로운 해양 정화 시스템으로 플라스틱 95% 제거 가능...</p>
+                                <span class="news-time">5시간 전</span>
+                            </div>
+                            <div class="news-item">
+                                <h4>🚗 전기차 충전소 전국 1만개소 돌파</h4>
+                                <p>친환경 교통 인프라 확충으로 전기차 보급 가속화...</p>
+                                <span class="news-time">8시간 전</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card green-tips">
+                        <div class="info-header">
+                            <h3>💡 오늘의 환경 팁</h3>
+                            <span class="tip-category">에너지 절약</span>
+                        </div>
+                        <div class="tip-content">
+                            <div class="tip-icon">💡</div>
+                            <h4>LED 전구로 교체하기</h4>
+                            <p>LED 전구는 백열전구보다 <strong>80% 에너지를 절약</strong>하고 수명은 <strong>25배 더 길어</strong>집니다. 한 개 전구당 연간 약 15,000원의 전기료를 절약할 수 있어요!</p>
+                            <div class="tip-impact">
+                                <span>💰 연간 절약: 15,000원</span>
+                                <span>🌱 CO₂ 감축: 45kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Success Stories -->
+        <section class="success-stories">
+            <div class="container">
+                <div class="section-header">
+                    <h2>성공 사례</h2>
+                    <p>GreenCycle과 함께 환경을 보호하는 사람들의 이야기</p>
+                </div>
+                
+                <div class="stories-grid">
+                    <div class="story-card featured">
+                        <div class="story-badge">🏆 이달의 환경지킴이</div>
+                        <div class="story-user">
+                            <div class="user-avatar">👩‍🌾</div>
+                            <div class="user-info">
+                                <h3>김지은님 (서울 강남구)</h3>
+                                <p class="user-title">제로웨이스트 실천가</p>
+                            </div>
+                        </div>
+                        <div class="story-content">
+                            <h4>"6개월간 700kg의 CO₂를 절약했어요!"</h4>
+                            <p>GreenCycle의 AI 분리배출 시스템으로 정확한 분류를 실천하고, 무료나눔으로 버릴 물건들에 새 생명을 불어넣었습니다. 작은 실천이 이렇게 큰 변화를 만들 수 있다니 놀라워요.</p>
+                        </div>
+                        <div class="story-stats">
+                            <div class="stat">
+                                <span class="stat-number">700kg</span>
+                                <span class="stat-label">CO₂ 절약</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">156개</span>
+                                <span class="stat-label">물건 나눔</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-number">89%</span>
+                                <span class="stat-label">분류 정확도</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="story-card">
+                        <div class="story-user">
+                            <div class="user-avatar">👨‍💼</div>
+                            <div class="user-info">
+                                <h3>박민수님 (부산 해운대구)</h3>
+                                <p class="user-title">친환경 제품 애호가</p>
+                            </div>
+                        </div>
+                        <div class="story-content">
+                            <h4>"에코마켓에서 찾은 진짜 친환경 생활"</h4>
+                            <p>GreenCycle 에코마켓의 검증된 친환경 제품들로 우리 가족의 생활이 완전히 바뀌었어요. 화학 세제 대신 천연 세제, 플라스틱 대신 대나무 제품으로...</p>
+                        </div>
+                        <div class="story-achievement">
+                            <span class="achievement-badge">🌿 친환경 구매왕</span>
+                            <span class="achievement-text">3개월 연속 친환경 제품만 구매</span>
+                        </div>
+                    </div>
+                    
+                    <div class="story-card">
+                        <div class="story-user">
+                            <div class="user-avatar">👩‍🎓</div>
+                            <div class="user-info">
+                                <h3>이수진님 (대구 동구)</h3>
+                                <p class="user-title">환경 교육자</p>
+                            </div>
+                        </div>
+                        <div class="story-content">
+                            <h4>"아이들과 함께 배우는 환경 교육"</h4>
+                            <p>환경독톡 커뮤니티에서 얻은 아이디어로 우리 동네 아이들에게 재미있는 환경 교육을 하고 있어요. 분리배출이 게임처럼 즐거워졌답니다!</p>
+                        </div>
+                        <div class="story-achievement">
+                            <span class="achievement-badge">👥 커뮤니티 리더</span>
+                            <span class="achievement-text">환경 교육 콘텐츠 50개 작성</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-slider">
+                    <div class="testimonial-track">
+                        <div class="testimonial">
+                            <p>"GreenCycle 덕분에 환경 보호가 이렇게 쉬울 줄 몰랐어요!"</p>
+                            <span>- 최영희님</span>
+                        </div>
+                        <div class="testimonial">
+                            <p>"AI가 알려주는 분리배출 방법이 정말 정확해요. 더 이상 헷갈리지 않아요."</p>
+                            <span>- 정민호님</span>
+                        </div>
+                        <div class="testimonial">
+                            <p>"무료나눔으로 이웃들과 따뜻한 정을 나눌 수 있어서 좋습니다."</p>
+                            <span>- 윤서연님</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="#waste-sorting">스마트 분리배출</a></li>
+                        <li><a href="#free-sharing">무료나눔</a></li>
+                        <li><a href="#eco-market">에코마켓</a></li>
+                        <li><a href="#eco-talk">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">기술 특허</a></li>
+                        <li><a href="#">연구개발</a></li>
+                        <li><a href="#">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">기술지원</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

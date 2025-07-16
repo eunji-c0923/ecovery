@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 - GreenCycle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Background Elements -->
+        <div class="bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="auth-header">
+            <a href="#home" class="logo">
+                <img src="img/logo.png" alt="GreenCycle 로고" class="logo-img">
+            </a>
+            <a href="index.html" class="back-link">← 홈으로 돌아가기</a>
+        </header>
+
+        <!-- Main Content -->
+        <main class="auth-main">
+            <div class="auth-card">
+                <div class="auth-header-content">
+                    <h1>회원가입</h1>
+                    <p>지속가능한 미래를 위한 첫 걸음을 내디뎌보세요</p>
+                </div>
+
+                <form class="auth-form" id="signupForm">
+                    <div class="form-group">
+                        <label for="signupEmail">이메일</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">📧</span>
+                            <input 
+                                type="email" 
+                                id="signupEmail" 
+                                name="email" 
+                                placeholder="이메일을 입력하세요"
+                                required
+                                autocomplete="email"
+                            >
+                            <button type="button" class="input-action" id="checkEmail">중복확인</button>
+                        </div>
+                        <span class="error-message" id="emailError"></span>
+                        <span class="success-message" id="emailSuccess"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nickname">닉네임</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">👤</span>
+                            <input 
+                                type="text" 
+                                id="nickname" 
+                                name="nickname" 
+                                placeholder="닉네임을 입력하세요 (2-20자)"
+                                required
+                                maxlength="20"
+                                autocomplete="username"
+                            >
+                            <button type="button" class="input-action" id="checkNickname">중복확인</button>
+                        </div>
+                        <span class="error-message" id="nicknameError"></span>
+                        <span class="success-message" id="nicknameSuccess"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signupPassword">비밀번호</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input 
+                                type="password" 
+                                id="signupPassword" 
+                                name="password" 
+                                placeholder="비밀번호를 입력하세요 (8자 이상)"
+                                required
+                                minlength="8"
+                                autocomplete="new-password"
+                            >
+                            <button type="button" class="toggle-password" id="toggleSignupPassword">
+                                <span class="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill"></div>
+                            </div>
+                            <span class="strength-text">비밀번호 강도</span>
+                        </div>
+                        <span class="error-message" id="passwordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="passwordConfirm">비밀번호 확인</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input 
+                                type="password" 
+                                id="passwordConfirm" 
+                                name="passwordConfirm" 
+                                placeholder="비밀번호를 다시 입력하세요"
+                                required
+                                autocomplete="new-password"
+                            >
+                            <button type="button" class="toggle-password" id="togglePasswordConfirm">
+                                <span class="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                        <span class="error-message" id="passwordConfirmError"></span>
+                        <span class="success-message" id="passwordConfirmSuccess"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="region">지역 선택</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">📍</span>
+                            <select id="region" name="region" required>
+                                <option value="">지역을 선택하세요</option>
+                                <option value="seoul">서울특별시</option>
+                                <option value="busan">부산광역시</option>
+                                <option value="daegu">대구광역시</option>
+                                <option value="incheon">인천광역시</option>
+                                <option value="gwangju">광주광역시</option>
+                                <option value="daejeon">대전광역시</option>
+                                <option value="ulsan">울산광역시</option>
+                                <option value="sejong">세종특별자치시</option>
+                                <option value="gyeonggi">경기도</option>
+                                <option value="gangwon">강원도</option>
+                                <option value="chungbuk">충청북도</option>
+                                <option value="chungnam">충청남도</option>
+                                <option value="jeonbuk">전라북도</option>
+                                <option value="jeonnam">전라남도</option>
+                                <option value="gyeongbuk">경상북도</option>
+                                <option value="gyeongnam">경상남도</option>
+                                <option value="jeju">제주특별자치도</option>
+                            </select>
+                        </div>
+                        <span class="error-message" id="regionError"></span>
+                    </div>
+
+                    <div class="agreement-section">
+                        <h3>약관 동의</h3>
+                        
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="agreeAll" id="agreeAll">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text strong">전체 동의</span>
+                        </label>
+
+                        <div class="agreement-details">
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="agreeTerms" id="agreeTerms" required>
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">
+                                    (필수) <a href="#" class="terms-link">이용약관</a>에 동의합니다
+                                </span>
+                            </label>
+
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="agreePrivacy" id="agreePrivacy" required>
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">
+                                    (필수) <a href="#" class="terms-link">개인정보처리방침</a>에 동의합니다
+                                </span>
+                            </label>
+
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="agreeAge" id="agreeAge" required>
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">
+                                    (필수) 만 14세 이상입니다
+                                </span>
+                            </label>
+
+                            <label class="checkbox-wrapper">
+                                <input type="checkbox" name="agreeMarketing" id="agreeMarketing">
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">
+                                    (선택) 마케팅 정보 수신에 동의합니다
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn primary" id="signupBtn" disabled>
+                        <span class="btn-text">회원가입</span>
+                        <span class="btn-loading" style="display: none;">
+                            <span class="spinner"></span>
+                            가입 중...
+                        </span>
+                    </button>
+
+                    <div class="divider">
+                        <span>또는</span>
+                    </div>
+
+                    <div class="social-login">
+                        <button type="button" class="social-btn google">
+                            <span class="social-icon">🌐</span>
+                            Google로 가입
+                        </button>
+                        <button type="button" class="social-btn kakao">
+                            <span class="social-icon">💬</span>
+                            카카오로 가입
+                        </button>
+                    </div>
+                </form>
+
+                <div class="auth-footer">
+                    <p>이미 계정이 있으신가요? <a href="login.html" class="auth-link">로그인</a></p>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script src="auth.js"></script>
+</body>
+</html>

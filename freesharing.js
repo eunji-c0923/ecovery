@@ -17,6 +17,7 @@ const addItemForm = document.getElementById('addItemForm');
 const itemsGrid = document.getElementById('itemsGrid');
 const loadMoreBtn = document.getElementById('loadMoreBtn');
 const totalItems = document.getElementById('totalItems');
+const pagination = document.getElementById('pagination');
 
 // Sample data
 const sampleItems = [
@@ -199,13 +200,14 @@ function loadItems() {
     currentPage = 1;
     renderItems();
     updateItemCount();
+    renderPagination(); // 페이징 렌더링 추가
 }
 
 // Render items
 function renderItems(append = false) {
     if (!append) {
         itemsGrid.innerHTML = '';
-        currentPage = 1;
+        currentPage = currentPage || 1; // currentPage 유지
     }
 
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -215,6 +217,7 @@ function renderItems(append = false) {
     if (itemsToShow.length === 0 && currentPage === 1) {
         showEmptyState();
         loadMoreBtn.style.display = 'none';
+        pagination.style.display = 'none';
         return;
     }
 
@@ -223,12 +226,110 @@ function renderItems(append = false) {
         itemsGrid.appendChild(itemElement);
     });
 
-    // Show/hide load more button
+    // Show/hide load more button (기존 기능 유지)
     if (endIndex >= filteredItems.length) {
         loadMoreBtn.style.display = 'none';
     } else {
         loadMoreBtn.style.display = 'block';
     }
+
+    // 페이징 표시
+    pagination.style.display = 'flex';
+    renderPagination();
+}
+
+// 새로운 페이징 렌더링 함수
+function renderPagination() {
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    
+    if (totalPages <= 1) {
+        pagination.style.display = 'none';
+        return;
+    }
+
+    pagination.style.display = 'flex';
+    pagination.innerHTML = '';
+
+    // 이전 버튼
+    const prevBtn = createPaginationButton('‹', currentPage - 1, currentPage === 1);
+    pagination.appendChild(prevBtn);
+
+    // 페이지 번호 버튼들
+    const pageNumbers = generatePageNumbers(currentPage, totalPages);
+    
+    pageNumbers.forEach(pageNum => {
+        if (pageNum === '...') {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'pagination-ellipsis';
+            ellipsis.textContent = '...';
+            pagination.appendChild(ellipsis);
+        } else {
+            const pageBtn = createPaginationButton(pageNum, pageNum, false, pageNum === currentPage);
+            pagination.appendChild(pageBtn);
+        }
+    });
+
+    // 다음 버튼
+    const nextBtn = createPaginationButton('›', currentPage + 1, currentPage === totalPages);
+    pagination.appendChild(nextBtn);
+}
+
+// 페이징 버튼 생성 함수
+function createPaginationButton(text, pageNum, disabled = false, active = false) {
+    const button = document.createElement('button');
+    button.className = `pagination-btn ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`;
+    button.textContent = text;
+    
+    if (!disabled) {
+        button.addEventListener('click', () => {
+            currentPage = pageNum;
+            renderItems();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+    
+    return button;
+}
+
+// 페이지 번호 생성 함수 (10페이지가 넘으면 11페이지로 확장)
+function generatePageNumbers(current, total) {
+    const pages = [];
+    const maxVisible = 7; // 최대 표시할 페이지 수
+    
+    if (total <= maxVisible) {
+        // 총 페이지가 7개 이하면 모두 표시
+        for (let i = 1; i <= total; i++) {
+            pages.push(i);
+        }
+    } else {
+        // 총 페이지가 7개 초과인 경우
+        if (current <= 4) {
+            // 현재 페이지가 앞쪽에 있을 때
+            for (let i = 1; i <= 5; i++) {
+                pages.push(i);
+            }
+            pages.push('...');
+            pages.push(total);
+        } else if (current >= total - 3) {
+            // 현재 페이지가 뒤쪽에 있을 때
+            pages.push(1);
+            pages.push('...');
+            for (let i = total - 4; i <= total; i++) {
+                pages.push(i);
+            }
+        } else {
+            // 현재 페이지가 중간에 있을 때
+            pages.push(1);
+            pages.push('...');
+            for (let i = current - 1; i <= current + 1; i++) {
+                pages.push(i);
+            }
+            pages.push('...');
+            pages.push(total);
+        }
+    }
+    
+    return pages;
 }
 
 // Create item element
@@ -379,7 +480,7 @@ function applySorting() {
     renderItems();
 }
 
-// Load more items
+// Load more items (기존 기능 유지)
 function loadMoreItems() {
     currentPage++;
     renderItems(true);
@@ -715,12 +816,30 @@ function addMoreSampleData() {
         }
     ];
     
+    // 더 많은 데이터를 추가하여 페이징 효과를 명확히 함
+    for (let i = 13; i <= 50; i++) {
+        additionalItems.push({
+            id: i,
+            title: `나눔 물건 ${i}`,
+            category: ['clothes', 'electronics', 'furniture', 'books', 'kids', 'etc'][Math.floor(Math.random() * 6)],
+            categoryName: ['의류/잡화', '전자제품', '가구/인테리어', '도서/문구', '유아/아동용품', '기타'][Math.floor(Math.random() * 6)],
+            description: `나눔 물건 ${i}에 대한 설명입니다. 상태 좋고 필요하신 분께 나눔해드려요.`,
+            location: `서울시 강남구 역삼동`,
+            distance: `${(Math.random() * 5 + 0.5).toFixed(1)}km`,
+            status: ['available', 'reserved', 'completed'][Math.floor(Math.random() * 3)],
+            statusText: ['나눔중', '예약중', '완료'][Math.floor(Math.random() * 3)],
+            time: `${Math.floor(Math.random() * 24)}시간 전`,
+            author: `사용자${i}님`,
+            contact: '010-****-****',
+            images: ['📦'],
+            views: Math.floor(Math.random() * 100),
+            likes: Math.floor(Math.random() * 30)
+        });
+    }
+    
     // Add to existing items
     sampleItems.push(...additionalItems);
 }
-
-// Initialize with more data
-addMoreSampleData();
 
 // Real-time updates simulation
 function startRealTimeUpdates() {
@@ -777,6 +896,7 @@ function simulateNewItem() {
         document.getElementById('searchInput').value === '') {
         filteredItems.unshift(newItem);
         updateItemCount();
+        renderPagination();
         
         // Show notification about new item
         showNotification(`새로운 나눔이 등록되었습니다: ${newItem.title}`, 'info');
@@ -882,6 +1002,9 @@ function optimizeImages() {
     }
 }
 
+// Initialize with more data
+addMoreSampleData();
+
 // Start real-time updates and get location
 setTimeout(() => {
     startRealTimeUpdates();
@@ -896,6 +1019,8 @@ if (typeof module !== 'undefined' && module.exports) {
         loadItems,
         applyFilters,
         createItemElement,
-        showNotification
+        showNotification,
+        renderPagination,
+        generatePageNumbers
     };
 }

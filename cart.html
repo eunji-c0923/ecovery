@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 장바구니</title>
+    <link rel="stylesheet" href="cart-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="#" class="logo" onclick="goHome()">
+                    <img src="img/logo.png" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html#home">홈</a></li>
+                    <li><a href="index.html#services">서비스</a></li>
+                    <li><a href="#waste-sorting">분리배출</a></li>
+                    <li><a href="#free-sharing">무료나눔</a></li>
+                    <li><a href="#eco-market" class="active">에코마켓</a></li>
+                    <li><a href="#eco-talk">환경독톡</a></li>
+                    <li><a href="#notices">공지사항</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="cart.html" class="cart-link">
+                        <span class="cart-icon">🛒</span>
+                        <span class="cart-count" id="cartCount">3</span>
+                    </a>
+                    <a href="mypage.html" class="btn-login">마이페이지</a>
+                    <a href="#" class="btn-logout">로그아웃</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Cart Header -->
+        <section class="cart-header">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="index.html">홈</a>
+                    <span>></span>
+                    <a href="#eco-market">에코마켓</a>
+                    <span>></span>
+                    <span class="current">장바구니</span>
+                </div>
+                <h1>🛒 장바구니</h1>
+                <p class="cart-subtitle">친환경 제품으로 지구를 지키는 쇼핑</p>
+            </div>
+        </section>
+
+        <!-- Cart Content -->
+        <section class="cart-content">
+            <div class="container">
+                <div class="cart-layout">
+                    <!-- Cart Items -->
+                    <div class="cart-items-section">
+                        <div class="cart-header-controls">
+                            <div class="select-all">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="selectAll" checked>
+                                    <span class="checkmark"></span>
+                                    전체선택 (<span id="selectedCount">3</span>개)
+                                </label>
+                            </div>
+                            <div class="cart-actions">
+                                <button class="btn-text" onclick="deleteSelected()">선택삭제</button>
+                                <button class="btn-text" onclick="addToWishlist()">관심상품</button>
+                            </div>
+                        </div>
+
+                        <div class="cart-items-list" id="cartItemsList">
+                            <!-- Cart Item 1 -->
+                            <div class="cart-item" data-item-id="1">
+                                <div class="item-select">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" class="item-checkbox" checked>
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="item-image">
+                                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e8f5e8' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧴</text></svg>" alt="천연 세제 세트">
+                                    <div class="eco-badge">🌿 탄소중립</div>
+                                </div>
+                                <div class="item-details">
+                                    <div class="item-info">
+                                        <h3 class="item-name">천연 세제 세트 (3개입)</h3>
+                                        <p class="item-description">화학성분 0%, 100% 천연 원료로 만든 친환경 세제</p>
+                                        <div class="item-features">
+                                            <span class="feature-tag">🌱 비건 인증</span>
+                                            <span class="feature-tag">♻️ 재활용 용기</span>
+                                            <span class="feature-tag">🌍 탄소중립</span>
+                                        </div>
+                                        <div class="carbon-info">
+                                            <span class="carbon-saved">🌿 탄소발자국 5.2kg 절약</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-controls">
+                                        <div class="quantity-controls">
+                                            <button class="qty-btn minus" onclick="updateQuantity(1, -1)">-</button>
+                                            <input type="number" value="2" min="1" max="10" class="qty-input" id="qty-1">
+                                            <button class="qty-btn plus" onclick="updateQuantity(1, 1)">+</button>
+                                        </div>
+                                        <div class="item-price">
+                                            <span class="original-price">35,000원</span>
+                                            <span class="sale-price">32,000원</span>
+                                            <span class="discount-rate">9% 할인</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <button class="btn-action" onclick="addToWishlist(1)">💖</button>
+                                            <button class="btn-action" onclick="removeItem(1)">🗑️</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cart Item 2 -->
+                            <div class="cart-item" data-item-id="2">
+                                <div class="item-select">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" class="item-checkbox" checked>
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="item-image">
+                                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23f3e5f5' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🌱</text></svg>" alt="대나무 칫솔 세트">
+                                    <div class="eco-badge">♻️ 제로웨이스트</div>
+                                </div>
+                                <div class="item-details">
+                                    <div class="item-info">
+                                        <h3 class="item-name">대나무 칫솔 세트 (가족용 4개입)</h3>
+                                        <p class="item-description">플라스틱 대신 100% 대나무로 만든 친환경 칫솔</p>
+                                        <div class="item-features">
+                                            <span class="feature-tag">🎋 천연 대나무</span>
+                                            <span class="feature-tag">🌊 생분해 가능</span>
+                                            <span class="feature-tag">✋ 핸드메이드</span>
+                                        </div>
+                                        <div class="carbon-info">
+                                            <span class="carbon-saved">🌿 탄소발자국 2.1kg 절약</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-controls">
+                                        <div class="quantity-controls">
+                                            <button class="qty-btn minus" onclick="updateQuantity(2, -1)">-</button>
+                                            <input type="number" value="1" min="1" max="10" class="qty-input" id="qty-2">
+                                            <button class="qty-btn plus" onclick="updateQuantity(2, 1)">+</button>
+                                        </div>
+                                        <div class="item-price">
+                                            <span class="sale-price">15,000원</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <button class="btn-action" onclick="addToWishlist(2)">💖</button>
+                                            <button class="btn-action" onclick="removeItem(2)">🗑️</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cart Item 3 -->
+                            <div class="cart-item" data-item-id="3">
+                                <div class="item-select">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" class="item-checkbox" checked>
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="item-image">
+                                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e3f2fd' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧽</text></svg>" alt="천연 수세미">
+                                    <div class="eco-badge">🌾 천연소재</div>
+                                </div>
+                                <div class="item-details">
+                                    <div class="item-info">
+                                        <h3 class="item-name">천연 수세미 5개 세트</h3>
+                                        <p class="item-description">수세미 열매로 만든 100% 천연 설거지 수세미</p>
+                                        <div class="item-features">
+                                            <span class="feature-tag">🌾 천연 수세미</span>
+                                            <span class="feature-tag">🌊 생분해</span>
+                                            <span class="feature-tag">🏠 국내산</span>
+                                        </div>
+                                        <div class="carbon-info">
+                                            <span class="carbon-saved">🌿 탄소발자국 1.5kg 절약</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-controls">
+                                        <div class="quantity-controls">
+                                            <button class="qty-btn minus" onclick="updateQuantity(3, -1)">-</button>
+                                            <input type="number" value="1" min="1" max="10" class="qty-input" id="qty-3">
+                                            <button class="qty-btn plus" onclick="updateQuantity(3, 1)">+</button>
+                                        </div>
+                                        <div class="item-price">
+                                            <span class="original-price">12,000원</span>
+                                            <span class="sale-price">8,500원</span>
+                                            <span class="discount-rate">29% 할인</span>
+                                        </div>
+                                        <div class="item-actions">
+                                            <button class="btn-action" onclick="addToWishlist(3)">💖</button>
+                                            <button class="btn-action" onclick="removeItem(3)">🗑️</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Continue Shopping -->
+                        <div class="continue-shopping">
+                            <button class="btn-continue" onclick="goToMarket()">
+                                🛍️ 쇼핑 계속하기
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <div class="summary-card">
+                            <h3>🧾 주문 요약</h3>
+                            
+                            <div class="summary-details">
+                                <div class="summary-row">
+                                    <span>상품금액</span>
+                                    <span id="subtotal">55,500원</span>
+                                </div>
+                                <div class="summary-row discount">
+                                    <span>할인금액</span>
+                                    <span id="discount">-8,500원</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>배송비</span>
+                                    <span id="shipping">무료</span>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-row total">
+                                    <span>결제금액</span>
+                                    <span id="total">47,000원</span>
+                                </div>
+                            </div>
+
+                            <div class="eco-impact">
+                                <h4>🌍 환경 임팩트</h4>
+                                <div class="impact-item">
+                                    <span>탄소발자국 절약</span>
+                                    <span class="impact-value">8.8kg CO₂</span>
+                                </div>
+                                <div class="impact-item">
+                                    <span>플라스틱 사용 절약</span>
+                                    <span class="impact-value">450g</span>
+                                </div>
+                                <div class="impact-item">
+                                    <span>적립 예정 포인트</span>
+                                    <span class="impact-value">470P</span>
+                                </div>
+                            </div>
+
+                            <div class="payment-methods">
+                                <h4>💳 결제 방법</h4>
+                                <div class="payment-options">
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment" value="card" checked>
+                                        <span class="option-content">
+                                            <span class="option-icon">💳</span>
+                                            <span>신용카드</span>
+                                        </span>
+                                    </label>
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment" value="bank">
+                                        <span class="option-content">
+                                            <span class="option-icon">🏦</span>
+                                            <span>무통장입금</span>
+                                        </span>
+                                    </label>
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment" value="point">
+                                        <span class="option-content">
+                                            <span class="option-icon">💎</span>
+                                            <span>포인트 (15,680P 보유)</span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="order-actions">
+                                <button class="btn-order" onclick="proceedToOrder()">
+                                    🛒 주문하기 (47,000원)
+                                </button>
+                                <button class="btn-wishlist" onclick="moveAllToWishlist()">
+                                    💖 전체 찜하기
+                                </button>
+                            </div>
+                        </div>
+             
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommended Products -->
+        <section class="recommended-products">
+            <div class="container">
+                <h2>🌱 함께 구매하면 좋은 상품</h2>
+                <div class="products-grid">
+                    <div class="product-card" onclick="addRecommendedToCart(1)">
+                        <div class="product-image">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23fff3e0' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧴</text></svg>" alt="친환경 샴푸">
+                            <div class="eco-badge">🌿 유기농</div>
+                        </div>
+                        <div class="product-info">
+                            <h4>천연 유기농 샴푸</h4>
+                            <p class="product-desc">화학 첨가물 없는 순수 천연 샴푸</p>
+                            <div class="product-price">
+                                <span class="current-price">18,000원</span>
+                                <span class="original-price">22,000원</span>
+                            </div>
+                            <button class="btn-add-cart">장바구니 추가</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" onclick="addRecommendedToCart(2)">
+                        <div class="product-image">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e8f5e8' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧼</text></svg>" alt="천연 비누">
+                            <div class="eco-badge">🌱 비건</div>
+                        </div>
+                        <div class="product-info">
+                            <h4>천연 올리브 비누 세트</h4>
+                            <p class="product-desc">올리브 오일 100% 천연 비누</p>
+                            <div class="product-price">
+                                <span class="current-price">12,500원</span>
+                            </div>
+                            <button class="btn-add-cart">장바구니 추가</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" onclick="addRecommendedToCart(3)">
+                        <div class="product-image">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23f3e5f5' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🧻</text></svg>" alt="대나무 휴지">
+                            <div class="eco-badge">🎋 대나무</div>
+                        </div>
+                        <div class="product-info">
+                            <h4>대나무 화장지 12롤</h4>
+                            <p class="product-desc">나무 대신 대나무로 만든 친환경 화장지</p>
+                            <div class="product-price">
+                                <span class="current-price">24,000원</span>
+                                <span class="original-price">28,000원</span>
+                            </div>
+                            <button class="btn-add-cart">장바구니 추가</button>
+                        </div>
+                    </div>
+
+                    <div class="product-card" onclick="addRecommendedToCart(4)">
+                        <div class="product-image">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><rect fill='%23e1f5fe' width='200' height='200'/><text x='100' y='120' font-size='60' text-anchor='middle'>🍽️</text></svg>" alt="밀짚 식기">
+                            <div class="eco-badge">🌾 밀짚</div>
+                        </div>
+                        <div class="product-info">
+                            <h4>밀짚 식기 세트</h4>
+                            <p class="product-desc">플라스틱 대신 밀짚으로 만든 식기</p>
+                            <div class="product-price">
+                                <span class="current-price">35,000원</span>
+                            </div>
+                            <button class="btn-add-cart">장바구니 추가</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="#waste-sorting">스마트 분리배출</a></li>
+                        <li><a href="#free-sharing">무료나눔</a></li>
+                        <li><a href="#eco-market">에코마켓</a></li>
+                        <li><a href="#eco-talk">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">배송/교환/환불</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>정책</h4>
+                    <ul>
+                        <li><a href="#">개인정보처리방침</a></li>
+                        <li><a href="#">이용약관</a></li>
+                        <li><a href="#">친환경 정책</a></li>
+                        <li><a href="#">탄소중립 인증</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="cart-script.js"></script>
+</body>
+</html>

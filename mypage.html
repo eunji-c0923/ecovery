@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 마이페이지</title>
+    <link rel="stylesheet" href="mypage-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">GreenCycle</span>
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="index.html#home">홈</a></li>
+                    <li><a href="index.html#services">서비스</a></li>
+                    <li><a href="#waste-sorting">분리배출</a></li>
+                    <li><a href="#free-sharing">무료나눔</a></li>
+                    <li><a href="#eco-market">에코마켓</a></li>
+                    <li><a href="#eco-talk">환경독톡</a></li>
+                    <li><a href="#notices">공지사항</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="mypage.html" class="btn-login active">마이페이지</a>
+                    <a href="#" class="btn-logout">로그아웃</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Profile Header Section -->
+        <section class="profile-header">
+            <div class="container">
+                <div class="profile-banner">
+                    <div class="profile-info">
+                        <div class="profile-avatar">
+                            <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle fill='%236fa776' cx='50' cy='50' r='50'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>김</text></svg>" alt="프로필" id="profileImage">
+                            <button class="avatar-edit-btn" onclick="editProfile()">✏️</button>
+                        </div>
+                        <div class="profile-details">
+                            <h1 class="user-name">김환경님</h1>
+                            <p class="user-email">green@greencycle.com</p>
+                            <div class="user-badges">
+                                <span class="badge eco-warrior">🌱 환경지킴이</span>
+                                <span class="badge recycling-master">♻️ 분리배출 마스터</span>
+                                <span class="badge sharing-hero">🤝 나눔왕</span>
+                            </div>
+                            <div class="join-info">
+                                <span>가입일: 2024.03.15</span>
+                                <span>•</span>
+                                <span>활동일: 127일</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-stats">
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">🌍</div>
+                            <div class="stat-number" data-count="847">0</div>
+                            <div class="stat-label">절약한 CO₂ (kg)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-number" data-count="234">0</div>
+                            <div class="stat-label">분리배출 횟수</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🤝</div>
+                            <div class="stat-number" data-count="67">0</div>
+                            <div class="stat-label">나눔 완료</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💎</div>
+                            <div class="stat-number" data-count="15680">0</div>
+                            <div class="stat-label">보유 포인트</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Unified Dashboard -->
+        <section class="unified-dashboard">
+            <div class="container">
+                
+                <!-- 빠른 실행 섹션 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>⚡ 빠른 실행</h2>
+                        <span class="section-subtitle">자주 사용하는 기능들을 빠르게 실행해보세요</span>
+                    </div>
+                    <div class="quick-actions-unified">
+                        <button class="quick-btn-unified" onclick="quickWasteSorting()">
+                            <div class="quick-icon">📷</div>
+                            <span>분리배출</span>
+                        </button>
+                        <button class="quick-btn-unified" onclick="quickSharing()">
+                            <div class="quick-icon">🤝</div>
+                            <span>무료나눔</span>
+                        </button>
+                        <button class="quick-btn-unified" onclick="quickMarket()">
+                            <div class="quick-icon">🛒</div>
+                            <span>에코마켓</span>
+                        </button>
+                        <button class="quick-btn-unified" onclick="quickCommunity()">
+                            <div class="quick-icon">💬</div>
+                            <span>커뮤니티</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 활동 & 환경 임팩트 섹션 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>📊 나의 활동 현황</h2>
+                        <span class="section-subtitle">최근 활동과 환경에 미친 임팩트를 확인해보세요</span>
+                    </div>
+                    <div class="unified-grid">
+                        <!-- Recent Activities -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🔥 최근 활동</h3>
+                                <a href="#" class="view-all">전체보기</a>
+                            </div>
+                            <div class="activity-list">
+                                <div class="activity-item">
+                                    <div class="activity-icon waste">⚡</div>
+                                    <div class="activity-content">
+                                        <h4>플라스틱 병 분리배출</h4>
+                                        <p>AI 분류 정확도 99.2%</p>
+                                        <span class="activity-time">2시간 전</span>
+                                    </div>
+                                    <div class="activity-reward">+15P</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon sharing">🤝</div>
+                                    <div class="activity-content">
+                                        <h4>원목 책상 나눔 완료</h4>
+                                        <p>서울 강남구 → 이웃에게</p>
+                                        <span class="activity-time">1일 전</span>
+                                    </div>
+                                    <div class="activity-reward">+50P</div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon market">🛒</div>
+                                    <div class="activity-content">
+                                        <h4>친환경 세제 구매</h4>
+                                        <p>탄소발자국 3kg 절약</p>
+                                        <span class="activity-time">3일 전</span>
+                                    </div>
+                                    <div class="activity-reward">+25P</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Environmental Impact -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🌱 환경 임팩트</h3>
+                                <select class="period-selector">
+                                    <option>이번 달</option>
+                                    <option>지난 달</option>
+                                    <option>지난 3개월</option>
+                                </select>
+                            </div>
+                            <div class="impact-chart">
+                                <div class="chart-item">
+                                    <span class="chart-label">탄소 절약</span>
+                                    <div class="chart-bar">
+                                        <div class="chart-fill" style="width: 85%"></div>
+                                        <span class="chart-value">127kg</span>
+                                    </div>
+                                </div>
+                                <div class="chart-item">
+                                    <span class="chart-label">재활용</span>
+                                    <div class="chart-bar">
+                                        <div class="chart-fill" style="width: 92%"></div>
+                                        <span class="chart-value">45kg</span>
+                                    </div>
+                                </div>
+                                <div class="chart-item">
+                                    <span class="chart-label">나눔</span>
+                                    <div class="chart-bar">
+                                        <div class="chart-fill" style="width: 78%"></div>
+                                        <span class="chart-value">23건</span>
+                                    </div>
+                                </div>
+                                <div class="chart-item">
+                                    <span class="chart-label">친환경 구매</span>
+                                    <div class="chart-bar">
+                                        <div class="chart-fill" style="width: 65%"></div>
+                                        <span class="chart-value">12건</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 포인트 & 성취 섹션 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>💎 포인트 & 성취</h2>
+                        <span class="section-subtitle">적립한 포인트와 달성한 성취를 확인해보세요</span>
+                    </div>
+                    <div class="unified-grid">
+                        <!-- Points Summary -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>💰 포인트 현황</h3>
+                                <button class="btn-small">전체 내역</button>
+                            </div>
+                            <div class="points-summary-unified">
+                                <div class="points-main">
+                                    <div class="points-amount">15,680P</div>
+                                    <div class="points-actions">
+                                        <button class="btn btn-primary">사용하기</button>
+                                        <button class="btn btn-secondary">적립 내역</button>
+                                    </div>
+                                </div>
+                                <div class="points-stats">
+                                    <div class="points-stat">
+                                        <span class="stat-label">이번 달</span>
+                                        <span class="stat-value">+2,340P</span>
+                                    </div>
+                                    <div class="points-stat">
+                                        <span class="stat-label">사용 가능</span>
+                                        <span class="stat-value">15,680P</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="recent-points">
+                                <h4>최근 포인트 내역</h4>
+                                <div class="points-list">
+                                    <div class="points-item earn">
+                                        <span class="points-desc">분리배출 완료</span>
+                                        <span class="points-value">+15P</span>
+                                    </div>
+                                    <div class="points-item earn">
+                                        <span class="points-desc">나눔 완료</span>
+                                        <span class="points-value">+50P</span>
+                                    </div>
+                                    <div class="points-item use">
+                                        <span class="points-desc">친환경 제품 할인</span>
+                                        <span class="points-value">-1,000P</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Achievements -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🏆 성취 현황</h3>
+                                <span class="achievement-count">12/20 달성</span>
+                            </div>
+                            <div class="achievements">
+                                <div class="achievement-item completed">
+                                    <div class="achievement-icon">🌱</div>
+                                    <div class="achievement-info">
+                                        <h4>환경지킴이</h4>
+                                        <p>30일 연속 활동</p>
+                                    </div>
+                                    <div class="achievement-status">완료</div>
+                                </div>
+                                <div class="achievement-item completed">
+                                    <div class="achievement-icon">♻️</div>
+                                    <div class="achievement-info">
+                                        <h4>분리배출 마스터</h4>
+                                        <p>100회 정확 분류</p>
+                                    </div>
+                                    <div class="achievement-status">완료</div>
+                                </div>
+                                <div class="achievement-item in-progress">
+                                    <div class="achievement-icon">🎯</div>
+                                    <div class="achievement-info">
+                                        <h4>정확도 챔피언</h4>
+                                        <p>95% 이상 정확도 (78/100)</p>
+                                    </div>
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 78%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 나눔 & 구매 섹션 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>🛍️ 나눔 & 구매 관리</h2>
+                        <span class="section-subtitle">나눔 활동과 친환경 구매 내역을 관리해보세요</span>
+                    </div>
+                    <div class="unified-grid">
+                        <!-- Sharing Management -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🤝 나눔 관리</h3>
+                                <button class="btn-small" onclick="createSharing()">새 나눔 등록</button>
+                            </div>
+                            <div class="sharing-summary">
+                                <div class="sharing-stats">
+                                    <div class="sharing-stat">
+                                        <span class="stat-number">5</span>
+                                        <span class="stat-label">진행중</span>
+                                    </div>
+                                    <div class="sharing-stat">
+                                        <span class="stat-number">23</span>
+                                        <span class="stat-label">완료</span>
+                                    </div>
+                                    <div class="sharing-stat">
+                                        <span class="stat-number">12</span>
+                                        <span class="stat-label">받은 나눔</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sharing-list-unified">
+                                <div class="sharing-item">
+                                    <div class="item-image">📚</div>
+                                    <div class="item-details">
+                                        <h4>아이 전집 (상태 좋음)</h4>
+                                        <p>📍 서울 강남구 역삼동</p>
+                                        <span class="item-date">등록일: 2024.07.15</span>
+                                    </div>
+                                    <div class="item-status completed">나눔 완료</div>
+                                </div>
+                                <div class="sharing-item">
+                                    <div class="item-image">🪑</div>
+                                    <div class="item-details">
+                                        <h4>원목 의자 2개</h4>
+                                        <p>📍 서울 서초구 반포동</p>
+                                        <span class="item-date">등록일: 2024.07.10</span>
+                                    </div>
+                                    <div class="item-status available">나눔중</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Purchase History -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🛒 구매 내역</h3>
+                                <select class="period-selector">
+                                    <option>최근 3개월</option>
+                                    <option>최근 6개월</option>
+                                    <option>1년</option>
+                                </select>
+                            </div>
+                            <div class="purchase-summary">
+                                <div class="purchase-stats">
+                                    <div class="purchase-stat">
+                                        <span class="stat-number">8</span>
+                                        <span class="stat-label">이번 달 구매</span>
+                                    </div>
+                                    <div class="purchase-stat">
+                                        <span class="stat-number">124kg</span>
+                                        <span class="stat-label">CO₂ 절약</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="purchase-list-unified">
+                                <div class="purchase-item">
+                                    <div class="purchase-info">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23e3f2fd' width='100' height='100'/><text x='50' y='55' font-size='40' text-anchor='middle'>🧴</text></svg>" alt="제품">
+                                        <div class="product-details">
+                                            <h4>천연 세제 세트</h4>
+                                            <p>탄소중립 인증 제품</p>
+                                            <span class="product-price">32,000원</span>
+                                        </div>
+                                    </div>
+                                    <div class="purchase-status delivered">배송완료</div>
+                                </div>
+                                <div class="purchase-item">
+                                    <div class="purchase-info">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23f3e5f5' width='100' height='100'/><text x='50' y='55' font-size='40' text-anchor='middle'>🌱</text></svg>" alt="제품">
+                                        <div class="product-details">
+                                            <h4>대나무 칫솔 세트</h4>
+                                            <p>플라스틱 프리 제품</p>
+                                            <span class="product-price">15,000원</span>
+                                        </div>
+                                    </div>
+                                    <div class="purchase-status shipping">배송중</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 설정 섹션 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>⚙️ 계정 설정</h2>
+                        <span class="section-subtitle">프로필 정보와 알림 설정을 관리해보세요</span>
+                    </div>
+                    <div class="unified-grid">
+                        <!-- Profile Settings -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>👤 프로필 설정</h3>
+                            </div>
+                            <div class="settings-list">
+                                <div class="setting-item">
+                                    <label>닉네임</label>
+                                    <div class="input-group">
+                                        <input type="text" value="김환경" id="nickname">
+                                        <button class="btn-small">변경</button>
+                                    </div>
+                                </div>
+                                <div class="setting-item">
+                                    <label>이메일</label>
+                                    <div class="input-group">
+                                        <input type="email" value="green@greencycle.com" id="email">
+                                        <button class="btn-small">변경</button>
+                                    </div>
+                                </div>
+                                <div class="setting-item">
+                                    <label>비밀번호</label>
+                                    <div class="input-group">
+                                        <input type="password" value="********" readonly>
+                                        <button class="btn-small">변경</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notification Settings -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🔔 알림 설정</h3>
+                            </div>
+                            <div class="settings-list">
+                                <div class="setting-item">
+                                    <div class="setting-toggle">
+                                        <span>분리배출 리마인더</span>
+                                        <label class="toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="setting-item">
+                                    <div class="setting-toggle">
+                                        <span>나눔 매칭 알림</span>
+                                        <label class="toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="setting-item">
+                                    <div class="setting-toggle">
+                                        <span>포인트 적립 알림</span>
+                                        <label class="toggle">
+                                            <input type="checkbox">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="setting-item">
+                                    <div class="setting-toggle">
+                                        <span>환경 팁 알림</span>
+                                        <label class="toggle">
+                                            <input type="checkbox" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="settings-actions">
+                                <button class="btn btn-secondary">개인정보 다운로드</button>
+                                <button class="btn btn-danger">회원 탈퇴</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="#waste-sorting">스마트 분리배출</a></li>
+                        <li><a href="#free-sharing">무료나눔</a></li>
+                        <li><a href="#eco-market">에코마켓</a></li>
+                        <li><a href="#eco-talk">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">기술 특허</a></li>
+                        <li><a href="#">연구개발</a></li>
+                        <li><a href="#">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">기술지원</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="mypage-script.js"></script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분리배출 - GreenCycle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="waste-sorting.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="logo">
+                    <img src="img/logo.png" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="#services">서비스</a></li>
+                    <li><a href="waste-sorting.html" class="active">분리배출</a></li>
+                    <li><a href="#free-sharing">무료나눔</a></li>
+                    <li><a href="#eco-market">에코마켓</a></li>
+                    <li><a href="#eco-talk">환경독톡</a></li>
+                    <li><a href="#notices">공지사항</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <a href="login.html" class="btn-login">로그인</a>
+                    <a href="signup.html" class="btn-signup">회원가입</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>🤖 AI 스마트 분리배출</h1>
+                <p>이미지를 업로드하면 AI가 자동으로 폐기물을 분류하고 처리 방법을 알려드립니다</p>
+            </div>
+
+            <!-- Step 1: Region Selection & Image Upload -->
+            <div class="classification-step" id="uploadStep">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h2>지역 선택 및 이미지 업로드</h2>
+                        <p>분리배출 지역을 선택하고 폐기물 사진을 업로드하세요</p>
+                    </div>
+
+                   
+                   <!-- Region Selection -->
+                    <div class="region-selection">
+                        <h3>지역 선택</h3>
+                        <div class="region-inputs">
+                            <div class="input-group">
+                                <label class="input-label">시/도</label>
+                                <select id="citySelect">
+                                    <option value="">시/도를 선택하세요</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label class="input-label">구/군</label>
+                                <select id="districtSelect">
+                                    <option value="">구/군을 선택하세요</option>
+                                </select>
+                            </div>
+                            <button class="fee-check-btn" onclick="checkFeeInfo()">💰 수수료 확인</button>
+                        </div>
+                    </div>
+
+                    <!-- Waste Size Input -->
+                    <div class="waste-size-section">
+                        <h3>폐기물 크기 입력</h3>
+                        <div class="size-input-container">
+                            <div class="size-input-group">
+                                <div class="size-input-wrapper">
+                                    <label class="size-input-label">가로</label>
+                                    <input type="number" id="widthInput" placeholder="30" min="1" max="500">
+                                </div>
+                                <span class="size-separator">×</span>
+                                <div class="size-input-wrapper">
+                                    <label class="size-input-label">세로</label>
+                                    <input type="number" id="heightInput" placeholder="20" min="1" max="500">
+                                </div>
+                                <span class="size-unit">(cm)</span>
+                            </div>
+                            <div class="size-preview" id="sizePreview"></div>
+                            <p class="size-note">※ 대략적인 크기를 입력해주세요 (선택사항)</p>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Section -->
+                    <div class="upload-container">
+                        <div class="upload-zone" id="uploadZone">
+                            <div class="upload-icon">📷</div>
+                            <h3>클릭하거나 이미지를 드래그해주세요</h3>
+                            <p>JPG, PNG, GIF 파일을 지원합니다 (최대 10MB)</p>
+                            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                            <button class="upload-btn" onclick="document.getElementById('imageInput').click()">
+                                📁 파일 선택
+                            </button>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div class="upload-preview" id="uploadPreview" style="display: none;">
+                            <div class="preview-image-container">
+                                <img id="previewImage" alt="업로드된 이미지">
+                                <div class="image-overlay">
+                                    <div class="image-info">
+                                        <span class="image-name" id="imageName">이미지 파일명</span>
+                                        <span class="image-size" id="imageSize">파일 크기</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="upload-actions">
+                            <button class="btn-secondary" id="resetBtn" onclick="resetUpload()" style="display: none;">
+                                🔄 다시 선택
+                            </button>
+                            <button class="btn-primary" id="analyzeBtn" onclick="analyzeImage()" style="display: none;">
+                                🤖 AI 분석 시작
+                            </button>
+                        </div>
+
+                        <!-- Upload Instructions -->
+                        <div class="upload-instructions">
+                            <div class="instruction-item">
+                                <span class="instruction-icon">✅</span>
+                                <span class="instruction-text">지역과 크기를 먼저 선택해주세요</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="instruction-icon">📸</span>
+                                <span class="instruction-text">폐기물이 잘 보이는 사진을 업로드하세요</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="instruction-icon">🤖</span>
+                                <span class="instruction-text">AI가 자동으로 분류하고 처리법을 알려드립니다</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Analysis Loading -->
+            <div class="classification-step" id="loadingStep" style="display: none;">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h2>AI가 분석 중입니다</h2>
+                        <p>잠시만 기다려주세요...</p>
+                    </div>
+
+                    <div class="loading-container">
+                        <div class="loading-animation">
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text">분석 중...</div>
+                            <div class="loading-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <span class="progress-text" id="progressText">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Classification Result -->
+            <div class="classification-step" id="resultStep" style="display: none;">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <h2>분석 완료!</h2>
+                        <p>AI가 폐기물을 정확히 분류했습니다</p>
+                    </div>
+
+                    <div class="result-container">
+                        <div class="result-image">
+                            <img id="resultImage" alt="분석된 이미지">
+                            <div class="confidence-badge" id="confidenceBadge">정확도 95.2%</div>
+                        </div>
+
+                        <div class="result-info">
+                            <div class="waste-type">
+                                <h3 id="wasteType">플라스틱 병</h3>
+                                <span class="waste-category" id="wasteCategory">재활용품</span>
+                            </div>
+
+                            <div class="waste-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">물품명:</span>
+                                    <span class="detail-value" id="itemName">플라스틱 음료수 병</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">크기:</span>
+                                    <span class="detail-value" id="itemSize">중형 (500ml)</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">예상 수수료:</span>
+                                    <span class="detail-value" id="processingFee">무료</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">신뢰도:</span>
+                                    <span class="detail-value" id="reliability">95.2%</span>
+                                </div>
+                            </div>
+
+                            <div class="disposal-guide">
+                                <h4>🗂️ 정확한 분류법 안내</h4>
+                                <ul id="disposalSteps">
+                                    <li>라벨과 뚜껑을 제거해주세요</li>
+                                    <li>내용물을 완전히 비워주세요</li>
+                                    <li>물로 헹구어 이물질을 제거해주세요</li>
+                                    <li>플라스틱 전용 수거함에 배출해주세요</li>
+                                </ul>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn-outline" onclick="goBack()">무료 나눔 하기</button>
+                                <button class="btn-outline" onclick="goBack()">폐기물 배출 신고</button>
+                                <button class="btn-primary" onclick="confirmDisposal()">정확한 분류법 신고</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Completion -->
+            <div class="classification-step" id="completionStep" style="display: none;">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <h2>완료되었습니다!</h2>
+                        <p>올바른 분류 방법을 숙지하셨습니다</p>
+                    </div>
+
+                    <div class="completion-container">
+                        <div class="completion-icon">✅</div>
+                        <h3>해당 물품이 대형 폐기물이 아닌 것으로 인식되었습니다.</h3>
+                        <p>정확한 배출 방법을 아래 자치구 홈페이지에서 확인하세요.</p>
+                        
+                        <div class="completion-actions">
+                            <button class="btn-outline" onclick="visitLocalWebsite()">김포시 분리배출 홈페이지 바로가기</button>
+                            <button class="btn-primary" onclick="startOver()">배출 완료 확인</button>
+                        </div>
+
+                        <div class="eco-points">
+                            <div class="points-earned">
+                                <span class="points-icon">🌟</span>
+                                <span class="points-text">환경 포인트 +15P 획득!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Modal -->
+            <div class="modal-overlay" id="alertModal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Alert</h3>
+                        <button class="modal-close" onclick="closeAlert()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="alertMessage">예상 물품의 분류가 정확하길 원하시나요?</p>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-outline" onclick="closeAlert()">No</button>
+                        <button class="btn-primary" onclick="confirmAlert()">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a href="#">스마트 분리배출</a></li>
+                        <li><a href="#">무료나눔</a></li>
+                        <li><a href="#">에코마켓</a></li>
+                        <li><a href="#">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">기술 특허</a></li>
+                        <li><a href="#">연구개발</a></li>
+                        <li><a href="#">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">기술지원</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="waste-sorting.js"></script>
+</body>
+</html>

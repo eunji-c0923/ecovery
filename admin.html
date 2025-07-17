@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle 관리자 - 스마트 환경 플랫폼 관리 시스템</title>
+    <link rel="stylesheet" href="admin-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="#" class="logo">
+                    <img src="img/logo.png" alt="GreenCycle" class="logo-icon">
+                    <span class="logo-text">Admin</span>
+                </a>
+                
+                <div class="admin-info">
+                    <div class="admin-avatar">관</div>
+                    <span class="admin-name">관리자</span>
+                    <button class="logout-btn" id="logoutBtn">로그아웃</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="#dashboard" class="active" data-section="dashboard">
+                    <span class="icon">📊</span>
+                    대시보드
+                </a></li>
+                <li><a href="#users" data-section="users">
+                    <span class="icon">👥</span>
+                    사용자 관리
+                </a></li>
+                <li><a href="#waste-management" data-section="waste-management">
+                    <span class="icon">♻️</span>
+                    폐기물 관리
+                </a></li>
+                <li><a href="#sharing" data-section="sharing">
+                    <span class="icon">🤝</span>
+                    무료나눔 관리
+                </a></li>
+                <li><a href="#marketplace" data-section="marketplace">
+                    <span class="icon">🛒</span>
+                    마켓플레이스 관리
+                </a></li>
+                <li><a href="#community" data-section="community">
+                    <span class="icon">💬</span>
+                    커뮤니티 관리
+                </a></li>
+                <li><a href="#analytics" data-section="analytics">
+                    <span class="icon">📈</span>
+                    분석 및 리포트
+                </a></li>
+                <li><a href="#content" data-section="content">
+                    <span class="icon">📝</span>
+                    콘텐츠 관리
+                </a></li>
+                <li><a href="#settings" data-section="settings">
+                    <span class="icon">⚙️</span>
+                    시스템 설정
+                </a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="page-header">
+                    <h1 class="page-title">대시보드</h1>
+                    <p class="page-description">
+                        GreenCycle 플랫폼의 전체 현황을 실시간으로 모니터링합니다
+                        <span class="live-indicator">
+                            <span class="pulse-dot"></span>
+                            실시간 업데이트
+                        </span>
+                    </p>
+                </div>
+
+                <!-- Alert -->
+                <div class="alert alert-info">
+                    <span>📢</span>
+                    <div>
+                        <strong>시스템 공지:</strong> 오늘 오후 2시부터 1시간 동안 정기 점검이 예정되어 있습니다.
+                    </div>
+                </div>
+
+                <!-- Dashboard Cards -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-card success">
+                        <div class="card-icon">👥</div>
+                        <div class="card-title">총 사용자</div>
+                        <div class="card-value" data-count="15247">0</div>
+                        <div class="card-change positive">
+                            <span>↗️</span>
+                            <span>+12.5% 이번 주</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card info">
+                        <div class="card-icon">♻️</div>
+                        <div class="card-title">오늘 분리배출</div>
+                        <div class="card-value" data-count="1247">0</div>
+                        <div class="card-change positive">
+                            <span>↗️</span>
+                            <span>+23% 어제 대비</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card warning">
+                        <div class="card-icon">🤝</div>
+                        <div class="card-title">활성 무료나눔</div>
+                        <div class="card-value" data-count="89">0</div>
+                        <div class="card-change positive">
+                            <span>↗️</span>
+                            <span>+5.2% 이번 주</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="card-icon">🛒</div>
+                        <div class="card-title">마켓플레이스 거래</div>
+                        <div class="card-value" data-count="156">0</div>
+                        <div class="card-change positive">
+                            <span>↗️</span>
+                            <span>+8.3% 어제 대비</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card danger">
+                        <div class="card-icon">⚠️</div>
+                        <div class="card-title">오분류 알림</div>
+                        <div class="card-value" data-count="23">0</div>
+                        <div class="card-change negative">
+                            <span>↘️</span>
+                            <span>-15% 어제 대비</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card success">
+                        <div class="card-icon">🌍</div>
+                        <div class="card-title">CO₂ 절약 (kg)</div>
+                        <div class="card-value" data-count="1247">0</div>
+                        <div class="card-change positive">
+                            <span>↗️</span>
+                            <span>+18% 어제 대비</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">주간 활동 현황</h3>
+                        <p class="chart-subtitle">최근 7일간의 플랫폼 활동 데이터</p>
+                    </div>
+                    <div class="simple-chart" id="weeklyChart">
+                        <div class="chart-bar" style="height: 60%">
+                            <span class="bar-value">1,234</span>
+                            <span class="bar-label">월</span>
+                        </div>
+                        <div class="chart-bar" style="height: 75%">
+                            <span class="bar-value">1,456</span>
+                            <span class="bar-label">화</span>
+                        </div>
+                        <div class="chart-bar" style="height: 45%">
+                            <span class="bar-value">892</span>
+                            <span class="bar-label">수</span>
+                        </div>
+                        <div class="chart-bar" style="height: 90%">
+                            <span class="bar-value">1,789</span>
+                            <span class="bar-label">목</span>
+                        </div>
+                        <div class="chart-bar" style="height: 85%">
+                            <span class="bar-value">1,654</span>
+                            <span class="bar-label">금</span>
+                        </div>
+                        <div class="chart-bar" style="height: 55%">
+                            <span class="bar-value">1,098</span>
+                            <span class="bar-label">토</span>
+                        </div>
+                        <div class="chart-bar" style="height: 40%">
+                            <span class="bar-value">768</span>
+                            <span class="bar-label">일</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities Table -->
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3 class="table-title">최근 활동</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary" onclick="refreshActivities()">
+                                <span>🔄</span>
+                                새로고침
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>시간</th>
+                                <th>사용자</th>
+                                <th>활동</th>
+                                <th>상태</th>
+                                <th>포인트</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activitiesTable">
+                            <tr>
+                                <td>방금 전</td>
+                                <td>김○○</td>
+                                <td>플라스틱 병 분리배출</td>
+                                <td><span class="status-badge status-active">완료</span></td>
+                                <td>+15P</td>
+                            </tr>
+                            <tr>
+                                <td>2분 전</td>
+                                <td>이○○</td>
+                                <td>무료나눔 등록</td>
+                                <td><span class="status-badge status-pending">대기</span></td>
+                                <td>+5P</td>
+                            </tr>
+                            <tr>
+                                <td>5분 전</td>
+                                <td>박○○</td>
+                                <td>친환경 제품 구매</td>
+                                <td><span class="status-badge status-active">완료</span></td>
+                                <td>+25P</td>
+                            </tr>
+                            <tr>
+                                <td>8분 전</td>
+                                <td>정○○</td>
+                                <td>커뮤니티 글 작성</td>
+                                <td><span class="status-badge status-active">완료</span></td>
+                                <td>+10P</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">사용자 관리</h1>
+                    <p class="page-description">등록된 사용자들의 정보를 관리하고 모니터링합니다</p>
+                </div>
+
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3 class="table-title">사용자 목록</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-primary" onclick="openModal('addUserModal')">
+                                <span>➕</span>
+                                사용자 추가
+                            </button>
+                            <button class="btn btn-secondary">
+                                <span>📤</span>
+                                내보내기
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>이름</th>
+                                <th>이메일</th>
+                                <th>가입일</th>
+                                <th>상태</th>
+                                <th>포인트</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>001</td>
+                                <td>김환경</td>
+                                <td>kim@example.com</td>
+                                <td>2024-01-15</td>
+                                <td><span class="status-badge status-active">활성</span></td>
+                                <td>1,250P</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm">수정</button>
+                                    <button class="btn btn-danger btn-sm">삭제</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>002</td>
+                                <td>이그린</td>
+                                <td>lee@example.com</td>
+                                <td>2024-02-20</td>
+                                <td><span class="status-badge status-active">활성</span></td>
+                                <td>850P</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm">수정</button>
+                                    <button class="btn btn-danger btn-sm">삭제</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>003</td>
+                                <td>박재활</td>
+                                <td>park@example.com</td>
+                                <td>2024-03-10</td>
+                                <td><span class="status-badge status-inactive">비활성</span></td>
+                                <td>320P</td>
+                                <td>
+                                    <button class="btn btn-secondary btn-sm">수정</button>
+                                    <button class="btn btn-danger btn-sm">삭제</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <button disabled>이전</button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <button>다음</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Waste Management Section -->
+            <section id="waste-management" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">폐기물 관리</h1>
+                    <p class="page-description">AI 분리배출 시스템과 폐기물 처리 현황을 관리합니다</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">오늘 처리량</div>
+                        <div class="card-value" data-count="1247">0</div>
+                        <div class="card-change positive">
+                            <span>↗️</span>
+                            <span>+15% 어제 대비</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card success">
+                        <div class="card-icon">✅</div>
+                        <div class="card-title">정확도</div>
+                        <div class="card-value">99.7%</div>
+                        <div class="card-change positive">
+                            <span>↗️</span>
+                            <span>+0.2% 이번 주</span>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-card warning">
+                        <div class="card-icon">⚠️</div>
+                        <div class="card-title">오분류</div>
+                        <div class="card-value" data-count="23">0</div>
+                        <div class="card-change negative">
+                            <span>↘️</span>
+                            <span>-8% 어제 대비</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-table">
+                    <div class="table-header">
+                        <h3 class="table-title">분리배출 기록</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-primary">
+                                <span>📤</span>
+                                리포트 생성
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>시간</th>
+                                <th>사용자</th>
+                                <th>폐기물 유형</th>
+                                <th>분류 결과</th>
+                                <th>정확도</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>14:23</td>
+                                <td>김○○</td>
+                                <td>플라스틱 병</td>
+                                <td>플라스틱류</td>
+                                <td>99.8%</td>
+                                <td><span class="status-badge status-active">정상</span></td>
+                            </tr>
+                            <tr>
+                                <td>14:20</td>
+                                <td>이○○</td>
+                                <td>종이컵</td>
+                                <td>일반쓰레기</td>
+                                <td>97.5%</td>
+                                <td><span class="status-badge status-active">정상</span></td>
+                            </tr>
+                            <tr>
+                                <td>14:18</td>
+                                <td>박○○</td>
+                                <td>캔</td>
+                                <td>금속류</td>
+                                <td>99.9%</td>
+                                <td><span class="status-badge status-active">정상</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Other sections (sharing, marketplace, community, analytics, content, settings) -->
+            <section id="sharing" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">무료나눔 관리</h1>
+                    <p class="page-description">사용자들의 무료나눔 활동을 모니터링하고 관리합니다</p>
+                </div>
+                <!-- Content for sharing section -->
+            </section>
+
+            <section id="marketplace" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">마켓플레이스 관리</h1>
+                    <p class="page-description">친환경 제품 판매 현황과 주문을 관리합니다</p>
+                </div>
+                <!-- Content for marketplace section -->
+            </section>
+
+            <section id="community" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">커뮤니티 관리</h1>
+                    <p class="page-description">환경독톡 커뮤니티의 게시글과 댓글을 관리합니다</p>
+                </div>
+                <!-- Content for community section -->
+            </section>
+
+            <section id="analytics" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">분석 및 리포트</h1>
+                    <p class="page-description">상세한 분석 데이터와 리포트를 확인합니다</p>
+                </div>
+                <!-- Content for analytics section -->
+            </section>
+
+            <section id="content" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">콘텐츠 관리</h1>
+                    <p class="page-description">사이트의 콘텐츠와 공지사항을 관리합니다</p>
+                </div>
+                <!-- Content for content section -->
+            </section>
+
+            <section id="settings" class="content-section">
+                <div class="page-header">
+                    <h1 class="page-title">시스템 설정</h1>
+                    <p class="page-description">플랫폼의 전체 설정을 관리합니다</p>
+                </div>
+                <!-- Content for settings section -->
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Add User -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">새 사용자 추가</h3>
+                <button class="close-btn" onclick="closeModal('addUserModal')">&times;</button>
+            </div>
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이메일</label>
+                    <input type="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">초기 포인트</label>
+                    <input type="number" class="form-input" value="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">상태</label>
+                    <select class="form-select">
+                        <option value="active">활성</option>
+                        <option value="inactive">비활성</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addUserModal')">취소</button>
+                    <button type="submit" class="btn btn-primary">추가</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin-script.js"></script>
+</body>
+</html>

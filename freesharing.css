@@ -482,8 +482,60 @@ body {
 }
 
 .load-more {
-    text-align: center;
+    display: none; /* 더보기 버튼 숨김 */
+}
+
+/* 페이징 스타일 추가 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
     margin-top: 40px;
+    padding: 20px 0;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border: 2px solid var(--light-gray);
+    background: var(--white);
+    color: var(--dark-gray);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.pagination-btn:hover {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    background: rgba(45, 90, 61, 0.05);
+}
+
+.pagination-btn.active {
+    background: var(--primary-green);
+    color: var(--white);
+    border-color: var(--primary-green);
+}
+
+.pagination-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination-ellipsis {
+    padding: 8px 4px;
+    color: var(--medium-gray);
+    font-size: 14px;
+    font-weight: 500;
 }
 
 /* Buttons */
@@ -1100,6 +1152,17 @@ body {
         gap: 20px;
         text-align: center;
     }
+    
+    .pagination {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .pagination-btn {
+        min-width: 36px;
+        height: 36px;
+        font-size: 12px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1133,5 +1196,16 @@ body {
     
     .detail-title {
         font-size: 20px;
+    }
+    
+    .pagination {
+        gap: 4px;
+    }
+    
+    .pagination-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 4px 8px;
+        font-size: 11px;
     }
 }

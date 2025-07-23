@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>분리배출 - GreenCycle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- 타임리프 CSS 링크 처리 -->
+    <link rel="stylesheet" th:href="@{/css/services.css}">
+</head>
+<body>
+    <!-- 헤더 부분 - 네비게이션 공통 템플릿으로 분리 가능 -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 - 타임리프 URL 처리 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <!-- 네비게이션 메뉴 -->
+                <ul class="nav-menu">
+                    <li><a th:href="@{/}">홈</a></li>
+                    <li><a th:href="@{/services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}" class="active">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                <!-- 로그인/회원가입 버튼 - 사용자 상태에 따른 조건부 렌더링 -->
+                <div class="auth-buttons">
+                    <!-- 로그인하지 않은 경우 -->
+                    <div th:if="${session.user == null}">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user != null}">
+                        <span th:text="${session.user.nickname + '님'}">사용자님</span>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 페이지 헤더 -->
+            <div class="page-header">
+                <h1>🤖 AI 스마트 분리배출</h1>
+                <p>이미지를 업로드하면 AI가 자동으로 폐기물을 분류하고 처리 방법을 알려드립니다</p>
+            </div>
+
+            <!-- 1단계: 이미지 업로드, 지역 선택 및 크기 입력 -->
+            <div class="classification-step" id="uploadStep">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <h2>이미지 업로드 및 정보 입력</h2>
+                        <p>폐기물 사진을 업로드하고 지역과 크기 정보를 입력하세요</p>
+                    </div>
+
+                    <!-- 이미지 업로드 섹션 - 타임리프 폼 처리 -->
+                    <form th:action="@{/api/waste/analyze}" method="post" enctype="multipart/form-data" id="wasteAnalysisForm">
+                        <div class="upload-container">
+                            <!-- 파일 선택 영역 -->
+                            <div class="upload-zone" id="uploadZone">
+                                <div class="upload-icon">📷</div>
+                                <h3>클릭하거나 이미지를 드래그해주세요</h3>
+                                <p>JPG, PNG, GIF 파일을 지원합니다 (최대 10MB)</p>
+                                <input type="file" name="imageFile" id="imageInput" accept="image/*" style="display: none;" required>
+                                <button type="button" class="upload-btn" onclick="document.getElementById('imageInput').click()">
+                                    📁 파일 선택
+                                </button>
+                            </div>
+
+                            <!-- 이미지 미리보기 -->
+                            <div class="upload-preview" id="uploadPreview" style="display: none;">
+                                <div class="preview-image-container">
+                                    <img id="previewImage" alt="업로드된 이미지">
+                                    <div class="image-overlay">
+                                        <div class="image-info">
+                                            <span class="image-name" id="imageName">이미지 파일명</span>
+                                            <span class="image-size" id="imageSize">파일 크기</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 액션 버튼들 -->
+                            <div class="upload-actions">
+                                <button type="button" class="btn-secondary" id="resetBtn" onclick="resetUpload()" style="display: none;">
+                                    🔄 다시 선택
+                                </button>
+                                <button type="submit" class="btn-primary" id="analyzeBtn" style="display: none;">
+                                    🤖 AI 분석 시작
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 지역 선택 - 서버에서 지역 데이터 제공 -->
+                        <div class="region-selection">
+                            <h3>📍 지역 선택</h3>
+                            <div class="region-inputs">
+                                <div class="input-group">
+                                    <label class="input-label">시/도</label>
+                                    <select name="city" id="citySelect" required>
+                                        <option value="">시/도를 선택하세요</option>
+                                        <!-- 타임리프 반복문으로 지역 데이터 렌더링 -->
+                                        <option th:each="city : ${cities}" 
+                                                th:value="${city.code}" 
+                                                th:text="${city.name}"
+                                                th:selected="${selectedCity != null && selectedCity.equals(city.code)}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label class="input-label">구/군</label>
+                                    <select name="district" id="districtSelect" required>
+                                        <option value="">먼저 시/도를 선택하세요</option>
+                                        <!-- 선택된 시/도에 따른 구/군 데이터 - AJAX로 동적 로드 -->
+                                    </select>
+                                </div>
+                                <button type="button" class="fee-check-btn" onclick="checkFeeInfo()">💰 수수료 확인</button>
+                            </div>
+                        </div>
+
+                        <!-- 폐기물 크기 입력 -->
+                        <div class="waste-size-section">
+                            <h3>📏 폐기물 크기 입력</h3>
+                            <div class="size-input-container">
+                                <div class="size-input-group">
+                                    <div class="size-input-wrapper">
+                                        <label class="size-input-label">가로</label>
+                                        <input type="number" name="width" id="widthInput" placeholder="30" min="1" max="500">
+                                    </div>
+                                    <span class="size-separator">×</span>
+                                    <div class="size-input-wrapper">
+                                        <label class="size-input-label">세로</label>
+                                        <input type="number" name="height" id="heightInput" placeholder="20" min="1" max="500">
+                                    </div>
+                                    <span class="size-unit">(cm)</span>
+                                </div>
+                                <div class="size-preview" id="sizePreview"></div>
+                                <p class="size-note">※ 대략적인 크기를 입력해주세요 (선택사항)</p>
+                            </div>
+                        </div>
+
+                        <!-- CSRF 토큰 추가 (Spring Security 사용 시) -->
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    </form>
+
+                    <!-- 업로드 안내사항 -->
+                    <div class="upload-instructions">
+                        <div class="instruction-item">
+                            <span class="instruction-icon">📸</span>
+                            <span class="instruction-text">폐기물이 잘 보이는 사진을 업로드하세요</span>
+                        </div>
+                        <div class="instruction-item">
+                            <span class="instruction-icon">📍</span>
+                            <span class="instruction-text">지역을 선택하면 정확한 수수료를 확인할 수 있습니다</span>
+                        </div>
+                        <div class="instruction-item">
+                            <span class="instruction-icon">🤖</span>
+                            <span class="instruction-text">AI가 자동으로 분류하고 처리법을 알려드립니다</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2단계: 분석 중 로딩 -->
+            <div class="classification-step" id="loadingStep" style="display: none;">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <h2>AI가 분석 중입니다</h2>
+                        <p>잠시만 기다려주세요...</p>
+                    </div>
+
+                    <div class="loading-container">
+                        <div class="loading-animation">
+                            <div class="loading-spinner"></div>
+                            <div class="loading-text">분석 중...</div>
+                            <div class="loading-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                </div>
+                                <span class="progress-text" id="progressText">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3단계: 분류 결과 - 서버에서 분석 결과 데이터 제공 -->
+            <div class="classification-step" id="resultStep" style="display: none;" th:if="${analysisResult != null}">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <h2>분석 완료!</h2>
+                        <p>AI가 폐기물을 정확히 분류했습니다</p>
+                    </div>
+
+                    <div class="result-container">
+                        <div class="result-image">
+                            <!-- 분석된 이미지 표시 -->
+                            <img th:src="@{'/api/images/' + ${analysisResult.imageId}}" 
+                                 th:alt="${analysisResult.itemName}" 
+                                 id="resultImage">
+                            <div class="confidence-badge" id="confidenceBadge" 
+                                 th:text="'정확도 ' + ${#numbers.formatDecimal(analysisResult.confidence, 1, 1)} + '%'">
+                                정확도 95.2%
+                            </div>
+                        </div>
+
+                        <div class="result-info">
+                            <div class="waste-type">
+                                <!-- 타임리프로 분석 결과 데이터 바인딩 -->
+                                <h3 id="wasteType" th:text="${analysisResult.itemName}">플라스틱 병</h3>
+                                <span class="waste-category" id="wasteCategory" 
+                                      th:text="${analysisResult.category}"
+                                      th:class="'waste-category ' + ${analysisResult.categoryClass}">재활용품</span>
+                            </div>
+
+                            <div class="waste-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">물품명:</span>
+                                    <span class="detail-value" id="itemName" th:text="${analysisResult.itemName}">플라스틱 음료수 병</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">크기:</span>
+                                    <span class="detail-value" id="itemSize" th:text="${analysisResult.sizeDescription}">중형 (500ml)</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">예상 수수료:</span>
+                                    <span class="detail-value" id="processingFee" 
+                                          th:text="${analysisResult.fee > 0 ? #numbers.formatInteger(analysisResult.fee, 3) + '원' : '무료'}">무료</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">신뢰도:</span>
+                                    <span class="detail-value" id="reliability" 
+                                          th:text="${#numbers.formatDecimal(analysisResult.confidence, 1, 1)} + '%'">95.2%</span>
+                                </div>
+                            </div>
+
+                            <div class="disposal-guide">
+                                <h4>🗂️ 정확한 분류법 안내</h4>
+                                <!-- 분류법 단계들을 타임리프 반복문으로 처리 -->
+                                <ul id="disposalSteps">
+                                    <li th:each="step : ${analysisResult.disposalSteps}" th:text="${step}">
+                                        라벨과 뚜껑을 제거해주세요
+                                    </li>
+                                </ul>
+                             </div>
+
+                            <!-- 기존 HTML 코드에서 결과 단계의 액션 버튼 부분을 다음과 같이 수정 -->
+
+                            <!-- 폼 액션 버튼들 (결과 단계에서 표시되는 버튼들) -->
+                            <div class="action-buttons">
+                                <!-- 기존 버튼들 -->
+                                <button class="btn-outline" onclick="visitLocalWebsite()" 
+                                        th:data-region="${selectedRegion}">지역 분리배출 안내</button>
+                                <button class="btn-primary" onclick="confirmDisposal()">정확한 분류법 확인</button>
+                                
+                                <!-- 새로 추가: 오류신고 버튼 - 분석 결과가 있을 때만 표시 -->
+                                <button class="btn-error-report" 
+                                        onclick="openErrorReportModal()" 
+                                        th:if="${analysisResult != null}">
+                                    🚨 오류신고
+                                </button>
+                            </div>
+
+                            <!-- 오류신고 모달 - 타임리프 조건부 렌더링 -->
+                            <div class="error-report-modal" id="errorReportModal" style="display: none;" th:if="${analysisResult != null}">
+                                <div class="error-report-content">
+                                    <!-- 모달 헤더 -->
+                                    <div class="error-report-header">
+                                        <h3>🚨 AI 분석 오류 신고</h3>
+                                        <button class="modal-close" onclick="closeErrorReportModal()">&times;</button>
+                                    </div>
+                                    
+                                    <!-- 모달 본문 -->
+                                    <div class="error-report-body">
+                                        <p class="error-report-description">
+                                            AI 분석 결과가 잘못되었나요?<br>
+                                            정확한 분류를 위해 오류를 신고해주세요.
+                                        </p>
+                                        
+                                        <!-- 오류신고 폼 - 타임리프 폼 처리 -->
+                                        <form th:action="@{/api/waste/report-error}" 
+                                            method="post" 
+                                            id="errorReportForm" 
+                                            onsubmit="return submitErrorReport(event)">
+                                            
+                                            <!-- 현재 분석 결과 표시 - 타임리프 데이터 바인딩 -->
+                                            <div class="current-analysis">
+                                                <h4>📋 현재 AI 분석 결과</h4>
+                                                <div class="analysis-info">
+                                                    <span class="analysis-label">분류된 물품:</span>
+                                                    <span class="analysis-value" th:text="${analysisResult.itemName}">플라스틱 병</span>
+                                                </div>
+                                                <div class="analysis-info">
+                                                    <span class="analysis-label">분류 카테고리:</span>
+                                                    <span class="analysis-value" th:text="${analysisResult.category}">재활용품</span>
+                                                </div>
+                                                <div class="analysis-info">
+                                                    <span class="analysis-label">신뢰도:</span>
+                                                    <span class="analysis-value" 
+                                                        th:text="${#numbers.formatDecimal(analysisResult.confidence, 1, 1)} + '%'">95.2%</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 숨겨진 필드들 - 현재 분석 데이터 전송 -->
+                                            <input type="hidden" name="analysisId" th:value="${analysisResult.id}">
+                                            <input type="hidden" name="currentItemName" th:value="${analysisResult.itemName}">
+                                            <input type="hidden" name="currentCategory" th:value="${analysisResult.category}">
+                                            <input type="hidden" name="currentConfidence" th:value="${analysisResult.confidence}">
+                                            <input type="hidden" name="imageId" th:value="${analysisResult.imageId}">
+                                            <input type="hidden" name="region" th:value="${selectedRegion}">
+                                            
+                                            <!-- 올바른 분류 선택 -->
+                                            <div class="correct-classification">
+                                                <h4>✅ 올바른 분류는 무엇인가요?</h4>
+                                                <select name="correctCategory" id="correctCategory" required>
+                                                    <option value="">올바른 분류를 선택해주세요</option>
+                                                    <!-- 타임리프로 카테고리 옵션 동적 생성 -->
+                                                    <option value="재활용품" 
+                                                            th:selected="${analysisResult.category == '재활용품'}">재활용품</option>
+                                                    <option value="일반쓰레기" 
+                                                            th:selected="${analysisResult.category == '일반쓰레기'}">일반쓰레기</option>
+                                                    <option value="음식물쓰레기" 
+                                                            th:selected="${analysisResult.category == '음식물쓰레기'}">음식물쓰레기</option>
+                                                    <option value="대형폐기물" 
+                                                            th:selected="${analysisResult.category == '대형폐기물'}">대형폐기물</option>
+                                                    <option value="유해폐기물" 
+                                                            th:selected="${analysisResult.category == '유해폐기물'}">유해폐기물</option>
+                                                    <option value="기타">기타</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <!-- 올바른 물품명 입력 -->
+                                            <div class="correct-item-name">
+                                                <h4>🏷️ 올바른 물품명을 알려주세요</h4>
+                                                <input type="text" 
+                                                    name="correctItemName" 
+                                                    id="correctItemName"
+                                                    th:placeholder="'현재: ' + ${analysisResult.itemName} + ' → 올바른 명칭 입력'"
+                                                    maxlength="50"
+                                                    required>
+                                            </div>
+                                            
+                                            <!-- 오류 이유 선택 -->
+                                            <div class="error-reason">
+                                                <h4>❓ 어떤 부분이 잘못되었나요?</h4>
+                                                <div class="error-options">
+                                                    <label class="error-option">
+                                                        <input type="checkbox" name="errorTypes" value="wrong_category">
+                                                        <span class="checkmark"></span>
+                                                        분류 카테고리가 틀림
+                                                    </label>
+                                                    <label class="error-option">
+                                                        <input type="checkbox" name="errorTypes" value="wrong_item">
+                                                        <span class="checkmark"></span>
+                                                        물품명이 틀림
+                                                    </label>
+                                                    <label class="error-option">
+                                                        <input type="checkbox" name="errorTypes" value="wrong_disposal">
+                                                        <span class="checkmark"></span>
+                                                        처리 방법이 틀림
+                                                    </label>
+                                                    <label class="error-option">
+                                                        <input type="checkbox" name="errorTypes" value="low_confidence">
+                                                        <span class="checkmark"></span>
+                                                        신뢰도가 낮음
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 추가 설명 입력 -->
+                                            <div class="additional-description">
+                                                <h4>💬 추가 설명 (선택사항)</h4>
+                                                <textarea name="description" 
+                                                        id="errorDescription"
+                                                        placeholder="오류에 대한 자세한 설명을 입력해주세요. 더 정확한 AI 학습에 도움이 됩니다."
+                                                        rows="4"
+                                                        maxlength="500"></textarea>
+                                                <div class="char-count">
+                                                    <span id="charCount">0</span>/500
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 연락처 입력 (선택사항) -->
+                                            <div class="contact-info" th:if="${session.user == null}">
+                                                <h4>📧 연락처 (선택사항)</h4>
+                                                <input type="email" 
+                                                    name="reporterEmail" 
+                                                    placeholder="처리 결과를 받고 싶으시면 이메일을 입력해주세요"
+                                                    maxlength="100">
+                                            </div>
+                                            
+                                            <!-- 로그인된 사용자의 경우 자동으로 연락처 설정 -->
+                                            <input type="hidden" 
+                                                name="reporterEmail" 
+                                                th:if="${session.user != null}"
+                                                th:value="${session.user.email}">
+                                            <input type="hidden" 
+                                                name="reporterName" 
+                                                th:if="${session.user != null}"
+                                                th:value="${session.user.nickname}">
+                                            
+                                            <!-- CSRF 토큰 추가 -->
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                                            
+                                            <!-- 제출 버튼들 -->
+                                            <div class="error-report-actions">
+                                                <button type="button" class="btn-outline" onclick="closeErrorReportModal()">
+                                                    취소
+                                                </button>
+                                                <button type="submit" class="btn-error-submit">
+                                                    🚨 오류 신고하기
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 오류신고 성공 모달 -->
+                            <div class="error-report-success-modal" id="errorReportSuccessModal" style="display: none;">
+                                <div class="modal-content">
+                                    <div class="modal-header success">
+                                        <h3>✅ 오류신고 완료</h3>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="success-icon">🎉</div>
+                                        <h4>신고가 성공적으로 접수되었습니다!</h4>
+                                        <p>귀하의 피드백은 AI 정확도 향상에 큰 도움이 됩니다.</p>
+                                        
+                                        <!-- 처리 정보 표시 -->
+                                        <div class="report-info">
+                                            <div class="info-item">
+                                                <span class="info-label">신고 번호:</span>
+                                                <span class="info-value" id="reportId">ER-2025-001234</span>
+                                            </div>
+                                            <div class="info-item" th:if="${session.user != null}">
+                                                <span class="info-label">처리 알림:</span>
+                                                <span class="info-value">가입된 이메일로 발송 예정</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="info-label">예상 처리시간:</span>
+                                                <span class="info-value">1-3 영업일</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- 환경 포인트 지급 (로그인 사용자만) -->
+                                        <div class="eco-points-reward" th:if="${session.user != null}">
+                                            <div class="points-earned">
+                                                <span class="points-icon">🌟</span>
+                                                <span class="points-text">환경 포인트 +20P 획득!</span>
+                                            </div>
+                                            <p class="points-description">AI 개선에 기여해주셔서 감사합니다!</p>
+                                        </div>
+                                    </div>
+                                    <div class="modal-actions">
+                                        <button class="btn-primary" onclick="closeErrorReportSuccessModal()">
+                                            확인
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 등록 옵션 - 재활용 가능한 경우에만 표시 -->
+                            <div class="registration-section" id="registrationSection" 
+                                 th:if="${analysisResult.recyclable}">
+                                <div class="registration-header">
+                                    <h3>♻️ 재활용 등록하기</h3>
+                                    <p>재사용 가능한 물품을 등록해서 환경보호에 동참하세요!</p>
+                                </div>
+                                <div class="registration-buttons">
+                                    <!-- 무료나눔 등록 버튼 -->
+                                    <button class="btn-register btn-free-sharing" 
+                                            th:onclick="'registerForFreeSharing(' + ${analysisResult.id} + ')'">
+                                        <div class="btn-icon">🎁</div>
+                                        <div class="btn-text">
+                                            <div class="btn-title">무료나눔 등록</div>
+                                            <div class="btn-desc">무료로 나눠주기</div>
+                                        </div>
+                                    </button>
+                                    <!-- 에코마켓 등록 버튼 -->
+                                    <button class="btn-register btn-eco-market" 
+                                            th:onclick="'registerForEcoMarket(' + ${analysisResult.id} + ')'">
+                                        <div class="btn-icon">🏪</div>
+                                        <div class="btn-text">
+                                            <div class="btn-title">에코마켓 등록</div>
+                                            <div class="btn-desc">중고거래로 판매</div>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="registration-benefits">
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🌟</span>
+                                        <span>환경포인트 +50P</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🌍</span>
+                                        <span>지구환경 보호</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">💚</span>
+                                        <span>자원 재활용</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4단계: 완료 -->
+            <div class="classification-step" id="completionStep" style="display: none;">
+                <div class="step-card">
+                    <div class="step-header">
+                        <div class="step-number">4</div>
+                        <h2>완료되었습니다!</h2>
+                        <p>올바른 분류 방법을 숙지하셨습니다</p>
+                    </div>
+
+                    <div class="completion-container">
+                        <div class="completion-icon">✅</div>
+                        <h3>분류 정보를 확인하셨습니다</h3>
+                        <p>정확한 배출 방법을 아래 자치구 홈페이지에서 다시 확인하세요.</p>
+                        
+                        <div class="completion-actions">
+                            <button class="btn-outline" onclick="visitLocalWebsite()">지역 분리배출 홈페이지 바로가기</button>
+                            <button class="btn-primary" onclick="startOver()">새로운 분류 시작</button>
+                        </div>
+
+                        <!-- 환경 포인트 획득 표시 -->
+                        <div class="eco-points" th:if="${session.user != null}">
+                            <div class="points-earned">
+                                <span class="points-icon">🌟</span>
+                                <span class="points-text" th:text="'환경 포인트 +' + ${earnedPoints} + 'P 획득!'">환경 포인트 +15P 획득!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 에러 처리 단계들 - 조건부 렌더링 -->
+            <!-- 분석 실패 -->
+            <div class="classification-step" id="analysisErrorStep" style="display: none;" th:if="${analysisError != null}">
+                <div class="step-card error-card">
+                    <div class="step-header">
+                        <div class="step-number error">🤖</div>
+                        <h2>분석 실패</h2>
+                        <p id="analysisErrorMessage" th:text="${analysisError.message}">AI가 이미지를 분석하지 못했습니다</p>
+                    </div>
+
+                    <div class="error-container">
+                        <div class="analysis-error-icon">🔍</div>
+                        <h3>분석에 실패했습니다</h3>
+                        <div class="error-details">
+                            <div class="error-reason" id="analysisErrorReason" th:text="${analysisError.reason}">
+                                이미지에서 폐기물을 명확하게 인식할 수 없습니다. 다른 각도에서 더 선명한 사진을 촬영해주세요.
+                            </div>
+                        </div>
+
+                        <!-- 분석 실패 원인별 가이드 -->
+                        <div class="analysis-tips">
+                            <h4>📸 더 나은 사진을 위한 팁</h4>
+                            <div class="tips-grid">
+                                <!-- 팁 목록들... -->
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-error-actions">
+                            <button class="btn-outline" onclick="goBackToUpload()">다른 사진 선택</button>
+                            <button class="btn-primary" onclick="retryAnalysis()">다시 분석</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 알림 모달 -->
+            <div class="modal-overlay" id="alertModal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>확인</h3>
+                        <button class="modal-close" onclick="closeAlert()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="alertMessage">분류 정보가 정확한지 확인하시겠습니까?</p>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-outline" onclick="closeAlert()">취소</button>
+                        <button class="btn-primary" onclick="confirmAlert()">확인</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 - 공통 템플릿으로 분리 가능 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">기술 특허</a></li>
+                        <li><a href="#">연구개발</a></li>
+                        <li><a href="#">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">기술지원</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - 타임리프 URL 처리 -->
+    <script th:src="@{/js/services.js}"></script>
+    
+    <!-- 타임리프 인라인 스크립트로 서버 데이터 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var analysisResult = /*[[${analysisResult}]]*/ null;
+        var selectedRegion = /*[[${selectedRegion}]]*/ null;
+        var earnedPoints = /*[[${earnedPoints}]]*/ 0;
+        var cities = /*[[${cities}]]*/ [];
+    </script>
+</body>
+</html>

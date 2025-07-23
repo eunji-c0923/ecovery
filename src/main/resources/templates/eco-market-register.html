@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 페이지 기본 설정 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenCycle - 에코마켓 상품 등록</title>
+    
+    <!-- CSS 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/eco-market-register.css}">
+    
+    <!-- 구글 폰트 연결 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 상단 헤더 메뉴 -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 - Thymeleaf URL 처리 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                
+                <!-- 메뉴 목록 -->
+                <ul class="nav-menu">
+                    <li><a th:href="@{/}">홈</a></li>
+                    <li><a th:href="@{/#services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}" class="active">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                
+                <!-- 로그인/회원가입 버튼 - 로그인 상태에 따른 조건부 표시 -->
+                <div class="auth-buttons">
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user}" class="user-menu">
+                        <span th:text="${session.user.nickname + '님'}">사용자님</span>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                    <!-- 비로그인 상태 (에러 케이스 - 로그인 필요) -->
+                    <div th:unless="${session.user}" class="guest-menu">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 내용 -->
+    <main class="main-content">
+        <!-- 현재 위치 표시 (빵부스러기) -->
+        <section class="breadcrumb">
+            <div class="container">
+                <nav class="breadcrumb-nav">
+                    <a th:href="@{/}">🏠</a> 
+                    <span>></span> 
+                    <a th:href="@{/eco-market}">에코마켓</a> 
+                    <span>></span> 
+                    <span class="current">상품 등록</span>
+                </nav>
+            </div>
+        </section>
+
+        <!-- 페이지 제목 -->
+        <section class="page-header">
+            <div class="container">
+                <h1 class="page-title">🛒 에코마켓 상품 등록</h1>
+                <p class="page-subtitle">친환경 중고 거래로 지구와 지갑을 모두 지켜보세요</p>
+            </div>
+        </section>
+
+        <!-- 등록 폼 -->
+        <section class="registration-section">
+            <div class="container">
+                <!-- 폼 컨테이너 -->
+                <div class="form-container">
+                    <!-- 폼 헤더 -->
+                    <div class="form-header">
+                        <h2>상품 정보 등록하기</h2>
+                        <p>정확하고 자세한 정보를 입력하면 더 많은 구매자에게 어필할 수 있어요</p>
+                    </div>
+
+                    <!-- 실제 폼 - Thymeleaf 폼 객체 바인딩 -->
+                    <form class="form-body" id="registrationForm" 
+                          th:action="@{/eco-market/register}" 
+                          th:object="${productForm}" 
+                          method="post" 
+                          enctype="multipart/form-data">
+                        
+                        <!-- 상품명 입력 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">상품명 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <input type="text" 
+                                       class="form-input" 
+                                       th:field="*{title}"
+                                       id="productName" 
+                                       placeholder="상품명을 입력해주세요 (브랜드명 포함)" 
+                                       required>
+                                <!-- Thymeleaf 유효성 검사 오류 메시지 -->
+                                <div class="error-message" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                                <div class="help-text">브랜드명과 모델명을 포함하여 구체적으로 적어주세요 (예: 삼성 갤럭시 S24 128GB)</div>
+                            </div>
+                        </div>
+
+                        <!-- 판매자 (자동 입력) -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">판매자 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <input type="text" 
+                                       class="form-input" 
+                                       id="seller" 
+                                       th:value="${session.user.nickname}"
+                                       readonly>
+                                <!-- 숨겨진 필드로 판매자 ID 전송 -->
+                                <input type="hidden" th:field="*{sellerId}" th:value="${session.user.id}">
+                                <div class="help-text">로그인한 사용자 정보가 자동으로 표시됩니다</div>
+                            </div>
+                        </div>
+
+                        <!-- 등록일 (자동 입력) -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">등록일</label>
+                            </div>
+                            <div class="form-input-section">
+                                <input type="text" 
+                                       class="form-input" 
+                                       id="regDate" 
+                                       th:value="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm')}"
+                                       readonly>
+                            </div>
+                        </div>
+
+                        <!-- 카테고리 선택 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">카테고리 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <select class="form-select" th:field="*{categoryId}" id="category" required>
+                                    <option value="">카테고리를 선택해주세요</option>
+                                    <!-- 서버에서 전달받은 카테고리 목록 출력 -->
+                                    <option th:each="category : ${categories}" 
+                                            th:value="${category.id}" 
+                                            th:text="${category.name}">전자제품</option>
+                                </select>
+                                <div class="error-message" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                            </div>
+                        </div>
+
+                        <!-- 상품 상태 선택 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">상품상태 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <select class="form-select" th:field="*{condition}" id="condition" required>
+                                    <option value="">상태를 선택해주세요</option>
+                                    <option value="NEW">새상품 (미개봉, 사용하지 않음)</option>
+                                    <option value="LIKE_NEW">거의 새것 (몇 번 사용, 매우 깨끗함)</option>
+                                    <option value="GOOD">좋음 (사용감 있지만 깨끗함)</option>
+                                    <option value="FAIR">보통 (일반적인 사용감)</option>
+                                    <option value="POOR">나쁨 (사용감 많음, 기능 정상)</option>
+                                </select>
+                                <div class="error-message" th:if="${#fields.hasErrors('condition')}" th:errors="*{condition}"></div>
+                                <div class="help-text">구매자가 신뢰할 수 있도록 정확한 상태를 선택해주세요</div>
+                                <!-- 상품 상태 미리보기 (JavaScript로 제어) -->
+                                <div class="condition-preview" id="conditionPreview"></div>
+                            </div>
+                        </div>
+
+                        <!-- 가격 정보 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">가격정보 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <div class="price-group">
+                                    <div class="price-input-wrapper">
+                                        <input type="number" 
+                                               class="form-input price-input" 
+                                               th:field="*{price}"
+                                               id="price" 
+                                               placeholder="0" 
+                                               min="1000"
+                                               required>
+                                        <span class="currency">원</span>
+                                    </div>
+                                    <div class="price-options">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" th:field="*{negotiable}" id="negotiable">
+                                            <span class="checkmark"></span>
+                                            가격 협상 가능
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+                                <div class="help-text">최소 1,000원 이상부터 등록 가능합니다. 에코 포인트 5% 적립!</div>
+                                <!-- 가격 분석 (JavaScript로 제어) -->
+                                <div class="price-analysis" id="priceAnalysis"></div>
+                            </div>
+                        </div>
+
+                        <!-- 지역 선택 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">판매지역 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <div class="form-group">
+                                    <!-- 시/도 선택 -->
+                                    <select class="form-select" th:field="*{region1}" id="region1" required>
+                                        <option value="">시/도</option>
+                                        <!-- 서버에서 전달받은 지역 목록 -->
+                                        <option th:each="region : ${regions}" 
+                                                th:value="${region.code}" 
+                                                th:text="${region.name}">서울특별시</option>
+                                    </select>
+                                    <!-- 구/군 선택 (JavaScript로 동적 로드) -->
+                                    <select class="form-select" th:field="*{region2}" id="region2" required>
+                                        <option value="">구/군</option>
+                                    </select>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('region1')}" th:errors="*{region1}"></div>
+                                <div class="error-message" th:if="${#fields.hasErrors('region2')}" th:errors="*{region2}"></div>
+                                <div class="help-text">직거래 또는 택배 거래가 가능한 지역을 선택해주세요</div>
+                            </div>
+                        </div>
+
+                        <!-- 거래 방법 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">거래방법 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <div class="trade-methods">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" th:field="*{tradeMethods}" value="DIRECT" id="directTrade">
+                                        <span class="checkmark"></span>
+                                        직거래
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" th:field="*{tradeMethods}" value="DELIVERY" id="deliveryTrade">
+                                        <span class="checkmark"></span>
+                                        택배거래
+                                    </label>
+                                </div>
+                                
+                                <!-- 택배비 설정 (택배거래 선택시 나타남) -->
+                                <div class="delivery-options" id="deliveryOptions" style="display: none;">
+                                    <div class="delivery-fee-group">
+                                        <label class="radio-label">
+                                            <input type="radio" th:field="*{deliveryFee}" value="SELLER">
+                                            <span class="radio-mark"></span>
+                                            판매자 부담
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" th:field="*{deliveryFee}" value="BUYER">
+                                            <span class="radio-mark"></span>
+                                            구매자 부담
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" th:field="*{deliveryFee}" value="NEGOTIABLE">
+                                            <span class="radio-mark"></span>
+                                            별도 협의
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('tradeMethods')}" th:errors="*{tradeMethods}"></div>
+                                <div class="help-text">여러 거래 방법을 선택하면 판매 확률이 높아집니다</div>
+                            </div>
+                        </div>
+
+                        <!-- 결제 방법 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">결제방법 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <div class="payment-methods">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" th:field="*{paymentMethods}" value="CASH" id="cashPayment">
+                                        <span class="checkmark"></span>
+                                        현금
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" th:field="*{paymentMethods}" value="TRANSFER" id="transferPayment">
+                                        <span class="checkmark"></span>
+                                        계좌이체
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" th:field="*{paymentMethods}" value="SAFE_PAYMENT" id="safePayment">
+                                        <span class="checkmark"></span>
+                                        안전거래 (에스크로)
+                                    </label>
+                                </div>
+                                <div class="error-message" th:if="${#fields.hasErrors('paymentMethods')}" th:errors="*{paymentMethods}"></div>
+                                <div class="help-text">안전거래 이용시 구매자 보호와 에코 포인트 2배 적립 혜택이 있습니다</div>
+                            </div>
+                        </div>
+
+                        <!-- 상품 설명 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">상품설명 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <textarea class="form-input form-textarea" 
+                                          th:field="*{description}"
+                                          id="description" 
+                                          placeholder="상품에 대한 자세한 설명을 적어주세요" 
+                                          required></textarea>
+                                <div class="error-message" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                                <div class="help-text">구매 시기, 사용 빈도, 하자/결함 유무, 구성품 정보 등을 자세히 적어주세요</div>
+                                <!-- 글자수 카운터는 JS에서 추가됨 -->
+                            </div>
+                        </div>
+
+                        <!-- 해시태그 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">해시태그</label>
+                            </div>
+                            <div class="form-input-section">
+                                <input type="text" 
+                                       class="form-input" 
+                                       th:field="*{hashtags}"
+                                       id="hashtags" 
+                                       placeholder="#중고 #깨끗함 #급처 #협상가능 (띄어쓰기로 구분)">
+                                <div class="help-text">검색 노출을 높이는 키워드를 입력해주세요 (최대 10개)</div>
+                                <div class="hashtag-preview" id="hashtagPreview"></div>
+                            </div>
+                        </div>
+
+                        <!-- 사진 업로드 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">상품사진 <span class="required">*</span></label>
+                            </div>
+                            <div class="form-input-section">
+                                <!-- 사진 업로드 영역 -->
+                                <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('imageInput').click()">
+                                    <div class="upload-icon">📷</div>
+                                    <div class="upload-text">상품 사진을 업로드하거나 여기를 클릭하세요</div>
+                                    <div class="upload-hint">최대 10개까지 업로드 가능 (JPG, PNG) - 첫 번째 사진이 대표 이미지가 됩니다</div>
+                                </div>
+                                <!-- 실제 파일 입력 -->
+                                <input type="file" th:field="*{images}" id="imageInput" multiple accept="image/*" style="display: none;">
+                                <div class="error-message" th:if="${#fields.hasErrors('images')}" th:errors="*{images}"></div>
+                                <!-- 업로드된 사진 미리보기 (JavaScript로 제어) -->
+                                <div class="image-preview" id="imagePreview"></div>
+                                <div class="help-text">
+                                    💡 <strong>사진 촬영 팁:</strong> 자연광에서 촬영하고, 상품의 모든 면과 하자 부분도 정확히 보여주세요. 
+                                    사진이 많고 선명할수록 판매 확률이 높아집니다!
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 에코 옵션 -->
+                        <div class="form-row">
+                            <div class="form-label-section">
+                                <label class="form-label">에코 혜택</label>
+                            </div>
+                            <div class="form-input-section">
+                                <div class="eco-options">
+                                    <label class="checkbox-label eco-option">
+                                        <input type="checkbox" th:field="*{ecoOptions}" value="REUSABLE_PACKAGE" id="reusablePackage">
+                                        <span class="checkmark"></span>
+                                        <span class="eco-text">
+                                            재사용 포장재 사용 <span class="eco-badge">+2% 포인트</span>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-label eco-option">
+                                        <input type="checkbox" th:field="*{ecoOptions}" value="CARBON_NEUTRAL" id="carbonNeutral">
+                                        <span class="checkmark"></span>
+                                        <span class="eco-text">
+                                            탄소중립 택배 <span class="eco-badge">+3% 포인트</span>
+                                        </span>
+                                    </label>
+                                    <label class="checkbox-label eco-option">
+                                        <input type="checkbox" th:field="*{ecoOptions}" value="ECO_DONATION" id="ecoDonation">
+                                        <span class="checkmark"></span>
+                                        <span class="eco-text">
+                                            판매금액 1% 환경단체 기부 <span class="eco-badge">+5% 포인트</span>
+                                        </span>
+                                    </label>
+                                </div>
+                                <div class="help-text">에코 옵션 선택시 추가 포인트와 함께 '에코 상품' 뱃지가 표시됩니다</div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- 폼 버튼들 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-cancel" th:onclick="|location.href='@{/eco-market}'|">취소</button>
+                        <button type="button" class="btn btn-draft" onclick="saveDraft()">임시저장</button>
+                        <button type="submit" class="btn btn-submit" form="registrationForm">상품 등록</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 하단 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- 회사 정보 -->
+                <div class="footer-section">
+                    <div class="logo">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                
+                <!-- 서비스 링크 -->
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 회사 정보 링크 -->
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a th:href="@{/about}">회사소개</a></li>
+                        <li><a th:href="@{/careers}">채용정보</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 고객 지원 링크 -->
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 저작권 정보 -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/eco-market-register.js}"></script>
+    
+    <!-- 폼 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var categoriesData = /*[[${categories}]]*/ [];
+        var regionsData = /*[[${regions}]]*/ [];
+        var currentUser = /*[[${session.user}]]*/ {};
+        
+        // 전역 변수로 설정
+        window.categoriesData = categoriesData;
+        window.regionsData = regionsData;
+        window.currentUser = currentUser;
+        
+        // 택배 거래 선택시 택배비 옵션 표시
+        document.getElementById('deliveryTrade').addEventListener('change', function() {
+            const deliveryOptions = document.getElementById('deliveryOptions');
+            if (this.checked) {
+                deliveryOptions.style.display = 'block';
+            } else {
+                deliveryOptions.style.display = 'none';
+            }
+        });
+        
+        // 임시저장 함수
+        function saveDraft() {
+            // 현재 폼 데이터를 localStorage에 저장 (실제로는 서버에 저장)
+            const formData = new FormData(document.getElementById('registrationForm'));
+            // 임시저장 로직 구현
+            alert('임시저장되었습니다.');
+        }
+    </script>
+</body>
+</html>

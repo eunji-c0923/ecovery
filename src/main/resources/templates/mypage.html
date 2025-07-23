@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 마이페이지</title>
+    <!-- CSS 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/mypage-style.css}">
+    <!-- 구글 폰트 연결 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 헤더 영역 -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 섹션 - Thymeleaf URL 처리 -->
+                <a th:href="@{/}" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">GreenCycle</span>
+                </a>
+                
+                <!-- 네비게이션 메뉴 -->
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/#home}">홈</a></li>
+                    <li><a th:href="@{/#services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                
+                <!-- 우상단 버튼 그룹 (장바구니 + 로그아웃) -->
+                <div class="auth-buttons">
+                    <!-- 장바구니 아이콘 -->
+                    <a th:href="@{/cart}" class="cart-icon" id="cartIcon">
+                        <span class="cart-symbol">🛒</span>
+                        <span class="cart-count" id="cartCount" th:text="${cartItemCount ?: 0}">3</span>
+                    </a>
+                    <!-- 로그아웃 버튼 -->
+                    <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                </div>
+                
+                <!-- 모바일 햄버거 메뉴 -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main id="mainContent">
+        <!-- 프로필 헤더 섹션 -->
+        <section class="profile-header">
+            <div class="container">
+                <div class="profile-banner">
+                    <!-- 프로필 정보 섹션 -->
+                    <div class="profile-info">
+                        <div class="profile-avatar">
+                            <!-- 사용자 프로필 이미지 - 기본 이미지 또는 업로드된 이미지 -->
+                            <img th:src="${user.profileImageUrl != null ? user.profileImageUrl : '/img/default-avatar.svg'}" 
+                                 th:alt="${user.nickname + ' 프로필'}" id="profileImage">
+                            <button class="avatar-edit-btn" onclick="editProfile()">✏️</button>
+                        </div>
+                        <div class="profile-details">
+                            <!-- 사용자 이름 동적 표시 -->
+                            <h1 class="user-name" th:text="${user.nickname + '님'}">김환경님</h1>
+                            <p class="user-email" th:text="${user.email}">green@greencycle.com</p>
+                            
+                            <!-- 사용자 배지들 - 조건부 표시 -->
+                            <div class="user-badges">
+                                <span class="badge eco-warrior" th:if="${user.hasEcoWarriorBadge}">🌱 환경지킴이</span>
+                                <span class="badge recycling-master" th:if="${user.hasRecyclingMasterBadge}">♻️ 분리배출 마스터</span>
+                                <span class="badge sharing-hero" th:if="${user.hasSharingHeroBadge}">🤝 나눔왕</span>
+                            </div>
+                            
+                            <!-- 가입 정보 -->
+                            <div class="join-info">
+                                <span th:text="'가입일: ' + ${#temporals.format(user.joinDate, 'yyyy.MM.dd')}">가입일: 2024.03.15</span>
+                                <span>•</span>
+                                <span th:text="'활동일: ' + ${user.activeDays} + '일'">활동일: 127일</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 프로필 통계 섹션 - 서버에서 전달받은 통계 데이터 -->
+                    <div class="profile-stats">
+                        <div class="stat-card highlight">
+                            <div class="stat-icon">🌍</div>
+                            <div class="stat-number" th:data-count="${userStats.carbonSaved}" th:text="${userStats.carbonSaved}">847</div>
+                            <div class="stat-label">절약한 CO₂ (kg)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-number" th:data-count="${userStats.wasteCount}" th:text="${userStats.wasteCount}">234</div>
+                            <div class="stat-label">분리배출 횟수</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🤝</div>
+                            <div class="stat-number" th:data-count="${userStats.sharingCompleted}" th:text="${userStats.sharingCompleted}">67</div>
+                            <div class="stat-label">나눔 완료</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">💎</div>
+                            <div class="stat-number" th:data-count="${user.points}" th:text="${#numbers.formatInteger(user.points, 3, 'COMMA')}">15,680</div>
+                            <div class="stat-label">보유 포인트</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 통합 대시보드 섹션 -->
+        <section class="unified-dashboard">
+            <div class="container">
+                
+                <!-- 활동 & 환경 임팩트 섹션 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>📊 나의 활동 현황</h2>
+                        <span class="section-subtitle">최근 활동과 환경에 미친 임팩트를 확인해보세요</span>
+                    </div>
+                    
+                    <!-- 최근 활동 - 전체 너비 가로형 레이아웃 -->
+                    <div class="activity-section-full">
+                        <div class="unified-card activity-card-horizontal">
+                            <div class="card-header">
+                                <h3>🔥 최근 활동</h3>
+                                <a th:href="@{/mypage/activities}" class="view-all">전체보기</a>
+                            </div>
+                            <!-- 가로형 활동 리스트 - 반복문으로 동적 생성 -->
+                            <div class="activity-list-horizontal">
+                                <div class="activity-item-horizontal" th:each="activity : ${recentActivities}">
+                                    <!-- 활동 타입에 따른 아이콘 -->
+                                    <div class="activity-icon" 
+                                         th:classappend="${activity.type == 'WASTE' ? 'waste' : (activity.type == 'SHARING' ? 'sharing' : 'market')}">
+                                        <span th:text="${activity.type == 'WASTE' ? '⚡' : (activity.type == 'SHARING' ? '🤝' : '🛒')}">⚡</span>
+                                    </div>
+                                    <div class="activity-content">
+                                        <h4 th:text="${activity.title}">플라스틱 병 분리배출</h4>
+                                        <p th:text="${activity.description}">AI 분류 정확도 99.2%</p>
+                                        <span class="activity-time" th:text="${activity.timeAgo}">2시간 전</span>
+                                    </div>
+                                    <div class="activity-reward" th:text="'+' + ${activity.pointsEarned} + 'P'">+15P</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 포인트 & 성취 섹션 - 1x2 배치 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>💎 포인트 & 성취</h2>
+                        <span class="section-subtitle">적립한 포인트와 달성한 성취를 확인해보세요</span>
+                    </div>
+                    <div class="grid-1x2">
+                        <!-- 포인트 현황 카드 -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>💰 포인트 현황</h3>
+                                <button class="btn-small" th:onclick="|location.href='@{/mypage/points}'|">전체 내역</button>
+                            </div>
+                            <div class="points-summary-unified">
+                                <div class="points-main">
+                                    <div class="points-amount" th:text="${#numbers.formatInteger(user.points, 3, 'COMMA')} + 'P'">15,680P</div>
+                                    <div class="points-actions">
+                                        <button class="btn btn-primary" th:onclick="|location.href='@{/mypage/points/use}'|">사용하기</button>
+                                        <button class="btn btn-secondary" th:onclick="|location.href='@{/mypage/points/history}'|">적립 내역</button>
+                                    </div>
+                                </div>
+                                <div class="points-stats">
+                                    <div class="points-stat">
+                                        <span class="stat-label">이번 달</span>
+                                        <span class="stat-value" th:text="'+' + ${#numbers.formatInteger(pointStats.thisMonth, 3, 'COMMA')} + 'P'">+2,340P</span>
+                                    </div>
+                                    <div class="points-stat">
+                                        <span class="stat-label">사용 가능</span>
+                                        <span class="stat-value" th:text="${#numbers.formatInteger(user.points, 3, 'COMMA')} + 'P'">15,680P</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="recent-points">
+                                <h4>최근 포인트 내역</h4>
+                                <div class="points-list">
+                                    <!-- 최근 포인트 내역 반복문 -->
+                                    <div class="points-item" th:each="pointHistory : ${recentPointHistory}"
+                                         th:classappend="${pointHistory.type == 'EARN' ? 'earn' : 'use'}">
+                                        <span class="points-desc" th:text="${pointHistory.description}">분리배출 완료</span>
+                                        <span class="points-value" 
+                                              th:text="${pointHistory.type == 'EARN' ? '+' : '-'} + ${pointHistory.points} + 'P'">+15P</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 성취 현황 카드 -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🏆 성취 현황</h3>
+                                <span class="achievement-count" th:text="${achievementStats.completed} + '/' + ${achievementStats.total} + ' 달성'">12/20 달성</span>
+                            </div>
+                            <div class="achievements">
+                                <!-- 성취 목록 반복문 -->
+                                <div class="achievement-item" th:each="achievement : ${achievements}"
+                                     th:classappend="${achievement.completed ? 'completed' : 'in-progress'}">
+                                    <div class="achievement-icon" th:text="${achievement.icon}">🌱</div>
+                                    <div class="achievement-info">
+                                        <h4 th:text="${achievement.title}">환경지킴이</h4>
+                                        <p th:text="${achievement.description}">30일 연속 활동</p>
+                                    </div>
+                                    <!-- 완료된 성취 -->
+                                    <div class="achievement-status" th:if="${achievement.completed}">완료</div>
+                                    <!-- 진행중인 성취 -->
+                                    <div class="achievement-progress" th:unless="${achievement.completed}">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" th:style="'width: ' + ${achievement.progressPercentage} + '%'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 나눔 & 구매 섹션 - 1x2 배치 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>🛍️ 나눔 & 구매 관리</h2>
+                        <span class="section-subtitle">나눔 활동과 친환경 구매 내역을 관리해보세요</span>
+                    </div>
+                    <div class="grid-1x2">
+                        <!-- 나눔 관리 카드 -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🤝 나눔 관리</h3>
+                                <button class="btn-small" th:onclick="|location.href='@{/free-sharing/register}'|">새 나눔 등록</button>
+                            </div>
+                            <div class="sharing-summary">
+                                <div class="sharing-stats">
+                                    <div class="sharing-stat">
+                                        <span class="stat-number" th:text="${sharingStats.active}">5</span>
+                                        <span class="stat-label">진행중</span>
+                                    </div>
+                                    <div class="sharing-stat">
+                                        <span class="stat-number" th:text="${sharingStats.completed}">23</span>
+                                        <span class="stat-label">완료</span>
+                                    </div>
+                                    <div class="sharing-stat">
+                                        <span class="stat-number" th:text="${sharingStats.received}">12</span>
+                                        <span class="stat-label">받은 나눔</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sharing-list-unified">
+                                <!-- 나눔 목록 반복문 -->
+                                <div class="sharing-item" th:each="sharing : ${mySharingList}">
+                                    <div class="item-image" th:text="${sharing.categoryIcon}">📚</div>
+                                    <div class="item-details">
+                                        <h4 th:text="${sharing.title}">아이 전집 (상태 좋음)</h4>
+                                        <p th:text="'📍 ' + ${sharing.location}">📍 서울 강남구 역삼동</p>
+                                        <span class="item-date" th:text="'등록일: ' + ${#temporals.format(sharing.createdDate, 'yyyy.MM.dd')}">등록일: 2024.07.15</span>
+                                    </div>
+                                    <div class="item-status" 
+                                         th:classappend="${sharing.status == 'COMPLETED' ? 'completed' : 'available'}"
+                                         th:text="${sharing.status == 'COMPLETED' ? '나눔 완료' : '나눔중'}">나눔 완료</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 구매 내역 카드 -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🛒 구매 내역</h3>
+                                <select class="period-selector" onchange="changePeriod(this.value)">
+                                    <option value="3" th:selected="${period == 3}">최근 3개월</option>
+                                    <option value="6" th:selected="${period == 6}">최근 6개월</option>
+                                    <option value="12" th:selected="${period == 12}">1년</option>
+                                </select>
+                            </div>
+                            <div class="purchase-summary">
+                                <div class="purchase-stats">
+                                    <div class="purchase-stat">
+                                        <span class="stat-number" th:text="${purchaseStats.thisMonth}">8</span>
+                                        <span class="stat-label">이번 달 구매</span>
+                                    </div>
+                                    <div class="purchase-stat">
+                                        <span class="stat-number" th:text="${purchaseStats.carbonSaved} + 'kg'">124kg</span>
+                                        <span class="stat-label">CO₂ 절약</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="purchase-list-unified">
+                                <!-- 구매 내역 반복문 -->
+                                <div class="purchase-item" th:each="purchase : ${myPurchaseList}" th:data-order-id="${purchase.orderNumber}">
+                                    <div class="purchase-info">
+                                        <img th:src="${purchase.productImageUrl != null ? purchase.productImageUrl : '/img/default-product.svg'}" 
+                                             th:alt="${purchase.productName}">
+                                        <div class="product-details">
+                                            <h4 th:text="${purchase.productName}">천연 세제 세트</h4>
+                                            <p th:text="${purchase.productDescription}">탄소중립 인증 제품</p>
+                                            <span class="product-price" th:text="${#numbers.formatInteger(purchase.price, 3, 'COMMA')} + '원'">32,000원</span>
+                                            <span class="order-date" th:text="'주문일: ' + ${#temporals.format(purchase.orderDate, 'yyyy.MM.dd')}">주문일: 2025.01.15</span>
+                                        </div>
+                                    </div>
+                                    <div class="purchase-status" 
+                                         th:classappend="${purchase.status == 'DELIVERED' ? 'delivered' : 'shipping'}"
+                                         th:text="${purchase.status == 'DELIVERED' ? '배송완료' : '배송중'}">배송완료</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 계정 설정 섹션 - 1x2 배치 -->
+                <div class="dashboard-section">
+                    <div class="section-title">
+                        <h2>⚙️ 계정 설정</h2>
+                        <span class="section-subtitle">프로필 정보와 알림 설정을 관리해보세요</span>
+                    </div>
+                    <div class="grid-1x2">
+                        <!-- 프로필 설정 카드 -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>👤 프로필 설정</h3>
+                            </div>
+                            <!-- 프로필 설정 폼 -->
+                            <form th:action="@{/mypage/profile/update}" th:object="${profileForm}" method="post">
+                                <div class="settings-list">
+                                    <div class="setting-item">
+                                        <label>닉네임</label>
+                                        <div class="input-group">
+                                            <input type="text" th:field="*{nickname}" th:value="${user.nickname}" id="nickname">
+                                            <button type="button" class="btn-small" onclick="updateNickname()">변경</button>
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label>이메일</label>
+                                        <div class="input-group">
+                                            <input type="email" th:field="*{email}" th:value="${user.email}" id="email">
+                                            <button type="button" class="btn-small" onclick="updateEmail()">변경</button>
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <label>비밀번호</label>
+                                        <div class="input-group">
+                                            <input type="password" value="********" readonly>
+                                            <button type="button" class="btn-small" th:onclick="|location.href='@{/mypage/password/change}'|">변경</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- 알림 설정 카드 -->
+                        <div class="unified-card">
+                            <div class="card-header">
+                                <h3>🔔 알림 설정</h3>
+                            </div>
+                            <!-- 알림 설정 폼 -->
+                            <form th:action="@{/mypage/notification/update}" th:object="${notificationSettings}" method="post">
+                                <div class="settings-list">
+                                    <div class="setting-item">
+                                        <div class="setting-toggle">
+                                            <span>분리배출 리마인더</span>
+                                            <label class="toggle">
+                                                <input type="checkbox" th:field="*{wasteReminder}" th:checked="${notificationSettings.wasteReminder}">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div class="setting-toggle">
+                                            <span>나눔 매칭 알림</span>
+                                            <label class="toggle">
+                                                <input type="checkbox" th:field="*{sharingNotification}" th:checked="${notificationSettings.sharingNotification}">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div class="setting-toggle">
+                                            <span>포인트 적립 알림</span>
+                                            <label class="toggle">
+                                                <input type="checkbox" th:field="*{pointNotification}" th:checked="${notificationSettings.pointNotification}">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div class="setting-toggle">
+                                            <span>환경 팁 알림</span>
+                                            <label class="toggle">
+                                                <input type="checkbox" th:field="*{ecoTipNotification}" th:checked="${notificationSettings.ecoTipNotification}">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="settings-actions">
+                                    <button type="button" class="btn btn-secondary" th:onclick="|downloadPersonalData()|">개인정보 다운로드</button>
+                                    <button type="button" class="btn btn-danger" th:onclick="|confirmDeleteAccount()|">회원 탈퇴</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- 푸터 영역 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a th:href="@{/about}">회사소개</a></li>
+                        <li><a th:href="@{/patents}">기술 특허</a></li>
+                        <li><a th:href="@{/research}">연구개발</a></li>
+                        <li><a th:href="@{/careers}">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/guide}">이용가이드</a></li>
+                        <li><a th:href="@{/support}">기술지원</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
+                    <a th:href="@{/terms}">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/mypage-script.js}"></script>
+    
+    <!-- 마이페이지 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var userData = /*[[${user}]]*/ {};
+        var userStatsData = /*[[${userStats}]]*/ {};
+        var recentActivitiesData = /*[[${recentActivities}]]*/ [];
+        
+        // 전역 변수로 설정
+        window.userData = userData;
+        window.userStatsData = userStatsData;
+        window.recentActivitiesData = recentActivitiesData;
+        
+        // 기간 변경 함수
+        function changePeriod(period) {
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('period', period);
+            window.location.href = currentUrl.toString();
+        }
+        
+        // 프로필 편집 함수
+        function editProfile() {
+            // 프로필 편집 모달 또는 페이지로 이동
+            location.href = '/mypage/profile/edit';
+        }
+        
+        // 개인정보 다운로드 함수
+        function downloadPersonalData() {
+            if (confirm('개인정보를 다운로드하시겠습니까?')) {
+                location.href = '/mypage/data/download';
+            }
+        }
+        
+        // 회원 탈퇴 확인 함수
+        function confirmDeleteAccount() {
+            if (confirm('정말로 회원 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                location.href = '/mypage/account/delete';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 문서 기본 설정 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>공지사항 - GreenCycle 환경 커뮤니티</title>
+    
+    <!-- 폰트 로드 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- 타임리프 CSS 파일 연결 -->
+    <link rel="stylesheet" th:href="@{/css/notice-style.css}">
+</head>
+<body>
+    <!-- 상단 헤더 및 네비게이션 -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 영역 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                
+                <!-- 메인 네비게이션 메뉴 -->
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/}">홈</a></li>
+                    <li><a th:href="@{/services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경톡톡</a></li>
+                    <li><a th:href="@{/notices}" class="active">공지사항</a></li>
+                </ul>
+                
+                <!-- 로그인/회원가입 버튼 - 사용자 상태에 따른 조건부 렌더링 -->
+                <div class="auth-buttons">
+                    <!-- 로그인하지 않은 경우 -->
+                    <div th:if="${session.user == null}">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user != null}">
+                        <span class="user-welcome" th:text="${session.user.nickname + '님'}">사용자님</span>
+                        <a th:href="@{/mypage}" class="btn-mypage">마이페이지</a>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                </div>
+                
+                <!-- 모바일 햄버거 메뉴 -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-content">
+        <div class="container">
+            <!-- 페이지 헤더 (제목 및 통계) -->
+            <section class="page-header fade-in">
+                <div class="page-header-content">
+                    <h1>📢 공지사항</h1>
+                    <p>GreenCycle의 새로운 소식과 중요한 안내사항을 확인하세요</p>
+                    
+                    <!-- 공지사항 통계 - 서버에서 통계 데이터 제공 -->
+                    <div class="page-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${noticeStats.totalCount}">128</span>
+                            <span class="stat-label">전체 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${noticeStats.importantCount}">5</span>
+                            <span class="stat-label">중요 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${noticeStats.monthlyCount}">12</span>
+                            <span class="stat-label">이번 달 공지</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${#numbers.formatInteger(noticeStats.totalViews, 3)}">2,435</span>
+                            <span class="stat-label">총 조회수</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 공지사항 메인 컨테이너 -->
+            <div class="notice-container">
+                <!-- 공지사항 메인 영역 -->
+                <div class="notice-main fade-in">
+                    <!-- 공지사항 헤더 (제목 및 검색) -->
+                    <div class="notice-header">
+                        <h2 class="notice-title">📋 공지사항 목록</h2>
+                        <div class="notice-actions">
+                            <!-- 검색 폼 - 타임리프 폼 처리 -->
+                            <form th:action="@{/notices}" method="get" class="search-form">
+                                <div class="search-box">
+                                    <input type="text" 
+                                           name="keyword" 
+                                           th:value="${searchKeyword}"
+                                           class="search-input" 
+                                           placeholder="공지사항 검색..." 
+                                           id="searchInput">
+                                    <input type="hidden" name="category" th:value="${selectedCategory}">
+                                    <button type="submit" class="search-btn">🔍</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 카테고리 탭 - 현재 선택된 카테고리 표시 -->
+                    <div class="category-tabs">
+                        <a th:href="@{/notices}" 
+                           th:class="${selectedCategory == null || selectedCategory == 'all'} ? 'tab active' : 'tab'">전체</a>
+                        <a th:href="@{/notices(category='important')}" 
+                           th:class="${selectedCategory == 'important'} ? 'tab active' : 'tab'">중요 공지</a>
+                        <a th:href="@{/notices(category='service')}" 
+                           th:class="${selectedCategory == 'service'} ? 'tab active' : 'tab'">서비스</a>
+                        <a th:href="@{/notices(category='maintenance')}" 
+                           th:class="${selectedCategory == 'maintenance'} ? 'tab active' : 'tab'">점검</a>
+                        <a th:href="@{/notices(category='event')}" 
+                           th:class="${selectedCategory == 'event'} ? 'tab active' : 'tab'">이벤트</a>
+                        <a th:href="@{/notices(category='update')}" 
+                           th:class="${selectedCategory == 'update'} ? 'tab active' : 'tab'">업데이트</a>
+                    </div>
+
+                    <!-- 공지사항 목록 - 타임리프 반복문으로 데이터 렌더링 -->
+                    <div class="notice-list" id="noticeList">
+                        <!-- 중요 공지사항 (상단 고정) -->
+                        <div th:each="notice : ${importantNotices}" 
+                             class="notice-item important" 
+                             th:onclick="|viewNotice(${notice.id})|">
+                            <div class="notice-badge important">중요</div>
+                            <div class="notice-content">
+                                <div class="notice-title" th:text="${notice.title}">공지사항 제목</div>
+                                <div class="notice-meta">
+                                    <span class="notice-author" th:text="${notice.author.name}">운영팀</span>
+                                    <span th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd')}">2025.07.15</span>
+                                    <span th:text="'조회 ' + ${#numbers.formatInteger(notice.viewCount, 3)}">조회 1,245</span>
+                                </div>
+                                <div class="notice-tags">
+                                    <!-- 공지사항 태그들 -->
+                                    <span th:each="tag : ${notice.tags}" 
+                                          class="tag" 
+                                          th:text="${tag.name}">태그</span>
+                                </div>
+                            </div>
+                            <div class="notice-views" th:text="'👁️ ' + ${#numbers.formatInteger(notice.viewCount, 3)}">👁️ 1,245</div>
+                            <div class="notice-date" th:text="${#temporals.format(notice.createdAt, 'MM.dd')}">07.15</div>
+                        </div>
+
+                        <!-- 일반 공지사항 -->
+                        <div th:each="notice, noticeStat : ${notices}" 
+                             class="notice-item" 
+                             th:onclick="|viewNotice(${notice.id})|">
+                            <div class="notice-number" th:text="${noticeStat.count + importantNotices.size()}">3</div>
+                            <div class="notice-content">
+                                <div class="notice-title" th:text="${notice.title}">공지사항 제목</div>
+                                <div class="notice-meta">
+                                    <span class="notice-author" th:text="${notice.author.name}">작성자</span>
+                                    <span th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd')}">작성일</span>
+                                    <span th:text="'조회 ' + ${#numbers.formatInteger(notice.viewCount, 3)}">조회수</span>
+                                </div>
+                                <div class="notice-tags">
+                                    <!-- 공지사항 태그들 -->
+                                    <span th:each="tag : ${notice.tags}" 
+                                          class="tag" 
+                                          th:text="${tag.name}">태그</span>
+                                </div>
+                            </div>
+                            <div class="notice-views" th:text="'👁️ ' + ${#numbers.formatInteger(notice.viewCount, 3)}">조회수</div>
+                            <div class="notice-date" th:text="${#temporals.format(notice.createdAt, 'MM.dd')}">날짜</div>
+                        </div>
+
+                        <!-- 공지사항이 없는 경우 -->
+                        <div th:if="${#lists.isEmpty(notices) && #lists.isEmpty(importantNotices)}" class="no-notices">
+                            <div class="no-notices-icon">📋</div>
+                            <h3>공지사항이 없습니다</h3>
+                            <p th:if="${searchKeyword != null}">
+                                '<span th:text="${searchKeyword}"></span>' 검색 결과가 없습니다.
+                            </p>
+                            <p th:if="${searchKeyword == null}">
+                                아직 등록된 공지사항이 없습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 페이지네이션 - 타임리프 페이징 처리 -->
+                    <div class="pagination" th:if="${page.totalPages > 1}">
+                        <!-- 이전 페이지 버튼 -->
+                        <a th:if="${page.hasPrevious()}" 
+                           th:href="@{/notices(page=${page.number - 1}, category=${selectedCategory}, keyword=${searchKeyword})}" 
+                           class="page-btn">‹</a>
+                        
+                        <!-- 페이지 번호들 -->
+                        <span th:each="pageNum : ${#numbers.sequence(startPage, endPage)}">
+                            <a th:if="${pageNum != page.number + 1}" 
+                               th:href="@{/notices(page=${pageNum - 1}, category=${selectedCategory}, keyword=${searchKeyword})}" 
+                               th:text="${pageNum}" 
+                               class="page-btn"></a>
+                            <span th:if="${pageNum == page.number + 1}" 
+                                  th:text="${pageNum}" 
+                                  class="page-btn active"></span>
+                        </span>
+                        
+                        <!-- 다음 페이지 버튼 -->
+                        <a th:if="${page.hasNext()}" 
+                           th:href="@{/notices(page=${page.number + 1}, category=${selectedCategory}, keyword=${searchKeyword})}" 
+                           class="page-btn">›</a>
+                    </div>
+                </div>
+
+                <!-- 사이드바 -->
+                <div class="notice-sidebar fade-in">
+                    <!-- 최근 중요 공지 -->
+                    <div class="sidebar-card">
+                        <h3>⚠️ 중요 공지</h3>
+                        <div class="important-notices">
+                            <!-- 최근 중요 공지 목록 -->
+                            <div th:each="notice : ${recentImportantNotices}" 
+                                 class="important-item" 
+                                 th:onclick="|viewNotice(${notice.id})|">
+                                <div class="important-badge" 
+                                     th:text="${notice.urgent ? '긴급' : '중요'}"
+                                     th:class="${notice.urgent ? 'important-badge urgent' : 'important-badge'}">중요</div>
+                                <div class="important-title" th:text="${notice.title}">공지사항 제목</div>
+                                <div class="important-date" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd')}">날짜</div>
+                            </div>
+                            
+                            <!-- 중요 공지가 없는 경우 -->
+                            <div th:if="${#lists.isEmpty(recentImportantNotices)}" class="no-important-notices">
+                                <p>현재 중요 공지사항이 없습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 최근 공지사항 -->
+                    <div class="sidebar-card">
+                        <h3>📝 최근 공지</h3>
+                        <div class="recent-notices">
+                            <!-- 최근 공지사항 목록 -->
+                            <div th:each="notice : ${recentNotices}" 
+                                 class="recent-item" 
+                                 th:onclick="|viewNotice(${notice.id})|">
+                                <div class="recent-title" th:text="${notice.title}">공지사항 제목</div>
+                                <div class="recent-date" th:text="${#temporals.format(notice.createdAt, 'MM.dd')}">날짜</div>
+                            </div>
+                            
+                            <!-- 최근 공지가 없는 경우 -->
+                            <div th:if="${#lists.isEmpty(recentNotices)}" class="no-recent-notices">
+                                <p>최근 공지사항이 없습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 공지사항 알림 설정 - 로그인한 사용자만 -->
+                    <div class="notification-card" th:if="${session.user != null}">
+                        <div class="notification-icon">🔔</div>
+                        <div class="notification-title">공지사항 알림</div>
+                        <div class="notification-desc">
+                            새로운 공지사항이 등록되면<br>
+                            이메일로 알림을 받으세요
+                        </div>
+                        <button class="notification-btn" 
+                                th:onclick="|toggleNotification(${session.user.notificationEnabled})|"
+                                th:text="${session.user.notificationEnabled ? '알림 끄기' : '알림 설정'}">알림 설정</button>
+                    </div>
+
+                    <!-- 바로가기 링크 -->
+                    <div class="sidebar-card">
+                        <h3>🔗 바로가기</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a th:href="@{/faq}" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                ❓ 자주 묻는 질문
+                            </a>
+                            <a th:href="@{/support}" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📞 고객센터 문의
+                            </a>
+                            <a th:href="@{/terms}" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📋 이용약관
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 서비스 상태 - 서버에서 서비스 상태 정보 제공 -->
+                    <div class="sidebar-card">
+                        <h3>🚀 서비스 상태</h3>
+                        <div style="text-align: center; padding: 20px 0;">
+                            <!-- 서비스 상태에 따른 조건부 렌더링 -->
+                            <div th:if="${serviceStatus.isNormal}">
+                                <div style="font-size: 48px; margin-bottom: 15px;">✅</div>
+                                <h4 style="color: var(--primary-green); margin-bottom: 10px;">모든 서비스 정상</h4>
+                                <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);">
+                                    현재 모든 서비스가 정상적으로 운영되고 있습니다.<br>
+                                    <strong th:text="${#numbers.formatDecimal(serviceStatus.uptime, 1, 1)} + '%'">99.9%</strong> 가동률 유지 중
+                                </p>
+                            </div>
+                            <div th:if="${!serviceStatus.isNormal}">
+                                <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
+                                <h4 style="color: #ff6b6b; margin-bottom: 10px;">서비스 점검 중</h4>
+                                <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);" th:text="${serviceStatus.message}">
+                                    현재 일부 서비스가 점검 중입니다.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 관리자 전용 메뉴 - 관리자인 경우에만 표시 -->
+                    <div class="sidebar-card" th:if="${session.user != null && session.user.hasRole('ADMIN')}">
+                        <h3>⚙️ 관리자 메뉴</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a th:href="@{/admin/notices/new}" class="btn btn-primary" style="width: 100%; text-decoration: none;">
+                                ➕ 새 공지 작성
+                            </a>
+                            <a th:href="@{/admin/notices}" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📊 공지 관리
+                            </a>
+                            <a th:href="@{/admin/notices/statistics}" class="btn btn-secondary" style="width: 100%; text-decoration: none;">
+                                📈 통계 보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경톡톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a href="#">회사소개</a></li>
+                        <li><a href="#">기술 특허</a></li>
+                        <li><a href="#">연구개발</a></li>
+                        <li><a href="#">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a href="#">문의하기</a></li>
+                        <li><a href="#">이용가이드</a></li>
+                        <li><a href="#">기술지원</a></li>
+                        <li><a href="#">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">개인정보처리방침</a>
+                    <a href="#">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 공지사항 상세보기 모달 -->
+    <div class="modal-overlay" id="noticeDetailModal" style="display: none;">
+        <div class="modal-content notice-detail-modal">
+            <div class="modal-header">
+                <h3 id="noticeDetailTitle">공지사항 제목</h3>
+                <button class="modal-close" onclick="closeNoticeDetail()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="notice-detail-meta">
+                    <span id="noticeDetailAuthor">작성자</span>
+                    <span id="noticeDetailDate">작성일</span>
+                    <span id="noticeDetailViews">조회수</span>
+                </div>
+                <div class="notice-detail-content" id="noticeDetailContent">
+                    <!-- 공지사항 내용이 여기에 로드됩니다 -->
+                </div>
+                <div class="notice-detail-tags" id="noticeDetailTags">
+                    <!-- 태그들이 여기에 표시됩니다 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeNoticeDetail()">닫기</button>
+                <button class="btn btn-primary" onclick="shareNotice()">공유하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일 연결 -->
+    <script th:src="@{/js/notice-script.js}"></script>
+    
+    <!-- 타임리프 인라인 스크립트 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var notices = /*[[${notices}]]*/ [];
+        var importantNotices = /*[[${importantNotices}]]*/ [];
+        var noticeStats = /*[[${noticeStats}]]*/ {};
+        var currentPage = /*[[${page.number}]]*/ 0;
+        var totalPages = /*[[${page.totalPages}]]*/ 1;
+        var selectedCategory = /*[[${selectedCategory}]]*/ 'all';
+        var searchKeyword = /*[[${searchKeyword}]]*/ '';
+        var serviceStatus = /*[[${serviceStatus}]]*/ {};
+        var user = /*[[${session.user}]]*/ null;
+        var csrfToken = /*[[${_csrf.token}]]*/ '';
+        var csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+        
+        // API URL 설정
+        var noticeDetailUrl = /*[[@{/api/notices/}]]*/ '/api/notices/';
+        var notificationToggleUrl = /*[[@{/api/users/notification-settings}]]*/ '/api/users/notification-settings';
+        var noticeViewUrl = /*[[@{/api/notices/{id}/view}]]*/ '/api/notices/{id}/view';
+        
+        // 페이지 설정
+        var pageSize = /*[[${page.size}]]*/ 10;
+        var sortBy = /*[[${sortBy}]]*/ 'createdAt';
+        var sortDirection = /*[[${sortDirection}]]*/ 'desc';
+        
+        // 검색 설정
+        var searchMinLength = 2;
+        var searchDelay = 300; // 검색 입력 지연 시간 (ms)
+        
+        // 알림 설정
+        var notificationMessages = {
+            enabled: '공지사항 알림이 켜졌습니다.',
+            disabled: '공지사항 알림이 꺼졌습니다.',
+            error: '알림 설정 변경 중 오류가 발생했습니다.'
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 무료나눔 커뮤니티</title>
+    <!-- CSS 파일 링크 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/freesharing.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 - Thymeleaf URL 처리 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/}">홈</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}" class="active">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경톡톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                <!-- 로그인 상태에 따른 조건부 표시 -->
+                <div class="auth-buttons">
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user}" class="user-menu">
+                        <span th:text="${session.user.nickname + '님'}">사용자님</span>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                    <!-- 비로그인 상태 -->
+                    <div th:unless="${session.user}" class="guest-menu">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>🤝 무료나눔 커뮤니티</h1>
+                    <p>사용하지 않는 물건을 이웃과 나누며 자원 순환을 실현하세요</p>
+                    <!-- 통계 표시 영역 - 서버에서 전달받은 통계 데이터 -->
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${sharingStats.todayCompleted}">1,247</span>
+                            <span class="stat-label">오늘 나눔 완료</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${#numbers.formatInteger(sharingStats.totalShared, 3, 'COMMA')}">15,382</span>
+                            <span class="stat-label">총 나눔 건수</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${#numbers.formatInteger(sharingStats.activeMembers, 3, 'COMMA')}">8,941</span>
+                            <span class="stat-label">활성 회원</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filter and Actions -->
+        <section class="filter-section">
+            <div class="container">
+                <div class="filter-header">
+                    <div class="filter-left">
+                        <h2>우리 동네 나눔</h2>
+                        <!-- 사용자 위치 정보 표시 -->
+                        <p th:text="'📍 ' + ${session.user != null ? session.user.location : '위치를 설정해주세요'}">📍 서울 강남구 역삼동</p>
+                    </div>
+                    <div class="filter-right">
+                        <!-- 나눔 등록 버튼 - 로그인한 사용자만 표시 -->
+                        <button class="btn btn-primary" id="addItemBtn" th:if="${session.user}" 
+                                th:onclick="|location.href='@{/free-sharing/register}'|">
+                            <span>+</span> 나눔 등록
+                        </button>
+                        <a th:href="@{/login}" class="btn btn-primary" th:unless="${session.user}">
+                            <span>+</span> 로그인하여 나눔 등록
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 필터 컨트롤 영역 - 폼으로 감싸서 서버에 전송 -->
+                <form th:action="@{/free-sharing}" method="get" id="filterForm">
+                    <div class="filter-controls">
+                        <div class="filter-group">
+                            <label>카테고리</label>
+                            <select id="categoryFilter" name="category" th:value="${searchParams.category}">
+                                <option value="">전체</option>
+                                <!-- 서버에서 전달받은 카테고리 목록 출력 -->
+                                <option th:each="cat : ${categories}" 
+                                        th:value="${cat.code}" 
+                                        th:text="${cat.name}"
+                                        th:selected="${cat.code == searchParams.category}">의류/잡화</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label>거리</label>
+                            <select id="distanceFilter" name="distance" th:value="${searchParams.distance}">
+                                <option value="">전체</option>
+                                <option value="500" th:selected="${searchParams.distance == '500'}">500m 이내</option>
+                                <option value="1000" th:selected="${searchParams.distance == '1000'}">1km 이내</option>
+                                <option value="3000" th:selected="${searchParams.distance == '3000'}">3km 이내</option>
+                                <option value="5000" th:selected="${searchParams.distance == '5000'}">5km 이내</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label>상태</label>
+                            <select id="statusFilter" name="status" th:value="${searchParams.status}">
+                                <option value="">전체</option>
+                                <option value="AVAILABLE" th:selected="${searchParams.status == 'AVAILABLE'}">나눔중</option>
+                                <option value="RESERVED" th:selected="${searchParams.status == 'RESERVED'}">예약중</option>
+                                <option value="COMPLETED" th:selected="${searchParams.status == 'COMPLETED'}">완료</option>
+                            </select>
+                        </div>
+                        
+                        <div class="search-group">
+                            <input type="text" id="searchInput" name="keyword" 
+                                   th:value="${searchParams.keyword}"
+                                   placeholder="원하는 물건을 검색하세요...">
+                            <button type="submit" class="search-btn">🔍</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Items Grid -->
+        <section class="items-section">
+            <div class="container">
+                <div class="items-header">
+                    <div class="items-count">
+                        <!-- 검색 결과 개수 표시 -->
+                        <span id="totalItems" th:text="'총 ' + ${#numbers.formatInteger(sharingItems.totalElements, 0, 'COMMA')} + '개'">총 47개</span>의 나눔 물건
+                    </div>
+                    <div class="sort-options">
+                        <select id="sortSelect" name="sort" onchange="changeSort(this.value)">
+                            <option value="recent" th:selected="${searchParams.sort == 'recent'}">최신순</option>
+                            <option value="distance" th:selected="${searchParams.sort == 'distance'}">거리순</option>
+                            <option value="popular" th:selected="${searchParams.sort == 'popular'}">인기순</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 나눔 아이템 그리드 - Thymeleaf 반복문으로 동적 생성 -->
+                <div class="items-grid" id="itemsGrid">
+                    <!-- 나눔 아이템이 없을 때 표시 -->
+                    <div th:if="${#lists.isEmpty(sharingItems.content)}" class="no-items">
+                        <div class="no-items-content">
+                            <h3>😔 검색 조건에 맞는 나눔이 없습니다</h3>
+                            <p>다른 조건으로 검색해보시거나, 직접 나눔을 등록해보세요!</p>
+                            <a th:href="@{/free-sharing/register}" class="btn btn-primary" th:if="${session.user}">
+                                나눔 등록하기
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 나눔 아이템 카드들 - 반복문으로 출력 -->
+                    <div class="sharing-card" th:each="item : ${sharingItems.content}" 
+                         th:onclick="|location.href='@{/free-sharing/detail/{id}(id=${item.id})}'|">
+                        <!-- 나눔 아이템 이미지 -->
+                        <div class="item-image">
+                            <img th:src="${item.mainImageUrl != null ? item.mainImageUrl : '/img/default-sharing.svg'}" 
+                                 th:alt="${item.title}">
+                            <!-- 나눔 상태 배지 -->
+                            <div class="item-status" 
+                                 th:classappend="${item.status == 'AVAILABLE' ? 'status-available' : (item.status == 'RESERVED' ? 'status-reserved' : 'status-completed')}"
+                                 th:text="${item.status == 'AVAILABLE' ? '나눔중' : (item.status == 'RESERVED' ? '예약중' : '완료')}">나눔중</div>
+                        </div>
+                        
+                        <!-- 나눔 아이템 정보 -->
+                        <div class="item-info">
+                            <h3 class="item-title" th:text="${item.title}">나눔 아이템 제목</h3>
+                            <div class="item-meta">
+                                <!-- 카테고리 -->
+                                <span class="item-category" th:text="${item.categoryName}">가구/인테리어</span>
+                                <!-- 상품 상태 -->
+                                <span class="item-condition" th:text="${item.conditionText}">상태 좋음</span>
+                            </div>
+                            
+                            <!-- 위치 및 시간 정보 -->
+                            <div class="item-location">
+                                <span th:text="'📍 ' + ${item.location}">📍 서울 강남구 역삼동</span>
+                                <span class="item-time" th:text="${item.timeAgo}">10분 전</span>
+                            </div>
+                            
+                            <!-- 관심 및 조회 정보 -->
+                            <div class="item-stats">
+                                <span class="stat-item">
+                                    <span class="stat-icon">💖</span>
+                                    <span th:text="${item.likeCount}">12</span>
+                                </span>
+                                <span class="stat-item">
+                                    <span class="stat-icon">💬</span>
+                                    <span th:text="${item.commentCount}">3</span>
+                                </span>
+                                <span class="stat-item">
+                                    <span class="stat-icon">👁️</span>
+                                    <span th:text="${item.viewCount}">45</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 더보기 버튼 - 페이지네이션이 있을 경우 표시 -->
+                <div class="load-more" th:if="${sharingItems.hasNext()}">
+                    <button class="btn btn-secondary" id="loadMoreBtn" 
+                            th:onclick="|loadMoreItems(${sharingItems.number + 1})|">더 많은 나눔 보기</button>
+                </div>
+
+                <!-- 페이지네이션 영역 -->
+                <div class="pagination" id="pagination" th:if="${sharingItems.totalPages > 1}">
+                    <!-- 이전 페이지 -->
+                    <a th:href="@{/free-sharing(page=${sharingItems.number - 1}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                       class="page-btn" th:if="${sharingItems.hasPrevious()}">‹</a>
+                    
+                    <!-- 페이지 번호들 -->
+                    <th:block th:each="pageNum : ${#numbers.sequence(0, sharingItems.totalPages - 1)}">
+                        <a th:href="@{/free-sharing(page=${pageNum}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                           class="page-btn" 
+                           th:classappend="${pageNum == sharingItems.number ? 'active' : ''}"
+                           th:text="${pageNum + 1}">1</a>
+                    </th:block>
+                    
+                    <!-- 다음 페이지 -->
+                    <a th:href="@{/free-sharing(page=${sharingItems.number + 1}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                       class="page-btn" th:if="${sharingItems.hasNext()}">›</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경톡톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a th:href="@{/about}">회사소개</a></li>
+                        <li><a th:href="@{/patents}">기술 특허</a></li>
+                        <li><a th:href="@{/research}">연구개발</a></li>
+                        <li><a th:href="@{/careers}">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/guide}">이용가이드</a></li>
+                        <li><a th:href="@{/support}">기술지원</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
+                    <a th:href="@{/terms}">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/freesharing.js}"></script>
+    
+    <!-- 페이지 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var sharingItemsData = /*[[${sharingItems.content}]]*/ [];
+        var searchParams = /*[[${searchParams}]]*/ {};
+        var currentUser = /*[[${session.user}]]*/ null;
+        var currentPage = /*[[${sharingItems.number}]]*/ 0;
+        var totalPages = /*[[${sharingItems.totalPages}]]*/ 1;
+        
+        // 전역 변수로 설정하여 JavaScript 함수들에서 사용
+        window.sharingItemsData = sharingItemsData;
+        window.searchParams = searchParams;
+        window.currentUser = currentUser;
+        window.currentPage = currentPage;
+        window.totalPages = totalPages;
+        
+        // 정렬 변경 함수
+        function changeSort(sortValue) {
+            var currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('sort', sortValue);
+            currentUrl.searchParams.set('page', '0'); // 정렬 변경시 첫 페이지로
+            window.location.href = currentUrl.toString();
+        }
+        
+        // 더보기 함수
+        function loadMoreItems(page) {
+            var currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('page', page);
+            window.location.href = currentUrl.toString();
+        }
+    </script>
+</body>
+</html>

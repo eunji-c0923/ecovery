@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - GreenCycle</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS 파일 링크 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Background Elements -->
+        <div class="bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="auth-header">
+            <!-- 로고 - Thymeleaf URL 처리 -->
+            <a th:href="@{/}" class="logo">
+                <img th:src="@{/img/logo2.png}" alt="GreenCycle 로고" class="logo-img">
+            </a>
+            <a th:href="@{/}" class="back-link">← 홈으로 돌아가기</a>
+        </header>
+
+        <!-- Main Content -->
+        <main class="auth-main">
+            <div class="auth-card">
+                <div class="auth-header-content">
+                    <h1>로그인</h1>
+                    <p>환경을 위한 여정을 계속해보세요</p>
+                </div>
+
+                <!-- 로그인 에러 메시지 표시 -->
+                <div th:if="${loginError}" class="error-alert">
+                    <span class="error-icon">⚠️</span>
+                    <span th:text="${loginError}">이메일 또는 비밀번호가 올바르지 않습니다.</span>
+                </div>
+
+                <!-- 성공 메시지 표시 (회원가입 후 등) -->
+                <div th:if="${successMessage}" class="success-alert">
+                    <span class="success-icon">✅</span>
+                    <span th:text="${successMessage}">회원가입이 완료되었습니다. 로그인해주세요.</span>
+                </div>
+
+                <!-- 로그인 폼 - Thymeleaf 폼 처리 -->
+                <form class="auth-form" id="loginForm" th:action="@{/login}" method="post">
+                    <!-- 리다이렉트 URL 유지 -->
+                    <input type="hidden" name="redirectUrl" th:value="${redirectUrl}">
+                    
+                    <div class="form-group">
+                        <label for="email">이메일</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">📧</span>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                th:value="${loginForm != null ? loginForm.email : ''}"
+                                placeholder="이메일을 입력하세요"
+                                required
+                                autocomplete="email"
+                            >
+                        </div>
+                        <!-- 이메일 필드 에러 메시지 -->
+                        <span class="error-message" id="emailError" 
+                              th:if="${#fields.hasErrors('loginForm.email')}" 
+                              th:errors="${loginForm.email}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">비밀번호</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                placeholder="비밀번호를 입력하세요"
+                                required
+                                autocomplete="current-password"
+                            >
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <span class="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                        <!-- 비밀번호 필드 에러 메시지 -->
+                        <span class="error-message" id="passwordError"
+                              th:if="${#fields.hasErrors('loginForm.password')}" 
+                              th:errors="${loginForm.password}"></span>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="remember" id="remember" th:checked="${loginForm != null ? loginForm.remember : false}">
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">로그인 상태 유지</span>
+                        </label>
+                        <a th:href="@{/forgot-password}" class="forgot-password">비밀번호를 잊으셨나요?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn primary" id="loginBtn">
+                        <span class="btn-text">로그인</span>
+                        <span class="btn-loading" style="display: none;">
+                            <span class="spinner"></span>
+                            로그인 중...
+                        </span>
+                    </button>
+
+                    <div class="divider">
+                        <span>또는</span>
+                    </div>
+
+                    <!-- 소셜 로그인 -->
+                    <div class="social-login">
+                        <a href="/oauth2/authorization/google" class="social-btn google">
+                            <span class="social-icon">🌐</span>
+                            Google로 로그인
+                        </a>
+                        <a href="/oauth2/authorization/kakao" class="social-btn kakao">
+                            <span class="social-icon">💬</span>
+                            카카오로 로그인
+                        </a>
+                    </div>
+                </form>
+
+                <div class="auth-footer">
+                    <p>아직 계정이 없으신가요? <a th:href="@{/signup}" class="auth-link">회원가입</a></p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/auth.js}"></script>
+    
+    <!-- 로그인 폼 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var hasLoginError = /*[[${loginError != null}]]*/ false;
+        var redirectUrl = /*[[${redirectUrl}]]*/ '';
+        
+        // 전역 변수로 설정
+        window.hasLoginError = hasLoginError;
+        window.redirectUrl = redirectUrl;
+        
+        // 로그인 폼 이벤트 처리
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = loginBtn.querySelector('.btn-text');
+            const btnLoading = loginBtn.querySelector('.btn-loading');
+            
+            // 로딩 상태 표시
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-flex';
+            loginBtn.disabled = true;
+        });
+        
+        // 비밀번호 표시/숨김 토글
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = this.querySelector('.eye-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.textContent = '🙈';
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.textContent = '👁️';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <!-- 동적 페이지 제목 -->
+    <title th:text="${product.title + ' - GreenCycle'}">상품 상세보기 - GreenCycle</title>
+    
+    <!-- 구글 폰트 링크 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS 파일 링크 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/eco-market-detail.css}">
+</head>
+<body>
+    <!-- 상단 네비게이션 헤더 -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 영역 -->
+                <a th:href="@{/}" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">GreenCycle</span>
+                </a>
+                
+                <!-- 메인 네비게이션 메뉴 -->
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/#home}">홈</a></li>
+                    <li><a th:href="@{/#services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}" class="active">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                
+                <!-- 로그인/회원가입 버튼 또는 사용자 메뉴 -->
+                <div class="auth-buttons" id="authButtons">
+                    <!-- 로그인하지 않은 경우 -->
+                    <div class="guest-buttons" id="guestButtons" th:unless="${session.user}">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                    
+                    <!-- 로그인한 경우 -->
+                    <div class="user-menu" id="userMenu" th:if="${session.user}">
+                        <span class="user-name" id="userName" th:text="${session.user.nickname + '님'}">사용자님</span>
+                        <a th:href="@{/logout}" class="btn-logout" id="logoutBtn">로그아웃</a>
+                    </div>
+                </div>
+                
+                <!-- 모바일 햄버거 메뉴 -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-content">
+        <!-- 브레드크럼 네비게이션 (현재 위치 표시) -->
+        <section class="breadcrumb-section">
+            <div class="container">
+                <nav class="breadcrumb">
+                    <a th:href="@{/}">홈</a>
+                    <span class="breadcrumb-separator">></span>
+                    <a th:href="@{/eco-market}">에코마켓</a>
+                    <span class="breadcrumb-separator">></span>
+                    <span id="breadcrumbCategory" th:text="${product.categoryName}">전자제품</span>
+                    <span class="breadcrumb-separator">></span>
+                    <span class="breadcrumb-current">상품 상세보기</span>
+                </nav>
+            </div>
+        </section>
+
+        <!-- 상품 상세 정보 섹션 -->
+        <section class="product-detail-section">
+            <div class="container">
+                <div class="product-detail-container">
+                    <!-- 왼쪽: 상품 이미지 영역 -->
+                    <div class="product-images">
+                        <!-- 메인 이미지 -->
+                        <div class="main-image-container">
+                            <div class="main-image" id="mainImage">
+                                <img th:src="${product.mainImageUrl != null ? product.mainImageUrl : '/img/default-product.svg'}" 
+                                     th:alt="${product.title}">
+                            </div>
+                            <!-- 이미지 확대 버튼 -->
+                            <button class="image-zoom-btn" id="imageZoomBtn">🔍</button>
+                        </div>
+                        
+                        <!-- 썸네일 이미지 목록 - 반복문으로 출력 -->
+                        <div class="thumbnail-container" th:if="${product.images != null and !product.images.isEmpty()}">
+                            <div class="thumbnail-list" id="thumbnailList">
+                                <div class="thumbnail" th:each="image, iterStat : ${product.images}" 
+                                     th:classappend="${iterStat.first ? 'active' : ''}"
+                                     th:data-image="${image.url}"
+                                     th:onclick="|changeMainImage('${image.url}')|">
+                                    <img th:src="${image.url}" th:alt="'상품 이미지 ' + ${iterStat.count}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 오른쪽: 상품 정보 영역 -->
+                    <div class="product-info">
+                        <!-- 상품 기본 정보 -->
+                        <div class="product-header">
+                            <!-- 상품 상태 배지 -->
+                            <div class="product-status-badge" 
+                                 th:classappend="${product.status == 'AVAILABLE' ? 'available' : (product.status == 'RESERVED' ? 'reserved' : 'completed')}"
+                                 id="productStatus" 
+                                 th:text="${product.status == 'AVAILABLE' ? '판매중' : (product.status == 'RESERVED' ? '예약중' : '판매완료')}">판매중</div>
+                            
+                            <!-- 상품 제목 -->
+                            <h1 class="product-title" id="productTitle" th:text="${product.title}">MacBook Pro 13인치 (2021) M1 칩</h1>
+                            
+                            <!-- 상품 메뉴 (로그인한 사용자이고 본인 상품일 때만 표시) -->
+                            <div class="product-menu" id="productMenu" 
+                                 th:if="${session.user != null and session.user.id == product.sellerId}">
+                                <button class="menu-toggle" id="menuToggle">⋯</button>
+                                <div class="menu-dropdown" id="menuDropdown">
+                                    <button class="menu-item" id="editProduct" 
+                                            th:onclick="|location.href='@{/eco-market/edit/{id}(id=${product.id})}'|">수정하기</button>
+                                    <button class="menu-item delete" id="deleteProduct" 
+                                            th:onclick="|deleteProduct(${product.id})|">삭제하기</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 상품 메타 정보 -->
+                            <div class="product-meta">
+                                <span class="product-category" id="productCategory" th:text="${product.categoryName}">전자제품</span>
+                                <span class="product-views">👁️ <span id="productViews" th:text="${product.viewCount}">124</span></span>
+                                <span class="product-time" id="productTime" th:text="${product.timeAgo}">15분 전</span>
+                            </div>
+                        </div>
+
+                        <!-- 가격 정보 -->
+                        <div class="price-section">
+                            <div class="current-price" id="currentPrice" th:text="${#numbers.formatInteger(product.price, 3, 'COMMA')} + '원'">1,250,000원</div>
+                            <!-- 원가가 있는 경우 할인 정보 표시 -->
+                            <div th:if="${product.originalPrice != null and product.originalPrice > product.price}">
+                                <div class="original-price" id="originalPrice" th:text="${#numbers.formatInteger(product.originalPrice, 3, 'COMMA')} + '원'">1,800,000원</div>
+                                <div class="discount-rate" id="discountRate" 
+                                     th:text="${#numbers.formatDecimal((product.originalPrice - product.price) * 100 / product.originalPrice, 0, 0)} + '% 할인'">31% 할인</div>
+                            </div>
+                            <!-- 협상 가능 표시 -->
+                            <div class="negotiable-text" th:if="${product.negotiable}">💬 가격 협상 가능</div>
+                        </div>
+
+                        <!-- 상품 상태 정보 -->
+                        <div class="condition-section">
+                            <h3>상품 상태</h3>
+                            <div class="condition-info">
+                                <div class="condition-rating">
+                                    <!-- 상품 상태에 따른 별점 표시 -->
+                                    <span class="condition-stars" id="conditionStars" th:text="${product.conditionStars}">★★★★★</span>
+                                    <span class="condition-text" id="conditionText" th:text="${product.conditionText}">거의 새것</span>
+                                </div>
+                                <p class="condition-description" th:text="${product.conditionDescription}">
+                                    케이스와 보호필름을 항상 사용하여 외관이 매우 깨끗합니다.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 거래 정보 -->
+                        <div class="transaction-section">
+                            <div class="transaction-info">
+                                <div class="info-item">
+                                    <span class="info-label">거래 지역</span>
+                                    <span class="info-value" id="transactionLocation" th:text="'📍 ' + ${product.location}">📍 강남역 2번 출구</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">거래 방법</span>
+                                    <!-- 거래 방법 목록 출력 -->
+                                    <span class="info-value" th:text="${#strings.listJoin(product.tradeMethods, ', ')}">직거래 우선, 택배 가능</span>
+                                </div>
+                                <div class="info-item" th:if="${product.shippingFee != null}">
+                                    <span class="info-label">배송비</span>
+                                    <span class="info-value" th:text="${product.shippingFee}">착불 (3,000원)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 액션 버튼 영역 - 로그인한 사용자만 표시 -->
+                        <div class="action-buttons" th:if="${session.user != null}">
+                            <!-- 본인 상품이 아닌 경우에만 버튼 표시 -->
+                            <div th:unless="${session.user.id == product.sellerId}">
+                                <!-- 관심상품 버튼 -->
+                                <button class="btn btn-wishlist" id="wishlistBtn" 
+                                        th:classappend="${product.isWishlisted ? 'active' : ''}"
+                                        th:onclick="|toggleWishlist(${product.id})|">
+                                    <span class="heart-icon" th:text="${product.isWishlisted ? '❤️' : '🤍'}">🤍</span>
+                                    관심상품 <span id="wishlistCount" th:text="${product.wishlistCount}">18</span>
+                                </button>
+                                <!-- 장바구니 버튼 -->
+                                <button class="btn btn-cart" id="cartBtn" th:onclick="|addToCart(${product.id})|">🛒 장바구니</button>
+                                <!-- 구매하기 버튼 -->
+                                <button class="btn btn-buy" id="buyBtn" th:onclick="|buyNow(${product.id})|">💰 구매하기</button>
+                            </div>
+                        </div>
+
+                        <!-- 로그인하지 않은 경우 로그인 유도 -->
+                        <div class="login-required" th:unless="${session.user}">
+                            <a th:href="@{/login}" class="btn btn-primary">로그인하여 구매하기</a>
+                        </div>
+
+                        <!-- 공유 버튼 -->
+                        <div class="share-section">
+                            <span class="share-label">공유하기</span>
+                            <div class="share-buttons">
+                                <button class="share-btn" data-type="link" title="링크 복사" onclick="shareProduct('link')">🔗</button>
+                                <button class="share-btn" data-type="kakao" title="카카오톡" onclick="shareProduct('kakao')">💬</button>
+                                <button class="share-btn" data-type="facebook" title="페이스북" onclick="shareProduct('facebook')">📘</button>
+                                <button class="share-btn" data-type="twitter" title="트위터" onclick="shareProduct('twitter')">🐦</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 상품 상세 설명 섹션 -->
+        <section class="product-description-section">
+            <div class="container">
+                <div class="description-container">
+                    <h2>상품 상세 설명</h2>
+                    <!-- 상품 설명 내용 - HTML 태그가 포함될 수 있으므로 utext 사용 -->
+                    <div class="description-content" id="productDescription" th:utext="${product.description}">
+                        <!-- 기본 설명 내용 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 판매자 정보 섹션 -->
+        <section class="seller-section">
+            <div class="container">
+                <div class="seller-container">
+                    <h2>판매자 정보</h2>
+                    <div class="seller-info">
+                        <div class="seller-profile">
+                            <!-- 판매자 아바타 -->
+                            <div class="seller-avatar">
+                                <img th:src="${product.seller.profileImageUrl != null ? product.seller.profileImageUrl : '/img/default-avatar.svg'}" 
+                                     th:alt="${product.seller.nickname}">
+                            </div>
+                            <div class="seller-details">
+                                <h3 class="seller-name" id="sellerName" th:text="${product.seller.nickname + '님'}">김○○님</h3>
+                                <!-- 판매자 평점 -->
+                                <div class="seller-rating">
+                                    <span class="rating-stars" th:text="${product.seller.ratingStars}">⭐⭐⭐⭐⭐</span>
+                                    <span class="rating-score" id="sellerRating" th:text="${product.seller.rating} + '/5.0'">4.8/5.0</span>
+                                    <span class="rating-count" th:text="'(' + ${product.seller.reviewCount} + '건)'">(24건)</span>
+                                </div>
+                                <!-- 판매자 배지 -->
+                                <div class="seller-badges">
+                                    <span class="badge badge-verified" th:if="${product.seller.verified}">인증된 판매자</span>
+                                    <span class="badge badge-response" th:if="${product.seller.fastResponse}">빠른 응답</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 판매자 통계 -->
+                        <div class="seller-stats">
+                            <div class="stat-item">
+                                <div class="stat-value" id="sellerSales" th:text="${product.seller.salesCount}">23</div>
+                                <div class="stat-label">판매완료</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" th:text="${product.seller.satisfactionRate} + '%'">98%</div>
+                                <div class="stat-label">만족도</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" th:text="${product.seller.avgResponseTime}">2분</div>
+                                <div class="stat-label">평균응답</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 판매자 액션 버튼 - 본인이 아닌 경우에만 표시 -->
+                        <div class="seller-actions" th:if="${session.user != null and session.user.id != product.sellerId}">
+                            <button class="btn btn-secondary" id="sellerProfileBtn" 
+                                    th:onclick="|viewSellerProfile(${product.seller.id})|">프로필 보기</button>
+                            <button class="btn btn-primary" id="sellerChatBtn" 
+                                    th:onclick="|startChat(${product.seller.id})|">채팅하기</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 댓글 섹션 -->
+        <section class="comments-section">
+            <div class="container">
+                <div class="comments-container">
+                    <!-- 댓글 헤더 -->
+                    <div class="comments-header">
+                        <h2>상품 문의</h2>
+                        <span class="comments-count">총 <span id="commentsCount" th:text="${#lists.size(comments)}">5</span>개의 댓글</span>
+                    </div>
+
+                    <!-- 댓글 작성 폼 - 로그인한 사용자만 표시 -->
+                    <div class="comment-form-container" th:if="${session.user != null}">
+                        <form class="comment-form" id="commentForm" th:action="@{/eco-market/comment/add}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <div class="comment-input-group">
+                                <div class="commenter-info">
+                                    <div class="commenter-avatar">
+                                        <img th:src="${session.user.profileImageUrl != null ? session.user.profileImageUrl : '/img/default-avatar.svg'}" 
+                                             th:alt="${session.user.nickname}">
+                                    </div>
+                                    <span class="commenter-name" th:text="${session.user.nickname}">닉네임</span>
+                                </div>
+                                <div class="comment-input-container">
+                                    <textarea class="comment-input" 
+                                              id="commentInput" 
+                                              name="content"
+                                              placeholder="상품에 대해 궁금한 점을 물어보세요..."
+                                              rows="3" required></textarea>
+                                    <div class="comment-form-actions">
+                                        <div class="comment-guidelines">
+                                            <small>• 상품과 관련없는 내용은 삭제될 수 있습니다</small>
+                                            <small>• 욕설, 비방, 광고성 댓글은 금지됩니다</small>
+                                        </div>
+                                        <button type="submit" class="btn btn-comment">댓글 작성</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 댓글 정렬 옵션 -->
+                    <div class="comments-sort">
+                        <select id="commentSort" onchange="sortComments(this.value)">
+                            <option value="latest">최신순</option>
+                            <option value="oldest">등록순</option>
+                            <option value="likes">추천순</option>
+                        </select>
+                    </div>
+
+                    <!-- 댓글 목록 -->
+                    <div class="comments-list" id="commentsList">
+                        <!-- 댓글이 없을 때 -->
+                        <div th:if="${#lists.isEmpty(comments)}" class="no-comments">
+                            <p>아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</p>
+                        </div>
+                        
+                        <!-- 댓글 반복문으로 출력 -->
+                        <div class="comment-item" th:each="comment : ${comments}">
+                            <div class="comment-header">
+                                <div class="commenter-info">
+                                    <div class="commenter-avatar">
+                                        <img th:src="${comment.author.profileImageUrl != null ? comment.author.profileImageUrl : '/img/default-avatar.svg'}" 
+                                             th:alt="${comment.author.nickname}">
+                                    </div>
+                                    <span class="commenter-name" th:text="${comment.author.nickname}">작성자</span>
+                                    <span class="comment-date" th:text="${comment.timeAgo}">5분 전</span>
+                                </div>
+                                <!-- 댓글 메뉴 (본인 댓글인 경우) -->
+                                <div class="comment-menu" th:if="${session.user != null and session.user.id == comment.authorId}">
+                                    <button class="comment-menu-btn" th:onclick="|toggleCommentMenu(${comment.id})|">⋯</button>
+                                    <div class="comment-menu-dropdown" th:id="|commentMenu-${comment.id}|">
+                                        <button class="menu-item" th:onclick="|editComment(${comment.id})|">수정</button>
+                                        <button class="menu-item delete" th:onclick="|deleteComment(${comment.id})|">삭제</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="comment-content" th:text="${comment.content}">댓글 내용</div>
+                            <div class="comment-actions">
+                                <button class="comment-action-btn" th:onclick="|likeComment(${comment.id})|">
+                                    <span th:text="${comment.isLiked ? '❤️' : '🤍'}">🤍</span>
+                                    <span th:text="${comment.likeCount}">0</span>
+                                </button>
+                                <button class="comment-action-btn" th:onclick="|replyComment(${comment.id})|">💬 답글</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 댓글 더보기 버튼 -->
+                    <div class="comments-load-more" th:if="${hasMoreComments}">
+                        <button class="btn btn-secondary" id="loadMoreComments" onclick="loadMoreComments()">댓글 더보기</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 연관 상품 섹션 -->
+        <section class="related-products-section" th:if="${relatedProducts != null and !relatedProducts.isEmpty()}">
+            <div class="container">
+                <h2>이런 상품은 어떠세요?</h2>
+                <div class="related-products-grid" id="relatedProductsGrid">
+                    <!-- 연관 상품들 반복문으로 출력 -->
+                    <div class="related-product-card" th:each="relatedProduct : ${relatedProducts}"
+                         th:onclick="|location.href='@{/eco-market/detail/{id}(id=${relatedProduct.id})}'|">
+                        <div class="product-image">
+                            <img th:src="${relatedProduct.mainImageUrl != null ? relatedProduct.mainImageUrl : '/img/default-product.svg'}" 
+                                 th:alt="${relatedProduct.title}">
+                        </div>
+                        <div class="product-info">
+                            <h4 th:text="${relatedProduct.title}">연관 상품명</h4>
+                            <div class="product-price" th:text="${#numbers.formatInteger(relatedProduct.price, 3, 'COMMA')} + '원'">가격</div>
+                            <div class="product-location" th:text="${relatedProduct.location}">위치</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 이미지 확대 모달 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content image-modal-content">
+            <div class="modal-header">
+                <h3>상품 이미지</h3>
+                <button class="modal-close" id="closeImageModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image-container">
+                    <div class="modal-main-image" id="modalMainImage">
+                        <img src="" alt="상품 이미지">
+                    </div>
+                    <div class="modal-image-controls" th:if="${product.images != null and product.images.size() > 1}">
+                        <button class="image-nav-btn" id="prevImageBtn">‹</button>
+                        <span class="image-counter" id="imageCounter">1 / <span th:text="${product.images.size()}">4</span></span>
+                        <button class="image-nav-btn" id="nextImageBtn">›</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 하단 고정 액션 바 (모바일용) -->
+    <div class="bottom-action-bar" id="bottomActionBar" th:if="${session.user != null and session.user.id != product.sellerId}">
+        <button class="bottom-btn btn-wishlist-mobile" id="wishlistBtnMobile" 
+                th:onclick="|toggleWishlist(${product.id})|">
+            <span class="heart-icon" th:text="${product.isWishlisted ? '❤️' : '🤍'}">🤍</span>
+        </button>
+        <button class="bottom-btn btn-cart-mobile" id="cartBtnMobile" 
+                th:onclick="|addToCart(${product.id})|">🛒 장바구니</button>
+        <button class="bottom-btn btn-buy-mobile" id="buyBtnMobile" 
+                th:onclick="|buyNow(${product.id})|">💰 구매하기</button>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- 회사 정보 -->
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                
+                <!-- 서비스 링크 -->
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 회사정보 링크 -->
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a th:href="@{/about}">회사소개</a></li>
+                        <li><a th:href="@{/patents}">기술 특허</a></li>
+                        <li><a th:href="@{/research}">연구개발</a></li>
+                        <li><a th:href="@{/careers}">채용정보</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 고객지원 링크 -->
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/guide}">이용가이드</a></li>
+                        <li><a th:href="@{/support}">기술지원</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 푸터 하단 -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
+                    <a th:href="@{/terms}">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/eco-market-detail.js}"></script>
+    
+    <!-- 상품 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 상품 데이터를 JavaScript 변수로 설정
+        var productData = /*[[${product}]]*/ {};
+        var currentUserId = /*[[${session.user != null ? session.user.id : null}]]*/ null;
+        var isOwner = /*[[${session.user != null and session.user.id == product.sellerId}]]*/ false;
+        
+        // 전역 변수로 설정
+        window.productData = productData;
+        window.currentUserId = currentUserId;
+        window.isOwner = isOwner;
+    </script>
+</body>
+</html>

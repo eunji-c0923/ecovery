@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>환경독톡 - GreenCycle 환경 커뮤니티</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- CSS 파일 링크 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/eco-talk-style.css}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 - Thymeleaf URL 처리 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/}">홈</a></li>
+                    <li><a th:href="@{/#services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}" class="active">환경톡톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                <!-- 로그인 상태에 따른 조건부 표시 -->
+                <div class="auth-buttons">
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user}" class="user-menu">
+                        <span th:text="${session.user.nickname + '님'}">사용자님</span>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                    <!-- 비로그인 상태 -->
+                    <div th:unless="${session.user}" class="guest-menu">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <section class="page-header fade-in">
+                <div class="page-header-content">
+                    <h1>💬 환경톡톡</h1>
+                    <p>환경을 사랑하는 사람들과 함께 나누는 소중한 이야기와 경험들</p>
+                    <!-- 커뮤니티 통계 - 서버에서 전달받은 데이터 -->
+                    <div class="page-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${#numbers.formatInteger(communityStats.totalPosts, 3, 'COMMA')}">1,247</span>
+                            <span class="stat-label">전체 게시글</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${#numbers.formatInteger(communityStats.activeMembers, 3, 'COMMA')}">892</span>
+                            <span class="stat-label">활성 회원</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${communityStats.todayPosts}">156</span>
+                            <span class="stat-label">오늘 글</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${communityStats.onlineUsers}">34</span>
+                            <span class="stat-label">실시간 접속</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Board Container -->
+            <div class="board-container">
+                <!-- Main Board -->
+                <div class="board-main fade-in">
+                    <!-- Board Header -->
+                    <div class="board-header">
+                        <h2 class="board-title">환경 실천 커뮤니티</h2>
+                        <div class="board-actions">
+                            <!-- 로그인한 사용자만 글쓰기 가능 -->
+                            <button class="btn btn-primary" th:if="${session.user}" 
+                                    th:onclick="|location.href='@{/eco-talk/write}'|">
+                                ✏️ 글쓰기
+                            </button>
+                            <a th:href="@{/login}" class="btn btn-primary" th:unless="${session.user}">
+                                ✏️ 로그인하여 글쓰기
+                            </a>
+                            <!-- 검색 폼 -->
+                            <form th:action="@{/eco-talk}" method="get" class="search-form">
+                                <div class="search-box">
+                                    <input type="text" class="search-input" name="keyword" 
+                                           th:value="${searchParams.keyword}"
+                                           placeholder="검색어를 입력하세요" id="searchInput">
+                                    <button type="submit" class="search-btn">🔍</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Category Tabs -->
+                    <div class="category-tabs">
+                        <a th:href="@{/eco-talk}" 
+                           class="tab" 
+                           th:classappend="${searchParams.category == null or searchParams.category == '' ? 'active' : ''}">전체</a>
+                        <a th:href="@{/eco-talk(category='tips')}" 
+                           class="tab" 
+                           th:classappend="${searchParams.category == 'tips' ? 'active' : ''}">환경 팁</a>
+                        <a th:href="@{/eco-talk(category='review')}" 
+                           class="tab" 
+                           th:classappend="${searchParams.category == 'review' ? 'active' : ''}">실천 후기</a>
+                        <a th:href="@{/eco-talk(category='challenge')}" 
+                           class="tab" 
+                           th:classappend="${searchParams.category == 'challenge' ? 'active' : ''}">챌린지</a>
+                        <a th:href="@{/eco-talk(category='question')}" 
+                           class="tab" 
+                           th:classappend="${searchParams.category == 'question' ? 'active' : ''}">질문답변</a>
+                        <a th:href="@{/eco-talk(category='news')}" 
+                           class="tab" 
+                           th:classappend="${searchParams.category == 'news' ? 'active' : ''}">환경 뉴스</a>
+                    </div>
+
+                    <!-- Post List -->
+                    <div class="post-list" id="postList">
+                        <!-- 게시글이 없을 때 -->
+                        <div th:if="${#lists.isEmpty(posts.content)}" class="no-posts">
+                            <div class="no-posts-content">
+                                <h3>😔 게시글이 없습니다</h3>
+                                <p>첫 번째 게시글을 작성해보세요!</p>
+                                <a th:href="@{/eco-talk/write}" class="btn btn-primary" th:if="${session.user}">
+                                    글쓰기
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- 게시글 목록 - 반복문으로 출력 -->
+                        <div class="post-item" th:each="post, iterStat : ${posts.content}" 
+                             th:classappend="${post.isHot ? 'hot' : ''}"
+                             th:onclick="|location.href='@{/eco-talk/view/{id}(id=${post.id})}'|">
+                            <!-- 게시글 번호 또는 HOT 표시 -->
+                            <div class="post-number" th:classappend="${post.isHot ? 'hot' : ''}" 
+                                 th:text="${post.isHot ? '🔥' : (posts.totalElements - (posts.number * posts.size) - iterStat.index)}">1</div>
+                            
+                            <div class="post-content">
+                                <!-- 게시글 제목 -->
+                                <div class="post-title" th:text="${post.title}">게시글 제목</div>
+                                <!-- 게시글 메타 정보 -->
+                                <div class="post-meta">
+                                    <span class="post-author" th:text="${post.authorNickname}">작성자</span>
+                                    <span th:text="${#temporals.format(post.createdDate, 'yyyy.MM.dd HH:mm')}">2025.07.17 14:23</span>
+                                    <span th:text="'조회 ' + ${post.viewCount}">조회 847</span>
+                                </div>
+                                <!-- 게시글 태그들 -->
+                                <div class="post-tags" th:if="${post.tags != null and !post.tags.isEmpty()}">
+                                    <span class="tag" th:each="tag : ${post.tags}" th:text="${tag}">태그</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 게시글 통계 정보 -->
+                            <div class="post-stats post-likes" th:text="'❤️ ' + ${post.likeCount}">❤️ 89</div>
+                            <div class="post-stats post-comments" th:text="'💬 ' + ${post.commentCount}">💬 23</div>
+                            <div class="post-stats post-views" th:text="'👁️ ' + ${post.viewCount}">👁️ 847</div>
+                            <!-- 작성 시간 -->
+                            <div class="post-date" th:text="${post.timeAgo}">14:23</div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" th:if="${posts.totalPages > 1}">
+                        <!-- 이전 페이지 -->
+                        <a th:href="@{/eco-talk(page=${posts.number - 1}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                           class="page-btn" th:if="${posts.hasPrevious()}">‹</a>
+                        
+                        <!-- 페이지 번호들 -->
+                        <th:block th:each="pageNum : ${#numbers.sequence(0, posts.totalPages - 1)}">
+                            <a th:href="@{/eco-talk(page=${pageNum}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                               class="page-btn" 
+                               th:classappend="${pageNum == posts.number ? 'active' : ''}"
+                               th:text="${pageNum + 1}">1</a>
+                        </th:block>
+                        
+                        <!-- 다음 페이지 -->
+                        <a th:href="@{/eco-talk(page=${posts.number + 1}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                           class="page-btn" th:if="${posts.hasNext()}">›</a>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="board-sidebar fade-in">
+                    <!-- User Info - 로그인한 사용자만 표시 -->
+                    <div class="sidebar-card user-stats" th:if="${session.user}">
+                        <h3>👤 내 정보</h3>
+                        <div class="user-avatar">
+                            <img th:src="${session.user.profileImageUrl != null ? session.user.profileImageUrl : '/img/default-avatar.svg'}" 
+                                 th:alt="${session.user.nickname}">
+                        </div>
+                        <div class="user-name" th:text="${session.user.nickname}">환경지킴이</div>
+                        <div class="user-level" th:text="'🌟 ' + ${session.user.levelName}">🌟 에코마스터</div>
+                        <div class="user-point-stats">
+                            <div class="point-item">
+                                <span class="point-number" th:text="${#numbers.formatInteger(session.user.ecoPoints, 3, 'COMMA')}">1,247</span>
+                                <span class="point-label">에코포인트</span>
+                            </div>
+                            <div class="point-item">
+                                <span class="point-number" th:text="${session.user.postCount}">89</span>
+                                <span class="point-label">작성글</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 로그인 유도 (비로그인 사용자) -->
+                    <div class="sidebar-card login-prompt" th:unless="${session.user}">
+                        <h3>👋 환영합니다!</h3>
+                        <p>로그인하여 환경 실천 커뮤니티에 참여해보세요</p>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <a th:href="@{/login}" class="btn btn-primary" style="flex: 1;">로그인</a>
+                            <a th:href="@{/signup}" class="btn btn-secondary" style="flex: 1;">회원가입</a>
+                        </div>
+                    </div>
+
+                    <!-- Popular Posts -->
+                    <div class="sidebar-card">
+                        <h3>🔥 인기글</h3>
+                        <div class="popular-list">
+                            <!-- 인기글 목록 - 반복문으로 출력 -->
+                            <div class="popular-item" th:each="popularPost, iterStat : ${popularPosts}" 
+                                 th:onclick="|location.href='@{/eco-talk/view/{id}(id=${popularPost.id})}'|">
+                                <div class="popular-rank" th:text="${iterStat.count}">1</div>
+                                <div class="popular-title" th:text="${popularPost.title}">인기글 제목</div>
+                                <div class="popular-stats">
+                                    <span th:text="'👁️ ' + ${popularPost.viewCount}">👁️ 847</span>
+                                    <span th:text="'❤️ ' + ${popularPost.likeCount}">❤️ 89</span>
+                                    <span th:text="'💬 ' + ${popularPost.commentCount}">💬 23</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Weekly Challenge -->
+                    <div class="challenge-card" th:if="${weeklyChallenge}">
+                        <div class="challenge-icon">🌍</div>
+                        <div class="challenge-title">이번 주 챌린지</div>
+                        <div class="challenge-desc" th:text="${weeklyChallenge.description}">
+                            일회용품 줄이기<br>
+                            7일 동안 일회용품 사용량 50% 줄이기
+                        </div>
+                        <button class="challenge-btn" th:if="${session.user}" 
+                                th:onclick="|joinChallenge(${weeklyChallenge.id})|">참여하기</button>
+                        <a th:href="@{/login}" class="challenge-btn" th:unless="${session.user}">로그인하여 참여</a>
+                    </div>
+
+                    <!-- Environmental Tips -->
+                    <div class="sidebar-card" th:if="${dailyTip}">
+                        <h3>💡 오늘의 환경 팁</h3>
+                        <div style="text-align: center; padding: 20px 0;">
+                            <div style="font-size: 48px; margin-bottom: 15px;" th:text="${dailyTip.icon}">♻️</div>
+                            <h4 style="color: var(--primary-green); margin-bottom: 10px;" th:text="${dailyTip.title}">분리배출 핵심</h4>
+                            <p style="font-size: 14px; line-height: 1.6; color: var(--dark-gray);" th:utext="${dailyTip.content}">
+                                플라스틱 용기는 내용물을 비우고 물로 한 번 헹군 후 배출하면 
+                                재활용 효율이 <strong>30% 향상</strong>됩니다!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="sidebar-card">
+                        <h3>🔗 바로가기</h3>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a th:href="@{/waste-sorting}" class="btn btn-secondary" style="width: 100%;">
+                                📋 분리배출 가이드
+                            </a>
+                            <a th:href="@{/eco-market}" class="btn btn-secondary" style="width: 100%;">
+                                🛒 친환경 제품 보기
+                            </a>
+                            <a th:href="@{/free-sharing}" class="btn btn-secondary" style="width: 100%;">
+                                🤝 무료나눔 참여
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a th:href="@{/about}">회사소개</a></li>
+                        <li><a th:href="@{/patents}">기술 특허</a></li>
+                        <li><a th:href="@{/research}">연구개발</a></li>
+                        <li><a th:href="@{/careers}">채용정보</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/guide}">이용가이드</a></li>
+                        <li><a th:href="@{/support}">기술지원</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
+                    <a th:href="@{/terms}">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/eco-talk-script.js}"></script>
+    
+    <!-- 페이지 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var postsData = /*[[${posts.content}]]*/ [];
+        var popularPostsData = /*[[${popularPosts}]]*/ [];
+        var searchParams = /*[[${searchParams}]]*/ {};
+        var currentUser = /*[[${session.user}]]*/ null;
+        var currentPage = /*[[${posts.number}]]*/ 0;
+        var totalPages = /*[[${posts.totalPages}]]*/ 1;
+        
+        // 전역 변수로 설정하여 JavaScript 함수들에서 사용
+        window.postsData = postsData;
+        window.popularPostsData = popularPostsData;
+        window.searchParams = searchParams;
+        window.currentUser = currentUser;
+        window.currentPage = currentPage;
+        window.totalPages = totalPages;
+        
+        // 챌린지 참여 함수
+        function joinChallenge(challengeId) {
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                location.href = '/login';
+                return;
+            }
+            
+            // 챌린지 참여 API 호출
+            fetch(`/api/challenges/${challengeId}/join`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('챌린지에 참여했습니다!');
+                    location.reload();
+                } else {
+                    alert(data.message || '참여에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('오류가 발생했습니다.');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 에코마켓</title>
+    <!-- CSS 파일 링크 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/eco-market.css}">
+    <!-- 구글 폰트 링크 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 헤더 섹션 - 상단 고정 네비게이션 -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 영역 - Thymeleaf URL 처리 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                
+                <!-- 메인 네비게이션 메뉴 -->
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/#home}">홈</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}" class="active">에코마켓</a></li> <!-- 현재 페이지 -->
+                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                
+                <!-- 로그인/회원가입 버튼 - 로그인 상태에 따른 조건부 표시 -->
+                <div class="auth-buttons">
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user}" class="user-menu">
+                        <a th:href="@{/cart}" class="btn-login">장바구니</a>
+                        <a th:href="@{/mypage}" class="btn-signup" th:text="${session.user.nickname + '님'}">마이페이지</a>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                    <!-- 비로그인 상태 -->
+                    <div th:unless="${session.user}" class="guest-menu">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                </div>
+                
+                <!-- 모바일 햄버거 메뉴 -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main class="main-content">
+        <!-- 히어로 섹션 - 페이지 상단 소개 영역 -->
+        <section class="hero-section">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>🛒 에코마켓</h1>
+                    <p>환경을 생각하는 중고거래로 지속가능한 소비를 실현하세요</p>
+                    
+                    <!-- 통계 표시 영역 - 서버에서 전달받은 통계 데이터 -->
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${marketStats.todayCompleted}">2,847</span>
+                            <span class="stat-label">오늘 거래 완료</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${#numbers.formatInteger(marketStats.totalTransactions, 3, 'COMMA')}">34,521</span>
+                            <span class="stat-label">총 거래 건수</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number" th:text="${#numbers.formatInteger(marketStats.activeSellers, 3, 'COMMA')}">12,394</span>
+                            <span class="stat-label">활성 판매자</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 필터 및 액션 섹션 -->
+        <section class="filter-section">
+            <div class="container">
+                <!-- 필터 헤더 - 제목과 상품 등록 버튼 -->
+                <div class="filter-header">
+                    <div class="filter-left">
+                        <h2>우리 동네 에코마켓</h2>
+                        <!-- 사용자 위치 정보 표시 -->
+                        <p th:text="'📍 ' + ${session.user != null ? session.user.location : '위치를 설정해주세요'}">📍 서울 강남구 역삼동</p>
+                    </div>
+                    <div class="filter-right">
+                        <!-- 상품 등록 버튼 - 로그인한 사용자만 표시 -->
+                        <button class="btn btn-primary" id="addItemBtn" th:if="${session.user}" 
+                                th:onclick="|location.href='@{/eco-market/register}'|">
+                            <span>+</span> 상품 등록
+                        </button>
+                        <a th:href="@{/login}" class="btn btn-primary" th:unless="${session.user}">
+                            <span>+</span> 로그인하여 상품 등록
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 필터 컨트롤 영역 - 폼으로 감싸서 서버에 전송 -->
+                <form th:action="@{/eco-market}" method="get" id="filterForm">
+                    <div class="filter-controls">
+                        <!-- 카테고리 필터 -->
+                        <div class="filter-group">
+                            <label>카테고리</label>
+                            <select id="categoryFilter" name="category" th:value="${searchParams.category}">
+                                <option value="">전체</option>
+                                <!-- 서버에서 전달받은 카테고리 목록 출력 -->
+                                <option th:each="cat : ${categories}" 
+                                        th:value="${cat.code}" 
+                                        th:text="${cat.name}"
+                                        th:selected="${cat.code == searchParams.category}">의류/잡화</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 거리 필터 -->
+                        <div class="filter-group">
+                            <label>거리</label>
+                            <select id="distanceFilter" name="distance" th:value="${searchParams.distance}">
+                                <option value="">전체</option>
+                                <option value="500" th:selected="${searchParams.distance == '500'}">500m 이내</option>
+                                <option value="1000" th:selected="${searchParams.distance == '1000'}">1km 이내</option>
+                                <option value="3000" th:selected="${searchParams.distance == '3000'}">3km 이내</option>
+                                <option value="5000" th:selected="${searchParams.distance == '5000'}">5km 이내</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 가격 필터 -->
+                        <div class="filter-group">
+                            <label>가격</label>
+                            <select id="priceFilter" name="priceRange" th:value="${searchParams.priceRange}">
+                                <option value="">전체</option>
+                                <option value="0-10000" th:selected="${searchParams.priceRange == '0-10000'}">1만원 이하</option>
+                                <option value="10000-50000" th:selected="${searchParams.priceRange == '10000-50000'}">1만원~5만원</option>
+                                <option value="50000-100000" th:selected="${searchParams.priceRange == '50000-100000'}">5만원~10만원</option>
+                                <option value="100000-500000" th:selected="${searchParams.priceRange == '100000-500000'}">10만원~50만원</option>
+                                <option value="500000-99999999" th:selected="${searchParams.priceRange == '500000-99999999'}">50만원 이상</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 상태 필터 -->
+                        <div class="filter-group">
+                            <label>상태</label>
+                            <select id="statusFilter" name="status" th:value="${searchParams.status}">
+                                <option value="">전체</option>
+                                <option value="AVAILABLE" th:selected="${searchParams.status == 'AVAILABLE'}">판매중</option>
+                                <option value="RESERVED" th:selected="${searchParams.status == 'RESERVED'}">예약중</option>
+                                <option value="COMPLETED" th:selected="${searchParams.status == 'COMPLETED'}">판매완료</option>
+                            </select>
+                        </div>
+                        
+                        <!-- 검색 영역 -->
+                        <div class="search-group">
+                            <input type="text" id="searchInput" name="keyword" 
+                                   th:value="${searchParams.keyword}"
+                                   placeholder="원하는 상품을 검색하세요...">
+                            <button type="submit" class="search-btn">🔍</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- 상품 목록 섹션 -->
+        <section class="items-section">
+            <div class="container">
+                <!-- 상품 목록 헤더 -->
+                <div class="items-header">
+                    <div class="items-count">
+                        <!-- 검색 결과 개수 표시 -->
+                        <span id="totalItems" th:text="'총 ' + ${#numbers.formatInteger(products.totalElements, 0, 'COMMA')} + '개'">총 67개</span>의 상품
+                    </div>
+                    <!-- 정렬 옵션 -->
+                    <div class="sort-options">
+                        <select id="sortSelect" name="sort" onchange="changeSort(this.value)">
+                            <option value="recent" th:selected="${searchParams.sort == 'recent'}">최신순</option>
+                            <option value="price-low" th:selected="${searchParams.sort == 'price-low'}">가격 낮은순</option>
+                            <option value="price-high" th:selected="${searchParams.sort == 'price-high'}">가격 높은순</option>
+                            <option value="distance" th:selected="${searchParams.sort == 'distance'}">거리순</option>
+                            <option value="popular" th:selected="${searchParams.sort == 'popular'}">인기순</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 상품 그리드 영역 - Thymeleaf 반복문으로 동적 생성 -->
+                <div class="items-grid" id="itemsGrid">
+                    <!-- 상품이 없을 때 표시 -->
+                    <div th:if="${#lists.isEmpty(products.content)}" class="no-products">
+                        <div class="no-products-content">
+                            <h3>😔 검색 조건에 맞는 상품이 없습니다</h3>
+                            <p>다른 조건으로 검색해보시거나, 직접 상품을 등록해보세요!</p>
+                            <a th:href="@{/eco-market/register}" class="btn btn-primary" th:if="${session.user}">
+                                상품 등록하기
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 상품 카드들 - 반복문으로 출력 -->
+                    <div class="product-card" th:each="product : ${products.content}" 
+                         th:onclick="|location.href='@{/eco-market/detail/{id}(id=${product.id})}'|">
+                        <!-- 상품 이미지 -->
+                        <div class="product-image">
+                            <img th:src="${product.mainImageUrl != null ? product.mainImageUrl : '/img/default-product.svg'}" 
+                                 th:alt="${product.title}">
+                            <!-- 상품 상태 배지 -->
+                            <div class="product-status" 
+                                 th:classappend="${product.status == 'AVAILABLE' ? 'status-available' : (product.status == 'RESERVED' ? 'status-reserved' : 'status-completed')}"
+                                 th:text="${product.status == 'AVAILABLE' ? '판매중' : (product.status == 'RESERVED' ? '예약중' : '판매완료')}">판매중</div>
+                            <!-- 에코 배지 - 조건부 표시 -->
+                            <div class="eco-badge" th:if="${product.ecoOptions != null and !product.ecoOptions.isEmpty()}">🌱 에코</div>
+                        </div>
+                        
+                        <!-- 상품 정보 -->
+                        <div class="product-info">
+                            <h3 class="product-title" th:text="${product.title}">상품명</h3>
+                            <div class="product-meta">
+                                <!-- 카테고리 -->
+                                <span class="product-category" th:text="${product.categoryName}">전자제품</span>
+                                <!-- 상품 상태 -->
+                                <span class="product-condition" th:text="${product.conditionText}">거의 새것</span>
+                            </div>
+                            
+                            <!-- 가격 정보 -->
+                            <div class="product-price">
+                                <!-- 현재 가격 -->
+                                <span class="current-price" th:text="${#numbers.formatInteger(product.price, 3, 'COMMA')} + '원'">1,250,000원</span>
+                                <!-- 협상 가능 표시 -->
+                                <span class="negotiable" th:if="${product.negotiable}">협상가능</span>
+                            </div>
+                            
+                            <!-- 위치 및 시간 정보 -->
+                            <div class="product-location">
+                                <span th:text="'📍 ' + ${product.location}">📍 강남역 2번 출구</span>
+                                <span class="product-time" th:text="${product.timeAgo}">15분 전</span>
+                            </div>
+                            
+                            <!-- 관심 및 채팅 정보 -->
+                            <div class="product-stats">
+                                <span class="stat-item">
+                                    <span class="stat-icon">💖</span>
+                                    <span th:text="${product.wishlistCount}">18</span>
+                                </span>
+                                <span class="stat-item">
+                                    <span class="stat-icon">💬</span>
+                                    <span th:text="${product.chatCount}">3</span>
+                                </span>
+                                <span class="stat-item">
+                                    <span class="stat-icon">👁️</span>
+                                    <span th:text="${product.viewCount}">124</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 더보기 버튼 - 페이지네이션이 있을 경우 표시 -->
+                <div class="load-more" th:if="${products.hasNext()}">
+                    <button class="btn btn-secondary" id="loadMoreBtn" 
+                            th:onclick="|loadMoreProducts(${products.number + 1})|">더 많은 상품 보기</button>
+                </div>
+
+                <!-- 페이지네이션 영역 -->
+                <div class="pagination" id="pagination" th:if="${products.totalPages > 1}">
+                    <!-- 이전 페이지 -->
+                    <a th:href="@{/eco-market(page=${products.number - 1}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                       class="page-btn" th:if="${products.hasPrevious()}">‹</a>
+                    
+                    <!-- 페이지 번호들 -->
+                    <th:block th:each="pageNum : ${#numbers.sequence(0, products.totalPages - 1)}">
+                        <a th:href="@{/eco-market(page=${pageNum}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                           class="page-btn" 
+                           th:classappend="${pageNum == products.number ? 'active' : ''}"
+                           th:text="${pageNum + 1}">1</a>
+                    </th:block>
+                    
+                    <!-- 다음 페이지 -->
+                    <a th:href="@{/eco-market(page=${products.number + 1}, category=${searchParams.category}, keyword=${searchParams.keyword})}" 
+                       class="page-btn" th:if="${products.hasNext()}">›</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- 회사 정보 -->
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                
+                <!-- 서비스 링크 -->
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 회사정보 링크 -->
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a th:href="@{/about}">회사소개</a></li>
+                        <li><a th:href="@{/patents}">기술 특허</a></li>
+                        <li><a th:href="@{/research}">연구개발</a></li>
+                        <li><a th:href="@{/careers}">채용정보</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 고객지원 링크 -->
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/guide}">이용가이드</a></li>
+                        <li><a th:href="@{/support}">기술지원</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 푸터 하단 -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
+                    <a th:href="@{/terms}">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/eco-market.js}"></script>
+    
+    <!-- 페이지 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var productsData = /*[[${products.content}]]*/ [];
+        var searchParams = /*[[${searchParams}]]*/ {};
+        var currentPage = /*[[${products.number}]]*/ 0;
+        var totalPages = /*[[${products.totalPages}]]*/ 1;
+        
+        // 전역 변수로 설정하여 JavaScript 함수들에서 사용
+        window.productsData = productsData;
+        window.searchParams = searchParams;
+        window.currentPage = currentPage;
+        window.totalPages = totalPages;
+        
+        // 정렬 변경 함수
+        function changeSort(sortValue) {
+            var currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('sort', sortValue);
+            currentUrl.searchParams.set('page', '0'); // 정렬 변경시 첫 페이지로
+            window.location.href = currentUrl.toString();
+        }
+        
+        // 더보기 함수
+        function loadMoreProducts(page) {
+            var currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('page', page);
+            window.location.href = currentUrl.toString();
+        }
+    </script>
+</body>
+</html>

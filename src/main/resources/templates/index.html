@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- 기본 메타 정보 설정 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 첨단 기술 기반 스마트 폐기물 관리 솔루션</title>
+    
+    <!-- 외부 스타일시트 및 폰트 연결 - Thymeleaf 정적 리소스 경로 -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- SEO 메타 태그 -->
+    <meta name="description" content="AI 기반 폐기물 분류, 무료나눔, 친환경 쇼핑까지 한번에! GreenCycle과 함께하는 스마트한 환경 보호">
+    <meta name="keywords" content="폐기물분류, AI분류, 무료나눔, 친환경, 재활용, 환경보호">
+</head>
+<body>
+    <!-- ========================================
+         헤더 네비게이션 섹션
+    ======================================== -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 - Thymeleaf URL 처리 -->
+                <a th:href="@{#home}" class="logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">GreenCycle</span>
+                </a>
+                
+                <!-- 네비게이션 메뉴 -->
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/}">홈</a></li> 
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+
+                <!-- 인증 버튼들 - 로그인 상태에 따른 조건부 표시 -->
+                <div class="auth-buttons">
+                    <!-- 로그인한 경우 -->
+                    <div th:if="${session.user}" class="user-menu">
+                        <a th:href="@{/mypage}" class="user-name" th:text="${session.user.nickname + '님'}">사용자님</a>
+                        <a th:href="@{/logout}" class="btn-logout">로그아웃</a>
+                    </div>
+                    <!-- 비로그인 상태 -->
+                    <div th:unless="${session.user}" class="guest-menu">
+                        <a th:href="@{/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                </div>
+                
+                <!-- 모바일 햄버거 메뉴 -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ========================================
+         메인 컨텐츠 시작
+    ======================================== -->
+    <main id="mainContent">
+        
+        <!-- ========================================
+             히어로 섹션 - 메인 배너
+        ======================================== -->
+        <section id="home" class="hero">
+            <!-- 배경 이미지 슬라이더 -->
+            <div class="hero-bg-slider">
+                <div class="hero-slide active" th:style="'background-image: linear-gradient(135deg, rgba(119, 121, 120, 0.26), rgba(111, 167, 118, 0.7)), url(' + @{/img/1_1.jpg} + ')'"></div>
+                <div class="hero-slide" th:style="'background-image: linear-gradient(135deg, rgba(119, 121, 120, 0.26), rgba(111, 167, 118, 0.7)), url(' + @{/img/1_2.jpg} + ')'"></div>
+                <div class="hero-slide" th:style="'background-image: linear-gradient(135deg, rgba(119, 121, 120, 0.26), rgba(111, 167, 118, 0.7)), url(' + @{/img/1_3.jpg} + ')'"></div>
+            </div>
+
+            <!-- 히어로 컨텐츠 -->
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1>첨단 기술로 실현하는<br><span class="highlight">스마트 환경 플랫폼</span></h1>
+                    <p>20년의 경험과 최신 기술을 결합하여 폐기물 관리부터 친환경 마켓플레이스까지, 지속가능한 미래를 위한 통합 솔루션을 제공합니다.</p>
+                    
+                    <!-- 액션 버튼들 -->
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary" onclick="scrollToSection('services')">서비스 체험</button>
+                        <a th:href="@{/signup}" class="btn btn-secondary">무료 가입</a>
+                    </div>
+                    
+                    <!-- 주요 기능 배지들 -->
+                    <div class="hero-features">
+                        <div class="feature-badge">
+                            <span class="badge-icon">⚡</span>
+                            <span class="badge-text">자동 분류</span>
+                        </div>
+                        <div class="feature-badge">
+                            <span class="badge-icon">🔄</span>
+                            <span class="badge-text">실시간 처리</span>
+                        </div>
+                        <div class="feature-badge">
+                            <span class="badge-icon">📊</span>
+                            <span class="badge-text">99.7% 정확도</span>
+                        </div>
+                        <div class="feature-badge">
+                            <span class="badge-icon">🌍</span>
+                            <span class="badge-text">친환경 커뮤니티</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 히어로 이미지/카드 -->
+                <div class="hero-image">
+                    <div class="hero-card">
+                        <div class="card-icon">♻️</div>
+                        <h3>통합 환경 플랫폼</h3>
+                        <p>폐기물 관리부터 친환경 쇼핑, 커뮤니티까지 한 번에 해결하는 스마트 솔루션</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             통계 섹션 - 주요 성과 지표 (서버에서 동적 데이터)
+        ======================================== -->
+        <section class="stats">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" th:data-count="${platformStats.monthlyProcessed}" th:text="${platformStats.monthlyProcessed}">50000</div>
+                        <div class="stat-label">월간 처리량 (톤)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" th:data-count="${platformStats.activeUsers}" th:text="${#numbers.formatInteger(platformStats.activeUsers, 3, 'COMMA')}">15000</div>
+                        <div class="stat-label">활성 사용자</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" th:data-count="${platformStats.classificationAccuracy}" th:text="${platformStats.classificationAccuracy}">99.7</div>
+                        <div class="stat-label">분류 정확도 (%)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" th:data-count="24" th:text="24">24</div>
+                        <div class="stat-label">시간 무중단 운영</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             서비스 슬라이더 섹션 - 주요 서비스 소개
+        ======================================== -->
+        <section id="services" class="services-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>통합 환경 서비스</h2>
+                    <p>첨단 기술과 커뮤니티의 힘으로 환경 보호의 새로운 기준을 제시합니다</p>
+                </div>
+                
+                <!-- 서비스 슬라이더 컨테이너 -->
+                <div class="services-slider-container">
+                    <div class="services-slider" id="servicesSlider">
+                        <div class="services-slides-wrapper" id="slidesWrapper">
+                            
+                            <!-- 스마트 분리배출 서비스 -->
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">⚡</div>
+                                    <h3>스마트 분리배출</h3>
+                                    <p>AI 기반 자동 분류 시스템으로 폐기물을 정확하게 분류하고 처리합니다. 첨단 센서와 머신러닝 기술을 활용하여 99.7%의 높은 정확도를 자랑합니다.</p>
+                                    <ul class="service-features">
+                                        <li>실시간 자동 인식</li>
+                                        <li>정밀 분류 및 분리</li>
+                                        <li>오분류 자동 감지</li>
+                                        <li>포인트 적립 시스템</li>
+                                    </ul>
+                                    <a th:href="@{/waste-sorting}" class="service-link">서비스 체험하기</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 무료나눔 커뮤니티 서비스 -->
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">🤝</div>
+                                    <h3>무료나눔 커뮤니티</h3>
+                                    <p>사용하지 않는 물건을 이웃과 나누며 자원 순환을 실현합니다. 지역 기반 매칭 시스템으로 안전하고 편리한 나눔 문화를 만들어갑니다.</p>
+                                    <ul class="service-features">
+                                        <li>지역별 매칭 시스템</li>
+                                        <li>안전한 거래 보장</li>
+                                        <li>나눔 인증 제도</li>
+                                        <li>환경 기여도 측정</li>
+                                    </ul>
+                                    <a th:href="@{/free-sharing}" class="service-link">나눔 참여하기</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 친환경 에코마켓 서비스 -->
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">🛒</div>
+                                    <h3>친환경 에코마켓</h3>
+                                    <p>검증된 친환경 제품만을 판매하는 전문 마켓플레이스입니다. 엄격한 심사를 거친 친환경 인증 제품들로 구성되어 있습니다.</p>
+                                    <ul class="service-features">
+                                        <li>친환경 인증 제품만</li>
+                                        <li>탄소발자국 표시</li>
+                                        <li>리뷰 및 평점 시스템</li>
+                                        <li>에코포인트 적립</li>
+                                    </ul>
+                                    <a th:href="@{/eco-market}" class="service-link">마켓 둘러보기</a>
+                                </div>
+                            </div>
+                            
+                            <!-- 환경독톡 커뮤니티 서비스 -->
+                            <div class="service-slide">
+                                <div class="service-card">
+                                    <div class="service-icon">💬</div>
+                                    <h3>환경독톡</h3>
+                                    <p>환경 보호에 관심있는 사람들이 모여 정보를 공유하는 커뮤니티입니다. 전문가 팁부터 일상 속 환경 실천법까지 다양한 정보를 나눕니다.</p>
+                                    <ul class="service-features">
+                                        <li>전문가 환경 팁</li>
+                                        <li>실천 후기 공유</li>
+                                        <li>챌린지 이벤트</li>
+                                        <li>커뮤니티 랭킹</li>
+                                    </ul>
+                                    <a th:href="@{/eco-talk}" class="service-link">커뮤니티 참여</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             실시간 환경 임팩트 대시보드 (서버에서 동적 데이터)
+        ======================================== -->
+        <section class="impact-dashboard">
+            <div class="container">
+                <div class="section-header">
+                    <h2>실시간 환경 임팩트</h2>
+                    <p>지금 이 순간 우리가 함께 만들어가는 지속가능한 변화</p>
+                </div>
+                
+                <!-- 임팩트 데이터 그리드 -->
+                <div class="impact-grid">
+                    <div class="impact-card highlight">
+                        <div class="impact-icon">🌍</div>
+                        <div class="impact-data">
+                            <div class="impact-number" th:data-count="${todayImpact.carbonSaved}" th:text="${todayImpact.carbonSaved}">1247</div>
+                            <div class="impact-unit">kg CO₂</div>
+                            <div class="impact-label">오늘 절약된 탄소</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">↗️</span>
+                                <span class="trend-text" th:text="'전일 대비 +' + ${todayImpact.carbonTrend} + '%'">전일 대비 +23%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon">♻️</div>
+                        <div class="impact-data">
+                            <div class="impact-number" th:data-count="${todayImpact.recycled}" th:text="${todayImpact.recycled}">892</div>
+                            <div class="impact-unit">톤</div>
+                            <div class="impact-label">재활용된 폐기물</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">↗️</span>
+                                <span class="trend-text" th:text="'전주 대비 +' + ${todayImpact.recycledTrend} + '%'">전주 대비 +15%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon">🤝</div>
+                        <div class="impact-data">
+                            <div class="impact-number" th:data-count="${todayImpact.sharingCompleted}" th:text="${todayImpact.sharingCompleted}">156</div>
+                            <div class="impact-unit">개</div>
+                            <div class="impact-label">무료나눔 완료</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">🔥</span>
+                                <span class="trend-text">실시간 활발</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card">
+                        <div class="impact-icon">🛒</div>
+                        <div class="impact-data">
+                            <div class="impact-number" th:data-count="${todayImpact.ecoProductsSold}" th:text="${todayImpact.ecoProductsSold}">89</div>
+                            <div class="impact-unit">건</div>
+                            <div class="impact-label">친환경 제품 판매</div>
+                            <div class="impact-trend">
+                                <span class="trend-icon">💚</span>
+                                <span class="trend-text" th:text="'고객 만족도 ' + ${todayImpact.customerSatisfaction} + '%'">고객 만족도 98%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 환경 성과 시각화 -->
+                <div class="impact-visual">
+                    <div class="impact-chart">
+                        <h3>월별 환경 성과 추이</h3>
+                        <div class="chart-container">
+                            <!-- 월별 성과 데이터를 반복문으로 출력 -->
+                            <div class="chart-bar" th:each="monthData, iterStat : ${monthlyPerformance}" 
+                                 th:style="'height: ' + ${monthData.percentage} + '%'"
+                                 th:classappend="${iterStat.last ? 'active' : (monthData.isFuture ? 'future' : '')}">
+                                <span class="bar-value" th:text="${monthData.percentage} + '%'">65%</span>
+                                <span class="bar-month" th:text="${monthData.monthLabel}">5월</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-goal">
+                        <h3>2025년 목표</h3>
+                        <div class="goal-progress">
+                            <!-- 목표 진행률 데이터를 반복문으로 출력 -->
+                            <div class="goal-item" th:each="goal : ${yearlyGoals}">
+                                <span class="goal-label" th:text="${goal.label}">탄소 중립</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" th:style="'width: ' + ${goal.progress} + '%'"></div>
+                                    <span class="progress-text" th:text="${goal.progress} + '%'">73%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             실시간 활동 피드 (서버에서 동적 데이터)
+        ======================================== -->
+        <section class="activity-feed">
+            <div class="container">
+                <div class="section-header">
+                    <h2>지금 일어나고 있는 환경 액션</h2>
+                    <p>실시간으로 펼쳐지는 환경 보호 활동들</p>
+                </div>
+                
+                <div class="activity-container">
+                    <!-- 활동 목록 - 서버에서 전달받은 실시간 활동 데이터 -->
+                    <div class="activity-list" id="activityList">
+                        <!-- 실시간 활동들을 반복문으로 출력 -->
+                        <div class="activity-item" th:each="activity : ${realtimeActivities}">
+                            <div class="activity-time" th:text="${activity.timeAgo}">방금 전</div>
+                            <div class="activity-content">
+                                <div class="activity-icon" 
+                                     th:classappend="${activity.type == 'WASTE' ? 'waste' : (activity.type == 'SHARING' ? 'sharing' : (activity.type == 'MARKET' ? 'market' : 'community'))}">
+                                    <span th:text="${activity.icon}">⚡</span>
+                                </div>
+                                <div class="activity-text">
+                                    <!-- 활동 설명을 동적으로 생성 -->
+                                    <span th:utext="${activity.description}">활동 내용</span>
+                                    <!-- 추가 정보가 있는 경우 표시 -->
+                                    <span class="activity-extra" th:if="${activity.extraInfo}" th:text="${activity.extraInfo}">+10P 적립</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 활동 통계 - 서버에서 전달받은 오늘의 활동 통계 -->
+                    <div class="activity-stats">
+                        <h3>오늘의 활동 현황</h3>
+                        <div class="stats-mini">
+                            <div class="stat-mini">
+                                <span class="stat-number" th:text="${#numbers.formatInteger(todayStats.wasteProcessed, 3, 'COMMA')}">1,247</span>
+                                <span class="stat-label">분리배출</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="stat-number" th:text="${todayStats.sharingCount}">89</span>
+                                <span class="stat-label">무료나눔</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="stat-number" th:text="${todayStats.ecoShopping}">156</span>
+                                <span class="stat-label">친환경 구매</span>
+                            </div>
+                            <div class="stat-mini">
+                                <span class="stat-number" th:text="${todayStats.communityParticipation}">234</span>
+                                <span class="stat-label">커뮤니티 참여</span>
+                            </div>
+                        </div>
+                        
+                        <div class="live-indicator">
+                            <div class="pulse-dot"></div>
+                            <span>실시간 업데이트</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             서비스 미리보기 섹션 (서버에서 동적 데이터)
+        ======================================== -->
+        <section class="service-previews">
+            <div class="container">
+                <div class="section-header">
+                    <h2>서비스 미리보기</h2>
+                    <p>GreenCycle의 핵심 서비스들을 직접 체험해보세요</p>
+                </div>
+                
+                <!-- 나머지 3개 서비스 - 일렬 배치 -->
+                <div class="other-services-row">
+                    <!-- 무료나눔 미리보기 -->
+                    <div class="preview-card sharing-demo">
+                        <div class="preview-header">
+                            <h3>🤝 실시간 무료나눔</h3>
+                            <p>우리 동네에서 나누고 있는 물건들</p>
+                        </div>
+                        <div class="sharing-list">
+                            <!-- 최근 나눔 목록을 반복문으로 출력 -->
+                            <div class="sharing-item" th:each="sharingItem : ${recentSharingItems}">
+                                <div class="item-image" th:text="${sharingItem.categoryIcon}">📚</div>
+                                <div class="item-info">
+                                    <h4 th:text="${sharingItem.title}">나눔 아이템</h4>
+                                    <p th:text="'📍 ' + ${sharingItem.location}">📍 서울 강남구 역삼동</p>
+                                    <span class="time-ago" th:text="${sharingItem.timeAgo}">10분 전</span>
+                                </div>
+                                <div class="item-status" 
+                                     th:classappend="${sharingItem.status == 'AVAILABLE' ? 'available' : (sharingItem.status == 'RESERVED' ? 'reserved' : 'completed')}"
+                                     th:text="${sharingItem.status == 'AVAILABLE' ? '나눔중' : (sharingItem.status == 'RESERVED' ? '예약중' : '완료')}">나눔중</div>
+                            </div>
+                        </div>
+                        <button class="preview-more" th:onclick="|location.href='@{/free-sharing}'|">더 많은 나눔 보기</button>
+                    </div>
+                    
+                    <!-- 에코마켓 미리보기 -->
+                    <div class="preview-card market-demo">
+                        <div class="preview-header">
+                            <h3>🛒 친환경 에코마켓</h3>
+                            <p>검증된 친환경 제품만을 엄선</p>
+                        </div>
+                        <div class="product-grid">
+                            <!-- 추천 친환경 제품들을 반복문으로 출력 -->
+                            <div class="product-item" th:each="product : ${featuredEcoProducts}">
+                                <div class="product-image eco" th:text="${product.categoryIcon}">🧴</div>
+                                <div class="product-info">
+                                    <h4 th:text="${product.name}">천연 세제 세트</h4>
+                                    <p class="price" th:text="${#numbers.formatInteger(product.price, 3, 'COMMA')} + '원'">32,000원</p>
+                                    <div class="eco-badge" th:text="${product.certificationBadge}">🌿 탄소중립 인증</div>
+                                    <div class="rating" th:text="'⭐ ' + ${product.rating} + ' (' + ${product.reviewCount} + ')'">⭐ 4.9 (127)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="preview-more" th:onclick="|location.href='@{/eco-market}'|">에코마켓 둘러보기</button>
+                    </div>
+                    
+                    <!-- 환경독톡 미리보기 -->
+                    <div class="preview-card community-demo">
+                        <div class="preview-header">
+                            <h3>💬 환경독톡 커뮤니티</h3>
+                            <p>환경 실천가들과 함께하는 소통 공간</p>
+                        </div>
+                        <div class="community-posts">
+                            <!-- 인기 커뮤니티 게시글들을 반복문으로 출력 -->
+                            <div class="post-item" th:each="post, iterStat : ${popularCommunityPosts}"
+                                 th:classappend="${iterStat.first ? 'hot' : ''}">
+                                <div class="post-tag" th:if="${iterStat.first}">🔥 HOT</div>
+                                <h4 th:text="${post.title}">커뮤니티 게시글 제목</h4>
+                                <p th:text="${post.excerpt}">게시글 요약...</p>
+                                <div class="post-meta">
+                                    <span th:text="'👤 ' + ${post.authorNickname}">👤 환경러버</span>
+                                    <span th:text="'👍 ' + ${post.likeCount}">👍 89</span>
+                                    <span th:text="'💬 ' + ${post.commentCount}">💬 23</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="preview-more" th:onclick="|location.href='@{/eco-talk}'|">커뮤니티 참여하기</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             환경 정보 센터 (3개 일렬 배치) - 외부 API 또는 서버 데이터
+        ======================================== -->
+        <section class="env-info">
+            <div class="container">
+                <div class="section-header">
+                    <h2>오늘의 환경 정보</h2>
+                    <p>실시간 환경 데이터와 유용한 정보를 제공합니다</p>
+                </div>
+                
+                <div class="info-grid-three">
+                    <!-- 대기질 현황 -->
+                    <div class="info-card air-quality">
+                        <div class="info-header">
+                            <h3>🌬️ 대기질 현황</h3>
+                            <span class="location" th:text="${airQuality.location + ' 기준'}">서울시 기준</span>
+                        </div>
+                        <div class="air-data">
+                            <div class="aqi-value" th:classappend="${airQuality.grade}">
+                                <span class="aqi-number" th:text="${airQuality.aqi}">42</span>
+                                <span class="aqi-grade" th:text="${airQuality.gradeText}">좋음</span>
+                            </div>
+                            <div class="air-details">
+                                <div class="air-item">
+                                    <span class="air-type">미세먼지 PM2.5</span>
+                                    <span class="air-value good" th:text="${airQuality.pm25} + ' ㎍/㎥'">18 ㎍/㎥</span>
+                                </div>
+                                <div class="air-item">
+                                    <span class="air-type">미세먼지 PM10</span>
+                                    <span class="air-value good" th:text="${airQuality.pm10} + ' ㎍/㎥'">35 ㎍/㎥</span>
+                                </div>
+                                <div class="air-item">
+                                    <span class="air-type">오존 O₃</span>
+                                    <span class="air-value moderate" th:text="${airQuality.ozone} + ' ppm'">0.078 ppm</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="air-tip" th:text="${airQuality.recommendation}">
+                            💡 야외 활동하기 좋은 날씨입니다
+                        </div>
+                    </div>
+                    
+                    <!-- 환경 뉴스 -->
+                    <div class="info-card env-news">
+                        <div class="info-header">
+                            <h3>🌍 환경 뉴스</h3>
+                            <span class="update-time" th:text="${environmentalNews.lastUpdate}">1시간 전 업데이트</span>
+                        </div>
+                        <div class="news-list">
+                            <!-- 환경 뉴스들을 반복문으로 출력 -->
+                            <div class="news-item" th:each="news : ${environmentalNews.articles}">
+                                <h4 th:text="${news.title}">환경 뉴스 제목</h4>
+                                <p th:text="${news.summary}">뉴스 요약...</p>
+                                <span class="news-time" th:text="${news.timeAgo}">2시간 전</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 오늘의 환경 팁 -->
+                    <div class="info-card green-tips">
+                        <div class="info-header">
+                            <h3>💡 오늘의 환경 팁</h3>
+                            <span class="tip-category" th:text="${dailyTip.category}">에너지 절약</span>
+                        </div>
+                        <div class="tip-content">
+                            <div class="tip-icon" th:text="${dailyTip.icon}">💡</div>
+                            <h4 th:text="${dailyTip.title}">환경 팁 제목</h4>
+                            <p th:utext="${dailyTip.content}">환경 팁 내용...</p>
+                            <div class="tip-impact">
+                                <span th:text="'💰 연간 절약: ' + ${dailyTip.savingsAmount}">💰 연간 절약: 15,000원</span>
+                                <span th:text="'🌱 CO₂ 감축: ' + ${dailyTip.carbonReduction}">🌱 CO₂ 감축: 45kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             성공 사례 섹션 (서버에서 동적 데이터)
+        ======================================== -->
+        <section class="success-stories">
+            <div class="container">
+                <div class="section-header">
+                    <h2>성공 사례</h2>
+                    <p>GreenCycle과 함께 환경을 보호하는 사람들의 이야기</p>
+                </div>
+                
+                <div class="stories-grid">
+                    <!-- 이달의 환경지킴이 (featured) -->
+                    <div class="story-card featured" th:if="${monthlyEcoHero}">
+                        <div class="story-badge">🏆 이달의 환경지킴이</div>
+                        <div class="story-user">
+                            <div class="user-avatar" th:text="${monthlyEcoHero.avatarEmoji}">👩‍🌾</div>
+                            <div class="user-info">
+                                <h3 th:text="${monthlyEcoHero.name + ' (' + monthlyEcoHero.location + ')'}">김지은님 (서울 강남구)</h3>
+                                <p class="user-title" th:text="${monthlyEcoHero.title}">제로웨이스트 실천가</p>
+                            </div>
+                        </div>
+                        <div class="story-content">
+                            <h4 th:text="${monthlyEcoHero.achievement}">성과 제목</h4>
+                            <p th:text="${monthlyEcoHero.story}">스토리 내용...</p>
+                        </div>
+                        <div class="story-stats">
+                            <div class="stat" th:each="stat : ${monthlyEcoHero.stats}">
+                                <span class="stat-number" th:text="${stat.value}">700kg</span>
+                                <span class="stat-label" th:text="${stat.label}">CO₂ 절약</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 기타 성공 사례들 -->
+                    <div class="story-card" th:each="story : ${successStories}">
+                        <div class="story-user">
+                            <div class="user-avatar" th:text="${story.avatarEmoji}">👨‍💼</div>
+                            <div class="user-info">
+                                <h3 th:text="${story.name + ' (' + story.location + ')'}">사용자명 (지역)</h3>
+                                <p class="user-title" th:text="${story.title}">사용자 타이틀</p>
+                            </div>
+                        </div>
+                        <div class="story-content">
+                            <h4 th:text="${story.achievement}">성과 제목</h4>
+                            <p th:text="${story.excerpt}">스토리 요약...</p>
+                        </div>
+                        <div class="story-achievement">
+                            <span class="achievement-badge" th:text="${story.badge}">🌿 배지</span>
+                            <span class="achievement-text" th:text="${story.badgeDescription}">배지 설명</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 고객 후기 슬라이더 -->
+                <div class="testimonial-slider">
+                    <div class="testimonial-track">
+                        <!-- 고객 후기들을 반복문으로 출력 -->
+                        <div class="testimonial" th:each="testimonial : ${customerTestimonials}">
+                            <p th:text="'&quot;' + ${testimonial.content} + '&quot;'">"고객 후기 내용"</p>
+                            <span th:text="'- ' + ${testimonial.authorName}">- 고객명</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================
+         푸터 섹션
+    ======================================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <!-- 회사 정보 -->
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                
+                <!-- 서비스 링크 -->
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 회사 정보 링크 -->
+                <div class="footer-section">
+                    <h4>회사정보</h4>
+                    <ul>
+                        <li><a th:href="@{/about}">회사소개</a></li>
+                        <li><a th:href="@{/patents}">기술 특허</a></li>
+                        <li><a th:href="@{/research}">연구개발</a></li>
+                        <li><a th:href="@{/careers}">채용정보</a></li>
+                    </ul>
+                </div>
+                
+                <!-- 고객 지원 링크 -->
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/guide}">이용가이드</a></li>
+                        <li><a th:href="@{/support}">기술지원</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 푸터 하단 -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
+                    <a th:href="@{/terms}">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/script.js}"></script>
+    
+    <!-- 메인 페이지 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        var platformStatsData = /*[[${platformStats}]]*/ {};
+        var todayImpactData = /*[[${todayImpact}]]*/ {};
+        var realtimeActivitiesData = /*[[${realtimeActivities}]]*/ [];
+        var currentUser = /*[[${session.user}]]*/ null;
+        
+        // 전역 변수로 설정하여 JavaScript 함수들에서 사용
+        window.platformStatsData = platformStatsData;
+        window.todayImpactData = todayImpactData;
+        window.realtimeActivitiesData = realtimeActivitiesData;
+        window.currentUser = currentUser;
+        
+        // 스크롤 함수
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start' 
+                });
+            }
+        }
+        
+        // 실시간 데이터 업데이트 (WebSocket 또는 주기적 AJAX 호출)
+        function updateRealtimeData() {
+            fetch('/api/realtime/activities')
+            .then(response => response.json())
+            .then(data => {
+                updateActivityFeed(data.activities);
+                updateTodayStats(data.todayStats);
+                updateImpactData(data.impactData);
+            })
+            .catch(error => {
+                console.error('Failed to update realtime data:', error);
+            });
+        }
+        
+        // 활동 피드 업데이트
+        function updateActivityFeed(activities) {
+            const activityList = document.getElementById('activityList');
+            if (activityList && activities.length > 0) {
+                // 새로운 활동들을 맨 위에 추가
+                activities.forEach(activity => {
+                    const activityElement = createActivityElement(activity);
+                    activityList.prepend(activityElement);
+                });
+                
+                // 기존 활동들 중 오래된 것들 제거 (최대 10개 유지)
+                const allActivities = activityList.querySelectorAll('.activity-item');
+                if (allActivities.length > 10) {
+                    for (let i = 10; i < allActivities.length; i++) {
+                        allActivities[i].remove();
+                    }
+                }
+            }
+        }
+        
+        // 활동 요소 생성
+        function createActivityElement(activity) {
+            const div = document.createElement('div');
+            div.className = 'activity-item';
+            div.innerHTML = `
+                <div class="activity-time">${activity.timeAgo}</div>
+                <div class="activity-content">
+                    <div class="activity-icon ${activity.type.toLowerCase()}">
+                        <span>${activity.icon}</span>
+                    </div>
+                    <div class="activity-text">
+                        ${activity.description}
+                        ${activity.extraInfo ? `<span class="activity-extra">${activity.extraInfo}</span>` : ''}
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+        
+        // 페이지 로드 시 실시간 데이터 업데이트 시작
+        document.addEventListener('DOMContentLoaded', function() {
+            // 10초마다 실시간 데이터 업데이트
+            setInterval(updateRealtimeData, 10000);
+            
+            // 카운터 애니메이션 초기화
+            initCounterAnimations();
+        });
+        
+        // 카운터 애니메이션 초기화
+        function initCounterAnimations() {
+            const counters = document.querySelectorAll('.stat-number[data-count], .impact-number[data-count]');
+            counters.forEach(counter => {
+                const target = parseInt(counter.dataset.count);
+                animateCounter(counter, target);
+            });
+        }
+        
+        // 카운터 애니메이션 함수
+        function animateCounter(element, target) {
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 20);
+        }
+    </script>
+</body>
+</html>

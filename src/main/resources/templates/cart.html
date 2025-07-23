@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 장바구니</title>
+    <!-- Thymeleaf 정적 리소스 경로 사용 -->
+    <link rel="stylesheet" th:href="@{/css/cart-style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <!-- 로고 - Thymeleaf URL 경로 처리 -->
+                <a th:href="@{/}" class="logo">
+                    <img th:src="@{/img/logo.png}" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a th:href="@{/#home}">홈</a></li>
+                    <li><a th:href="@{/#services}">서비스</a></li>
+                    <li><a th:href="@{/waste-sorting}">분리배출</a></li>
+                    <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                    <li><a th:href="@{/eco-market}" class="active">에코마켓</a></li>
+                    <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    <li><a th:href="@{/notices}">공지사항</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <!-- 장바구니 아이템 개수 동적 표시 -->
+                    <a th:href="@{/cart}" class="cart-link">
+                        <span class="cart-icon">🛒</span>
+                        <span class="cart-count" id="cartCount" th:text="${cartItemCount}">3</span>
+                    </a>
+                    <!-- 로그인 상태에 따른 조건부 표시 -->
+                    <a th:href="@{/mypage}" class="btn-login" th:if="${session.user}">마이페이지</a>
+                    <a th:href="@{/login}" class="btn-login" th:unless="${session.user}">로그인</a>
+                    <a th:href="@{/logout}" class="btn-logout" th:if="${session.user}">로그아웃</a>
+                </div>
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="mainContent">
+        <!-- Cart Header -->
+        <section class="cart-header">
+            <div class="container">
+                <!-- 브레드크럼 네비게이션 -->
+                <div class="breadcrumb">
+                    <a th:href="@{/}">홈</a>
+                    <span>></span>
+                    <a th:href="@{/eco-market}">에코마켓</a>
+                    <span>></span>
+                    <span class="current">장바구니</span>
+                </div>
+                <h1>🛒 장바구니</h1>
+                <p class="cart-subtitle">친환경 제품으로 지구를 지키는 쇼핑</p>
+            </div>
+        </section>
+
+        <!-- Cart Content -->
+        <section class="cart-content">
+            <div class="container">
+                <!-- 장바구니가 비어있을 때 표시 -->
+                <div th:if="${#lists.isEmpty(cartItems)}" class="empty-cart">
+                    <div class="empty-cart-content">
+                        <h2>🛒 장바구니가 비어있습니다</h2>
+                        <p>친환경 제품을 담아보세요!</p>
+                        <a th:href="@{/eco-market}" class="btn-continue">🛍️ 쇼핑하러 가기</a>
+                    </div>
+                </div>
+
+                <!-- 장바구니에 상품이 있을 때 표시 -->
+                <div th:unless="${#lists.isEmpty(cartItems)}" class="cart-layout">
+                    <!-- Cart Items -->
+                    <div class="cart-items-section">
+                        <div class="cart-header-controls">
+                            <div class="select-all">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="selectAll" checked>
+                                    <span class="checkmark"></span>
+                                    전체선택 (<span id="selectedCount" th:text="${#lists.size(cartItems)}">3</span>개)
+                                </label>
+                            </div>
+                            <div class="cart-actions">
+                                <button class="btn-text" onclick="deleteSelected()">선택삭제</button>
+                                <button class="btn-text" onclick="addToWishlist()">관심상품</button>
+                            </div>
+                        </div>
+
+                        <div class="cart-items-list" id="cartItemsList">
+                            <!-- Thymeleaf 반복문으로 장바구니 아이템 출력 -->
+                            <div class="cart-item" th:each="item : ${cartItems}" th:data-item-id="${item.id}">
+                                <div class="item-select">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" class="item-checkbox" checked>
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </div>
+                                <div class="item-image">
+                                    <!-- 상품 이미지 - 기본 이미지 제공 -->
+                                    <img th:src="${item.product.imageUrl != null ? item.product.imageUrl : '/img/default-product.svg'}" 
+                                         th:alt="${item.product.name}">
+                                    <!-- 친환경 배지 - 조건부 표시 -->
+                                    <div class="eco-badge" th:if="${item.product.ecoType}" th:text="${item.product.ecoType}">🌿 탄소중립</div>
+                                </div>
+                                <div class="item-details">
+                                    <div class="item-info">
+                                        <!-- 상품명 -->
+                                        <h3 class="item-name" th:text="${item.product.name}">천연 세제 세트 (3개입)</h3>
+                                        <!-- 상품 설명 -->
+                                        <p class="item-description" th:text="${item.product.description}">화학성분 0%, 100% 천연 원료로 만든 친환경 세제</p>
+                                        
+                                        <!-- 상품 특징 태그들 - 반복문으로 출력 -->
+                                        <div class="item-features" th:if="${item.product.features}">
+                                            <span class="feature-tag" th:each="feature : ${item.product.features}" th:text="${feature}">🌱 비건 인증</span>
+                                        </div>
+                                        
+                                        <!-- 탄소발자국 정보 -->
+                                        <div class="carbon-info" th:if="${item.product.carbonSaved}">
+                                            <span class="carbon-saved" th:text="'🌿 탄소발자국 ' + ${item.product.carbonSaved} + 'kg 절약'">🌿 탄소발자국 5.2kg 절약</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-controls">
+                                        <!-- 수량 조절 컨트롤 -->
+                                        <div class="quantity-controls">
+                                            <button class="qty-btn minus" th:onclick="|updateQuantity(${item.id}, -1)|">-</button>
+                                            <input type="number" th:value="${item.quantity}" min="1" max="10" 
+                                                   class="qty-input" th:id="|qty-${item.id}|">
+                                            <button class="qty-btn plus" th:onclick="|updateQuantity(${item.id}, 1)|">+</button>
+                                        </div>
+                                        
+                                        <!-- 가격 정보 -->
+                                        <div class="item-price">
+                                            <!-- 할인가가 있는 경우 원가 표시 -->
+                                            <span class="original-price" th:if="${item.product.originalPrice != item.product.salePrice}" 
+                                                  th:text="${#numbers.formatInteger(item.product.originalPrice, 3, 'COMMA')} + '원'">35,000원</span>
+                                            <!-- 판매가 -->
+                                            <span class="sale-price" th:text="${#numbers.formatInteger(item.product.salePrice, 3, 'COMMA')} + '원'">32,000원</span>
+                                            <!-- 할인율 계산 및 표시 -->
+                                            <span class="discount-rate" th:if="${item.product.originalPrice != item.product.salePrice}"
+                                                  th:text="${#numbers.formatDecimal((item.product.originalPrice - item.product.salePrice) * 100 / item.product.originalPrice, 0, 0)} + '% 할인'">9% 할인</span>
+                                        </div>
+                                        
+                                        <!-- 아이템 액션 버튼들 -->
+                                        <div class="item-actions">
+                                            <button class="btn-action" th:onclick="|addToWishlist(${item.id})|">💖</button>
+                                            <button class="btn-action" th:onclick="|removeItem(${item.id})|">🗑️</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Continue Shopping -->
+                        <div class="continue-shopping">
+                            <button class="btn-continue" th:onclick="|location.href='@{/eco-market}'|">
+                                🛍️ 쇼핑 계속하기
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="order-summary">
+                        <div class="summary-card">
+                            <h3>🧾 주문 요약</h3>
+                            
+                            <div class="summary-details">
+                                <!-- 서버에서 계산된 가격 정보 사용 -->
+                                <div class="summary-row">
+                                    <span>상품금액</span>
+                                    <span id="subtotal" th:text="${#numbers.formatInteger(cartSummary.subtotal, 3, 'COMMA')} + '원'">55,500원</span>
+                                </div>
+                                <div class="summary-row discount" th:if="${cartSummary.discount > 0}">
+                                    <span>할인금액</span>
+                                    <span id="discount" th:text="'-' + ${#numbers.formatInteger(cartSummary.discount, 3, 'COMMA')} + '원'">-8,500원</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>배송비</span>
+                                    <span id="shipping" th:text="${cartSummary.shippingFee > 0 ? (#numbers.formatInteger(cartSummary.shippingFee, 3, 'COMMA') + '원') : '무료'}">무료</span>
+                                </div>
+                                <div class="summary-divider"></div>
+                                <div class="summary-row total">
+                                    <span>결제금액</span>
+                                    <span id="total" th:text="${#numbers.formatInteger(cartSummary.total, 3, 'COMMA')} + '원'">47,000원</span>
+                                </div>
+                            </div>
+
+                            <!-- 환경 임팩트 정보 -->
+                            <div class="eco-impact">
+                                <h4>🌍 환경 임팩트</h4>
+                                <div class="impact-item">
+                                    <span>탄소발자국 절약</span>
+                                    <span class="impact-value" th:text="${cartSummary.totalCarbonSaved} + 'kg CO₂'">8.8kg CO₂</span>
+                                </div>
+                                <div class="impact-item">
+                                    <span>플라스틱 사용 절약</span>
+                                    <span class="impact-value" th:text="${cartSummary.plasticSaved} + 'g'">450g</span>
+                                </div>
+                                <div class="impact-item">
+                                    <span>적립 예정 포인트</span>
+                                    <span class="impact-value" th:text="${cartSummary.expectedPoints} + 'P'">470P</span>
+                                </div>
+                            </div>
+
+                            <!-- 주문 액션 버튼들 -->
+                            <div class="order-actions">
+                                <button class="btn-order" th:onclick="|location.href='@{/checkout}'|"
+                                        th:text="'🛒 주문하기 (' + ${#numbers.formatInteger(cartSummary.total, 3, 'COMMA')} + '원)'">
+                                    🛒 주문하기 (47,000원)
+                                </button>
+                                <button class="btn-wishlist" onclick="moveAllToWishlist()">
+                                    💖 전체 찜하기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recommended Products -->
+        <section class="recommended-products">
+            <div class="container">
+                <h2>🌱 함께 구매하면 좋은 상품</h2>
+                <div class="products-grid">
+                    <!-- 추천 상품 목록 - 반복문으로 출력 -->
+                    <div class="product-card" th:each="product : ${recommendedProducts}" th:onclick="|addRecommendedToCart(${product.id})|">
+                        <div class="product-image">
+                            <img th:src="${product.imageUrl != null ? product.imageUrl : '/img/default-product.svg'}" 
+                                 th:alt="${product.name}">
+                            <!-- 친환경 배지 -->
+                            <div class="eco-badge" th:if="${product.ecoType}" th:text="${product.ecoType}">🌿 유기농</div>
+                        </div>
+                        <div class="product-info">
+                            <h4 th:text="${product.name}">천연 유기농 샴푸</h4>
+                            <p class="product-desc" th:text="${product.shortDescription}">화학 첨가물 없는 순수 천연 샴푸</p>
+                            <div class="product-price">
+                                <span class="current-price" th:text="${#numbers.formatInteger(product.salePrice, 3, 'COMMA')} + '원'">18,000원</span>
+                                <!-- 할인가가 있는 경우 원가 표시 -->
+                                <span class="original-price" th:if="${product.originalPrice != product.salePrice}"
+                                      th:text="${#numbers.formatInteger(product.originalPrice, 3, 'COMMA')} + '원'">22,000원</span>
+                            </div>
+                            <button class="btn-add-cart">장바구니 추가</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo" style="margin-bottom: 20px;">
+                        <span class="logo-icon">🌱</span>
+                        <span class="logo-text">GreenCycle</span>
+                    </div>
+                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+                </div>
+                <div class="footer-section">
+                    <h4>서비스</h4>
+                    <ul>
+                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
+                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
+                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
+                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>고객지원</h4>
+                    <ul>
+                        <li><a th:href="@{/contact}">문의하기</a></li>
+                        <li><a th:href="@{/guide}">이용가이드</a></li>
+                        <li><a th:href="@{/delivery-policy}">배송/교환/환불</a></li>
+                        <li><a th:href="@{/customer-service}">고객센터</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>정책</h4>
+                    <ul>
+                        <li><a th:href="@{/privacy-policy}">개인정보처리방침</a></li>
+                        <li><a th:href="@{/terms}">이용약관</a></li>
+                        <li><a th:href="@{/eco-policy}">친환경 정책</a></li>
+                        <li><a th:href="@{/carbon-neutral}">탄소중립 인증</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+                <div class="footer-links">
+                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
+                    <a th:href="@{/terms}">이용약관</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <script th:src="@{/js/cart-script.js}"></script>
+    
+    <!-- 장바구니 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 장바구니 데이터를 JavaScript 변수로 설정
+        var cartData = /*[[${cartItems}]]*/ [];
+        var cartSummaryData = /*[[${cartSummary}]]*/ {};
+        
+        // 장바구니 관련 JavaScript 함수들에서 사용할 수 있도록 전역 변수로 설정
+        window.cartData = cartData;
+        window.cartSummary = cartSummaryData;
+    </script>
+</body>
+</html>

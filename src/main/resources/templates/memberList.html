@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenCycle 관리자 - 회원 관리</title>
+    <link rel="stylesheet" href="/css/admin-members.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ========================================
+         관리자 헤더 네비게이션
+    ======================================== -->
+    <header class="admin-header">
+        <nav class="admin-navbar">
+            <div class="admin-nav-container">
+                <!-- 관리자 로고 -->
+                <div class="admin-logo">
+                    <span class="logo-icon">🌱</span>
+                    <span class="logo-text">GreenCycle</span>
+                    <span class="admin-badge">ADMIN</span>
+                </div>
+                
+                <!-- 관리자 메뉴 -->
+                <ul class="admin-nav-menu">
+                    <li><a th:href="@{/admin/adminMain}">대시보드</a></li>
+                    <li><a href="/admin/members" class="active">회원 관리</a></li>
+                    <li><a href="/admin/services">서비스 관리</a></li>
+                    <li><a href="/admin/statistics">통계 관리</a></li>
+                    <li><a href="/admin/settings">설정</a></li>
+                </ul>
+                
+                <!-- 관리자 프로필 -->
+                <div class="admin-profile">
+                    <span class="admin-name" th:text="${adminName}">관리자님</span>
+                    <div class="admin-avatar">👨‍💼</div>
+                    <form th:action="@{/admin/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="logout-btn">로그아웃</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ========================================
+         메인 관리자 컨텐츠
+    ======================================== -->
+    <main class="admin-main">
+        <!-- 사이드바 -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-menu">
+                <div class="menu-group">
+                    <h3>회원 관리</h3>
+                    <ul>
+                        <li><a href="/admin/members" class="active">전체 회원</a></li>
+                        <li><a href="/admin/members?filter=new">신규 회원</a></li>
+                        <li><a href="/admin/members?filter=active">활성 회원</a></li>
+                        <li><a href="/admin/members?filter=inactive">비활성 회원</a></li>
+                    </ul>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="admin-content">
+            <!-- 페이지 헤더 -->
+            <div class="page-header">
+                <h1>회원 관리</h1>
+            </div>
+
+            <!-- 회원 통계 카드 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <div class="stat-number" th:text="${#numbers.formatInteger(memberStats.totalMembers, 0, 'COMMA')}">15,247</div>
+                        <div class="stat-label">전체 회원</div>
+                        <div class="stat-change positive" th:text="'+' + ${memberStats.totalMembersGrowth} + '%'">+12.5%</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🆕</div>
+                    <div class="stat-info">
+                        <div class="stat-number" th:text="${#numbers.formatInteger(memberStats.newMembersThisMonth, 0, 'COMMA')}">1,234</div>
+                        <div class="stat-label">신규 회원 (이번 달)</div>
+                        <div class="stat-change positive" th:text="'+' + ${memberStats.newMembersGrowth} + '%'">+8.7%</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-info">
+                        <div class="stat-number" th:text="${#numbers.formatInteger(memberStats.activeMembers, 0, 'COMMA')}">8,956</div>
+                        <div class="stat-label">활성 회원</div>
+                        <div class="stat-change positive" th:text="'+' + ${memberStats.activeMembersGrowth} + '%'">+5.2%</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <div class="stat-number" th:text="'₩' + ${#numbers.formatInteger(memberStats.totalTransactionAmount, 0, 'COMMA')}">₩2,847,392</div>
+                        <div class="stat-label">총 거래액</div>
+                        <div class="stat-change positive" th:text="'+' + ${memberStats.transactionGrowth} + '%'">+15.3%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 검색 및 필터 영역 -->
+            <div class="search-filter-section">
+                <form th:action="@{/admin/members}" method="get" id="searchForm">
+                    <div class="search-box">
+                        <input type="text" id="memberSearch" name="search" 
+                               th:value="${memberPage.cri.type}"
+                               placeholder="회원명, 이메일, 닉네임으로 검색...">
+                        <button type="submit" class="search-btn">🔍</button>
+                    </div>
+                    <div class="filter-options">
+                        <!--<select id="statusFilter" name="status" th:field="${memberPage.cri.status}">
+                            <option value="">전체 상태</option>
+                            <option value="active">활성</option>
+                            <option value="inactive">비활성</option>
+                            <option value="suspended">정지</option>
+                        </select>-->
+                        <select id="typeFilter" name="type" th:field="${memberPage.cri.type}">
+                            <option value="">회원 구분</option>
+                            <option value="individual">개인</option>
+                            <option value="business">기업</option>
+                            <option value="organization">단체</option>
+                        </select>
+                        <!--<select id="dateFilter" name="dateRange" th:field="${memberPage.cri.dateRange}">
+                            <option value="">가입 기간</option>
+                            <option value="today">오늘</option>
+                            <option value="week">최근 7일</option>
+                            <option value="month">최근 30일</option>
+                            <option value="quarter">최근 3개월</option>
+                        </select>-->
+                        <a href="/admin/members" class="filter-reset">🔄 초기화</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 회원 목록 테이블 -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>회원 목록</h2>
+                    <div class="table-controls">
+
+                        <form th:action="@{/admin/members}" method="get" style="display: inline;">
+                            <input type="hidden" name="type" th:value="${memberPage.cri.type}">
+                            <select name="size" onchange="this.form.submit()" th:field="${memberPage.cri.amount}">
+                                <option value="10">10개씩 보기</option>
+                                <option value="25">25개씩 보기</option>
+                                <option value="50">50개씩 보기</option>
+                                <option value="100">100개씩 보기</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="members-table" id="membersTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll">
+                                </th>
+                                <th class="sortable" data-sort="id">
+                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='id', size=${memberPage.cri.amount})}">
+                                        회원ID
+                                    </a>
+                                </th>
+                                <th class="sortable" data-sort="name">
+                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='name', size=${memberPage.cri.amount})}">
+                                        이름 
+
+                                    </a>
+                                </th>
+                                <th class="sortable" data-sort="email">
+                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='email', size=${memberPage.cri.amount})}">
+                                        이메일
+                                    </a>
+                                </th>
+                                <th class="sortable" data-sort="nickname">
+                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='nickname', size=${memberPage.cri.amount})}">
+                                        닉네임
+                                    </a>
+                                </th>
+                                <th class="sortable" data-sort="joinDate">
+                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='joinDate', size=${memberPage.cri.amount})}">
+                                        가입일
+                                    </a>
+                                </th>
+                                <!--<th class="sortable" data-sort="lastActivity">
+                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, status=${memberPage.cri.status}, type=${memberPage.cri.type}, dateRange=${memberPage.cri.dateRange}, sort='lastActivity', direction=${memberPage.cri.sort == 'lastActivity' ? (memberPage.cri.direction == 'asc' ? 'desc' : 'asc') : 'asc'}, size=${memberPage.cri.size})}">
+                                        최종 활동 
+                                        <span class="sort-icon" th:text="${memberPage.cri.sort == 'lastActivity' ? (memberPage.cri.direction == 'asc' ? '↑' : '↓') : '↕️'}">↕️</span>
+                                    </a>
+                                </th>-->
+                                <th>상태</th>
+                                <th>포인트</th>
+                                <th>관리</th>
+                            </tr>
+                        </thead>
+                        <tbody id="membersTableBody">
+                            <tr th:each="member : ${memberList}"
+                                th:onclick="'openMemberModal(\'' + ${member.memberId} + '\')'"
+                                th:data-member-id="${member.memberId}">
+                                <td>
+                                    <input type="checkbox" class="member-checkbox" 
+                                           th:value="${member.memberId}" onclick="event.stopPropagation()">
+                                </td>
+                                <td th:text="${member.memberId}">M0000001</td>
+                                <td th:text="${member.email}">user@example.com</td>
+                                <td th:text="${member.nickname}">환경지킴이</td>
+                                <td th:text="${member.role}">권한</td>
+                                <td th:text="${#dates.format(member.createdAt, 'yyyy-MM-dd')}">2024-01-15</td>
+                                <td th:text="${member.agreeOptional}">선택 약관</td>
+                                <!--<td>
+                                    <span class="status-badge" 
+                                          th:classappend="${member.status}"
+                                          th:text="${member.status == 'ACTIVE' ? '활성' : (member.status == 'INACTIVE' ? '비활성' : '정지')}">활성</span>
+                                </td>-->
+                                <td class="points" th:text="${#numbers.formatInteger(member.memberId, 0, 'COMMA')} + 'P'">15,420P</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn view" 
+                                                th:onclick="'event.stopPropagation(); openMemberModal(\'' + ${member.memberId} + '\')'">보기</button>
+                                        <!--<a th:href="@{/admin/members/{id}/edit(id=${member.memberId})}"
+                                           class="action-btn edit" onclick="event.stopPropagation()">수정</a>
+                                        <button class="action-btn delete" 
+                                                th:onclick="'event.stopPropagation(); deleteMember(\'' + ${member.memberId} + '\')'">삭제</button>-->
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이지네이션 -->
+                <div class="pagination-container">
+                    <div class="pagination" id="pagination">
+                        <!-- 이전 버튼 -->
+                        <a th:if="${memberPage.isPrev()}"
+                           th:href="@{/admin/members(type=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.startPage - 1})}"
+                           class="page-btn">◀ 이전</a>
+                        <span th:unless="${memberPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
+                        
+                        <!-- 페이지 번호들 -->
+                        <li th:each="num : ${#numbers.sequence(memberPage.startPage, memberPage.endPage)}"
+                            th:classappend="${memberPage.cri.pageNum == num} ? 'active' : ''">
+                            <a class="page-link"
+                               th:href="@{/admin/members(page=${num}, type=${memberPage.cri.keyword}, size=${memberPage.cri.amount})}"
+                               th:text="${num}">1</a>
+                        </li>
+
+                        <!-- 다음 버튼 -->
+                        <a th:if="${memberPage.isNext()}"
+                           th:href="@{/admin/members(type=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.endPage + 1})}"
+                           class="page-btn">다음 ▶</a>
+                        <span th:unless="${memberPage.isNext()}" class="page-btn disabled">다음 ▶</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========================================
+         회원 상세 정보 모달
+    ======================================== -->
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>회원 상세 정보</h2>
+                <button class="modal-close" id="closeModal">✕</button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- 회원 기본 정보 -->
+                <div class="member-info-section">
+                    <div class="member-profile">
+                        <div class="member-avatar" id="memberAvatar">👤</div>
+                        <div class="member-basic-info">
+                            <h3 id="memberName">홍길동</h3>
+                            <p id="memberEmail">hong@example.com</p>
+                            <div class="member-badges">
+                                <span class="status-badge active" id="memberStatus">활성</span>
+                                <span class="type-badge" id="memberType">개인</span>
+                                <span class="level-badge" id="memberLevel">VIP</span>
+                            </div>
+                        </div>
+                        <div class="member-actions">
+                            <button class="btn btn-edit" onclick="editCurrentMember()">✏️ 정보 수정</button>
+                            <button class="btn btn-message" onclick="sendMessageToMember()">💬 메시지 발송</button>
+                            <button class="btn btn-suspend" onclick="suspendCurrentMember()">⚠️ 계정 정지</button>
+                        </div>
+                    </div>
+
+                    <!-- 상세 정보 탭 -->
+                    <div class="modal-tabs">
+                        <button class="tab-btn active" data-tab="basic">기본 정보</button>
+                        <button class="tab-btn" data-tab="activity">활동 내역</button>
+                        <button class="tab-btn" data-tab="transactions">거래 내역</button>
+                        <button class="tab-btn" data-tab="points">포인트 내역</button>
+                        <button class="tab-btn" data-tab="support">고객 지원</button>
+                    </div>
+
+                    <!-- 탭 컨텐츠 -->
+                    <div class="tab-content">
+                        <!-- 기본 정보 탭 -->
+                        <div class="tab-panel active" id="basicTab">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>회원 ID</label>
+                                    <span id="detailMemberId">M2024001234</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>닉네임</label>
+                                    <span id="detailNickname">환경지킴이</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>휴대폰</label>
+                                    <span id="detailPhone">010-1234-5678</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>생년월일</label>
+                                    <span id="detailBirthdate">1990-01-01</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>성별</label>
+                                    <span id="detailGender">남성</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>주소</label>
+                                    <span id="detailAddress">서울시 강남구 역삼동</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>가입일</label>
+                                    <span id="detailJoinDate">2024-01-15</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>최종 로그인</label>
+                                    <span id="detailLastLogin">2024-07-23 14:30</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 활동 내역 탭 -->
+                        <div class="tab-panel" id="activityTab">
+                            <div class="activity-stats">
+                                <div class="activity-stat">
+                                    <div class="stat-number" id="wasteClassifications">127</div>
+                                    <div class="stat-label">분리배출 횟수</div>
+                                </div>
+                                <div class="activity-stat">
+                                    <div class="stat-number" id="sharingParticipations">43</div>
+                                    <div class="stat-label">무료나눔 참여</div>
+                                </div>
+                                <div class="activity-stat">
+                                    <div class="stat-number" id="ecoMarketPurchases">28</div>
+                                    <div class="stat-label">에코마켓 구매</div>
+                                </div>
+                                <div class="activity-stat">
+                                    <div class="stat-number" id="communityActivities">156</div>
+                                    <div class="stat-label">커뮤니티 활동</div>
+                                </div>
+                            </div>
+                            <div class="activity-timeline">
+                                <h4>최근 활동</h4>
+                                <div class="timeline-list" id="activityTimeline">
+                                    <!-- 활동 타임라인은 JavaScript로 동적 로드 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 거래 내역 탭 -->
+                        <div class="tab-panel" id="transactionsTab">
+                            <div class="transaction-summary">
+                                <div class="summary-item">
+                                    <span class="summary-label">총 구매액</span>
+                                    <span class="summary-value" id="totalPurchaseAmount">₩847,300</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">총 주문 건수</span>
+                                    <span class="summary-value" id="totalOrderCount">47건</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">평균 주문액</span>
+                                    <span class="summary-value" id="averageOrderAmount">₩18,028</span>
+                                </div>
+                            </div>
+                            <div class="transaction-list" id="transactionList">
+                                <!-- 거래 내역은 JavaScript로 동적 로드 -->
+                            </div>
+                        </div>
+
+                        <!-- 포인트 내역 탭 -->
+                        <div class="tab-panel" id="pointsTab">
+                            <div class="points-summary">
+                                <div class="points-current">
+                                    <span class="points-label">보유 포인트</span>
+                                    <span class="points-value" id="currentPoints">15,420P</span>
+                                </div>
+                                <div class="points-total">
+                                    <span class="points-label">누적 포인트</span>
+                                    <span class="points-value" id="totalPoints">127,850P</span>
+                                </div>
+                            </div>
+                            <div class="points-list" id="pointsList">
+                                <!-- 포인트 내역은 JavaScript로 동적 로드 -->
+                            </div>
+                        </div>
+
+                        <!-- 고객 지원 탭 -->
+                        <div class="tab-panel" id="supportTab">
+                            <div class="support-summary">
+                                <div class="support-stat">
+                                    <span class="stat-number" id="totalInquiries">3</span>
+                                    <span class="stat-label">문의 건수</span>
+                                </div>
+                                <div class="support-stat">
+                                    <span class="stat-number" id="completedInquiries">2</span>
+                                    <span class="stat-label">처리 완료</span>
+                                </div>
+                                <div class="support-stat">
+                                    <span class="stat-number" id="processingInquiries">1</span>
+                                    <span class="stat-label">처리 중</span>
+                                </div>
+                            </div>
+                            <div class="support-list" id="supportList">
+                                <!-- 고객 지원 내역은 JavaScript로 동적 로드 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBtn">취소</button>
+                <button class="btn btn-danger" id="deleteBtn" onclick="deleteCurrentMember()">회원 탈퇴</button>
+                <button class="btn btn-primary" id="saveBtn" onclick="saveCurrentMember()">변경사항 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일 로드 -->
+    <script src="/js/admin-members.js"></script>
+
+    <!-- 서버 데이터를 JavaScript에 전달 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
+        window.SERVER_DATA = {
+            memberStats: /*[[${memberStats}]]*/ {},
+            cri : /*[[${memberPage.cri}]]*/ {},
+            memberPage: {
+                content: /*[[${memberPage.content}]]*/ [],
+                totalElements: /*[[${memberPage.totalElements}]]*/ 0,
+                totalPages: /*[[${memberPage.totalPages}]]*/ 0,
+                number: /*[[${memberPage.number}]]*/ 0,
+                size: /*[[${memberPage.size}]]*/ 25
+            }
+        };
+        /*]]>*/
+    </script>
+
+</body>
+</html>

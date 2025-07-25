@@ -17,9 +17,9 @@
         <nav class="navbar">
             <div class="nav-container">
                 <!-- 로고 섹션 - Thymeleaf URL 처리 -->
+                <!-- 로고 - Thymeleaf URL 처리 -->
                 <a th:href="@{/}" class="logo">
-                    <span class="logo-icon">🌱</span>
-                    <span class="logo-text">GreenCycle</span>
+                    <img th:src="@{/img/logo2.png}" alt="GreenCycle 로고" class="logo-img">
                 </a>
                 
                 <!-- 네비게이션 메뉴 -->
@@ -416,54 +416,7 @@
         </section>
     </main>
 
-    <!-- 푸터 영역 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <div class="logo" style="margin-bottom: 20px;">
-                        <span class="logo-icon">🌱</span>
-                        <span class="logo-text">GreenCycle</span>
-                    </div>
-                    <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
-                </div>
-                <div class="footer-section">
-                    <h4>서비스</h4>
-                    <ul>
-                        <li><a th:href="@{/waste-sorting}">스마트 분리배출</a></li>
-                        <li><a th:href="@{/free-sharing}">무료나눔</a></li>
-                        <li><a th:href="@{/eco-market}">에코마켓</a></li>
-                        <li><a th:href="@{/eco-talk}">환경독톡</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>회사정보</h4>
-                    <ul>
-                        <li><a th:href="@{/about}">회사소개</a></li>
-                        <li><a th:href="@{/patents}">기술 특허</a></li>
-                        <li><a th:href="@{/research}">연구개발</a></li>
-                        <li><a th:href="@{/careers}">채용정보</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>고객지원</h4>
-                    <ul>
-                        <li><a th:href="@{/contact}">문의하기</a></li>
-                        <li><a th:href="@{/guide}">이용가이드</a></li>
-                        <li><a th:href="@{/support}">기술지원</a></li>
-                        <li><a th:href="@{/customer-service}">고객센터</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 GreenCycle. All rights reserved.</p>
-                <div class="footer-links">
-                    <a th:href="@{/privacy-policy}">개인정보처리방침</a>
-                    <a th:href="@{/terms}">이용약관</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+
 
     <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
     <script th:src="@{/js/mypage-script.js}"></script>

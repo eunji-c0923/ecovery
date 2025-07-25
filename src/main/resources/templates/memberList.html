@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GreenCycle 관리자 - 회원 관리</title>
-    <link rel="stylesheet" href="/css/admin-members.css">
+    
+    <!-- CSS 파일 링크 -->
+    <link rel="stylesheet" href="/css/member-management.css">
+    
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -25,11 +29,11 @@
                 
                 <!-- 관리자 메뉴 -->
                 <ul class="admin-nav-menu">
-                    <li><a th:href="@{/admin/adminMain}">대시보드</a></li>
-                    <li><a href="/admin/members" class="active">회원 관리</a></li>
-                    <li><a href="/admin/services">서비스 관리</a></li>
-                    <li><a href="/admin/statistics">통계 관리</a></li>
-                    <li><a href="/admin/settings">설정</a></li>
+                    <li><a th:href="@{/admin/dashboard}">대시보드</a></li>
+                    <li><a th:href="@{/admin/members}" class="active">회원 관리</a></li>
+                    <li><a th:href="@{/admin/services}">서비스 관리</a></li>
+                    <li><a th:href="@{/admin/statistics}">통계 관리</a></li>
+                    <li><a th:href="@{/admin/settings}">설정</a></li>
                 </ul>
                 
                 <!-- 관리자 프로필 -->
@@ -54,10 +58,10 @@
                 <div class="menu-group">
                     <h3>회원 관리</h3>
                     <ul>
-                        <li><a href="/admin/members" class="active">전체 회원</a></li>
-                        <li><a href="/admin/members?filter=new">신규 회원</a></li>
-                        <li><a href="/admin/members?filter=active">활성 회원</a></li>
-                        <li><a href="/admin/members?filter=inactive">비활성 회원</a></li>
+                        <li><a th:href="@{/admin/members}" class="active">전체 회원</a></li>
+                        <li><a th:href="@{/admin/members(filter=new)}">신규 회원</a></li>
+                        <li><a th:href="@{/admin/members(filter=active)}">활성 회원</a></li>
+                        <li><a th:href="@{/admin/members(filter=inactive)}">비활성 회원</a></li>
                     </ul>
                 </div>
             </div>
@@ -111,31 +115,37 @@
                 <form th:action="@{/admin/members}" method="get" id="searchForm">
                     <div class="search-box">
                         <input type="text" id="memberSearch" name="search" 
-                               th:value="${memberPage.cri.type}"
+                               th:value="${memberPage.cri.keyword}"
                                placeholder="회원명, 이메일, 닉네임으로 검색...">
                         <button type="submit" class="search-btn">🔍</button>
                     </div>
                     <div class="filter-options">
-                        <!--<select id="statusFilter" name="status" th:field="${memberPage.cri.status}">
-                            <option value="">전체 상태</option>
-                            <option value="active">활성</option>
-                            <option value="inactive">비활성</option>
-                            <option value="suspended">정지</option>
-                        </select>-->
+                        <!-- 회원 구분 필터 -->
                         <select id="typeFilter" name="type" th:field="${memberPage.cri.type}">
                             <option value="">회원 구분</option>
                             <option value="individual">개인</option>
                             <option value="business">기업</option>
                             <option value="organization">단체</option>
                         </select>
-                        <!--<select id="dateFilter" name="dateRange" th:field="${memberPage.cri.dateRange}">
-                            <option value="">가입 기간</option>
-                            <option value="today">오늘</option>
-                            <option value="week">최근 7일</option>
-                            <option value="month">최근 30일</option>
-                            <option value="quarter">최근 3개월</option>
-                        </select>-->
-                        <a href="/admin/members" class="filter-reset">🔄 초기화</a>
+                        
+                        <!-- 권한 등급 필터 -->
+                        <select id="roleFilter" name="role" th:field="${memberPage.cri.role}">
+                            <option value="">권한 등급</option>
+                            <option value="SEEDLING">새싹</option>
+                            <option value="REGULAR">일반회원</option>
+                            <option value="EXCELLENT">우수회원</option>
+                            <option value="VIP">VIP회원</option>
+                        </select>
+                        
+                        <!-- 상태 필터 -->
+                        <select id="statusFilter" name="status" th:field="${memberPage.cri.status}">
+                            <option value="">전체 상태</option>
+                            <option value="active">활성</option>
+                            <option value="inactive">비활성</option>
+                            <option value="suspended">정지</option>
+                        </select>
+                        
+                        <a th:href="@{/admin/members}" class="filter-reset">🔄 초기화</a>
                     </div>
                 </form>
             </div>
@@ -145,9 +155,11 @@
                 <div class="table-header">
                     <h2>회원 목록</h2>
                     <div class="table-controls">
-
                         <form th:action="@{/admin/members}" method="get" style="display: inline;">
+                            <input type="hidden" name="search" th:value="${memberPage.cri.keyword}">
                             <input type="hidden" name="type" th:value="${memberPage.cri.type}">
+                            <input type="hidden" name="role" th:value="${memberPage.cri.role}">
+                            <input type="hidden" name="status" th:value="${memberPage.cri.status}">
                             <select name="size" onchange="this.form.submit()" th:field="${memberPage.cri.amount}">
                                 <option value="10">10개씩 보기</option>
                                 <option value="25">25개씩 보기</option>
@@ -162,74 +174,73 @@
                     <table class="members-table" id="membersTable">
                         <thead>
                             <tr>
-                                <th>
-                                    <input type="checkbox" id="selectAll">
-                                </th>
+                                <th><input type="checkbox" id="selectAll"></th>
                                 <th class="sortable" data-sort="id">
-                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='id', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/members(search=${memberPage.cri.keyword}, sort='id', size=${memberPage.cri.amount})}">
                                         회원ID
                                     </a>
                                 </th>
                                 <th class="sortable" data-sort="name">
-                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='name', size=${memberPage.cri.amount})}">
-                                        이름 
-
+                                    <a th:href="@{/admin/members(search=${memberPage.cri.keyword}, sort='name', size=${memberPage.cri.amount})}">
+                                        이름/닉네임
                                     </a>
                                 </th>
                                 <th class="sortable" data-sort="email">
-                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='email', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/members(search=${memberPage.cri.keyword}, sort='email', size=${memberPage.cri.amount})}">
                                         이메일
                                     </a>
                                 </th>
-                                <th class="sortable" data-sort="nickname">
-                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='nickname', size=${memberPage.cri.amount})}">
-                                        닉네임
+                                <th class="sortable" data-sort="role">
+                                    <a th:href="@{/admin/members(search=${memberPage.cri.keyword}, sort='role', size=${memberPage.cri.amount})}">
+                                        권한등급
                                     </a>
                                 </th>
                                 <th class="sortable" data-sort="joinDate">
-                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, sort='joinDate', size=${memberPage.cri.amount})}">
+                                    <a th:href="@{/admin/members(search=${memberPage.cri.keyword}, sort='joinDate', size=${memberPage.cri.amount})}">
                                         가입일
                                     </a>
                                 </th>
-                                <!--<th class="sortable" data-sort="lastActivity">
-                                    <a th:href="@{/admin/members(type=${memberPage.cri.keyword}, status=${memberPage.cri.status}, type=${memberPage.cri.type}, dateRange=${memberPage.cri.dateRange}, sort='lastActivity', direction=${memberPage.cri.sort == 'lastActivity' ? (memberPage.cri.direction == 'asc' ? 'desc' : 'asc') : 'asc'}, size=${memberPage.cri.size})}">
-                                        최종 활동 
-                                        <span class="sort-icon" th:text="${memberPage.cri.sort == 'lastActivity' ? (memberPage.cri.direction == 'asc' ? '↑' : '↓') : '↕️'}">↕️</span>
-                                    </a>
-                                </th>-->
                                 <th>상태</th>
                                 <th>포인트</th>
                                 <th>관리</th>
                             </tr>
                         </thead>
                         <tbody id="membersTableBody">
+                            <!-- 타임리프로 회원 목록 반복 출력 -->
                             <tr th:each="member : ${memberList}"
                                 th:onclick="'openMemberModal(\'' + ${member.memberId} + '\')'"
-                                th:data-member-id="${member.memberId}">
+                                th:data-member-id="${member.memberId}"
+                                class="member-row">
                                 <td>
                                     <input type="checkbox" class="member-checkbox" 
                                            th:value="${member.memberId}" onclick="event.stopPropagation()">
                                 </td>
                                 <td th:text="${member.memberId}">M0000001</td>
+                                <td>
+                                    <div class="member-info">
+                                        <span th:text="${member.name}">안영이</span>
+                                        <small th:text="'(' + ${member.nickname} + ')'">환경지킴이</small>
+                                    </div>
+                                </td>
                                 <td th:text="${member.email}">user@example.com</td>
-                                <td th:text="${member.nickname}">환경지킴이</td>
-                                <td th:text="${member.role}">권한</td>
+                                <td>
+                                    <span class="role-badge" 
+                                          th:classappend="${#strings.toLowerCase(member.role)}"
+                                          th:text="${T(com.greencycle.util.RoleUtil).getRoleDisplayName(member.role)}">새싹</span>
+                                </td>
                                 <td th:text="${#dates.format(member.createdAt, 'yyyy-MM-dd')}">2024-01-15</td>
-                                <td th:text="${member.agreeOptional}">선택 약관</td>
-                                <!--<td>
+                                <td>
                                     <span class="status-badge" 
-                                          th:classappend="${member.status}"
-                                          th:text="${member.status == 'ACTIVE' ? '활성' : (member.status == 'INACTIVE' ? '비활성' : '정지')}">활성</span>
-                                </td>-->
-                                <td class="points" th:text="${#numbers.formatInteger(member.memberId, 0, 'COMMA')} + 'P'">15,420P</td>
+                                          th:classappend="${#strings.toLowerCase(member.status)}"
+                                          th:text="${T(com.greencycle.util.StatusUtil).getStatusDisplayName(member.status)}">활성</span>
+                                </td>
+                                <td class="points" th:text="${#numbers.formatInteger(member.points, 0, 'COMMA')} + 'P'">15,420P</td>
                                 <td>
                                     <div class="action-btns">
                                         <button class="action-btn view" 
-                                                th:onclick="'event.stopPropagation(); openMemberModal(\'' + ${member.memberId} + '\')'">보기</button>
-                                        <!--<a th:href="@{/admin/members/{id}/edit(id=${member.memberId})}"
-                                           class="action-btn edit" onclick="event.stopPropagation()">수정</a>
-                                        <button class="action-btn delete" 
-                                                th:onclick="'event.stopPropagation(); deleteMember(\'' + ${member.memberId} + '\')'">삭제</button>-->
+                                                th:onclick="'event.stopPropagation(); openMemberModal(\'' + ${member.memberId} + '\')'">
+                                            상세보기
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -242,21 +253,19 @@
                     <div class="pagination" id="pagination">
                         <!-- 이전 버튼 -->
                         <a th:if="${memberPage.isPrev()}"
-                           th:href="@{/admin/members(type=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.startPage - 1})}"
+                           th:href="@{/admin/members(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.startPage - 1})}"
                            class="page-btn">◀ 이전</a>
                         <span th:unless="${memberPage.isPrev()}" class="page-btn disabled">◀ 이전</span>
                         
                         <!-- 페이지 번호들 -->
-                        <li th:each="num : ${#numbers.sequence(memberPage.startPage, memberPage.endPage)}"
-                            th:classappend="${memberPage.cri.pageNum == num} ? 'active' : ''">
-                            <a class="page-link"
-                               th:href="@{/admin/members(page=${num}, type=${memberPage.cri.keyword}, size=${memberPage.cri.amount})}"
-                               th:text="${num}">1</a>
-                        </li>
+                        <a th:each="num : ${#numbers.sequence(memberPage.startPage, memberPage.endPage)}"
+                           th:href="@{/admin/members(page=${num}, search=${memberPage.cri.keyword}, size=${memberPage.cri.amount})}"
+                           th:text="${num}"
+                           th:class="${memberPage.cri.pageNum == num} ? 'page-link active' : 'page-link'">1</a>
 
                         <!-- 다음 버튼 -->
                         <a th:if="${memberPage.isNext()}"
-                           th:href="@{/admin/members(type=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.endPage + 1})}"
+                           th:href="@{/admin/members(search=${memberPage.cri.keyword}, size=${memberPage.cri.amount}, page=${memberPage.endPage + 1})}"
                            class="page-btn">다음 ▶</a>
                         <span th:unless="${memberPage.isNext()}" class="page-btn disabled">다음 ▶</span>
                     </div>
@@ -270,33 +279,42 @@
     ======================================== -->
     <div class="modal-overlay" id="memberModal">
         <div class="modal-container">
+            <!-- 모달 헤더 -->
             <div class="modal-header">
                 <h2>회원 상세 정보</h2>
                 <button class="modal-close" id="closeModal">✕</button>
             </div>
             
             <div class="modal-body">
-                <!-- 회원 기본 정보 -->
+                <!-- 회원 기본 정보 섹션 -->
                 <div class="member-info-section">
+                    <!-- 회원 프로필 영역 -->
                     <div class="member-profile">
                         <div class="member-avatar" id="memberAvatar">👤</div>
                         <div class="member-basic-info">
-                            <h3 id="memberName">홍길동</h3>
-                            <p id="memberEmail">hong@example.com</p>
+                            <div class="member-name-section">
+                                <h3 id="memberName">안영이</h3>
+                                <!-- 권한 수정 버튼 추가 -->
+                                <button class="btn-role-edit" onclick="openRoleModal()" title="권한 등급 수정">
+                                    <span id="memberRoleDisplay">새싹</span>
+                                    <span class="edit-icon">✏️</span>
+                                </button>
+                            </div>
+                            <p id="memberEmail">anyoung@example.com</p>
                             <div class="member-badges">
                                 <span class="status-badge active" id="memberStatus">활성</span>
                                 <span class="type-badge" id="memberType">개인</span>
-                                <span class="level-badge" id="memberLevel">VIP</span>
                             </div>
                         </div>
+                        <!-- 회원 액션 버튼들 -->
                         <div class="member-actions">
-                            <button class="btn btn-edit" onclick="editCurrentMember()">✏️ 정보 수정</button>
+                            <button class="btn btn-edit" onclick="toggleEditMode()">✏️ 정보 수정</button>
                             <button class="btn btn-message" onclick="sendMessageToMember()">💬 메시지 발송</button>
                             <button class="btn btn-suspend" onclick="suspendCurrentMember()">⚠️ 계정 정지</button>
                         </div>
                     </div>
 
-                    <!-- 상세 정보 탭 -->
+                    <!-- 상세 정보 탭 네비게이션 -->
                     <div class="modal-tabs">
                         <button class="tab-btn active" data-tab="basic">기본 정보</button>
                         <button class="tab-btn" data-tab="activity">활동 내역</button>
@@ -305,43 +323,104 @@
                         <button class="tab-btn" data-tab="support">고객 지원</button>
                     </div>
 
-                    <!-- 탭 컨텐츠 -->
+                    <!-- 탭 컨텐츠 영역 -->
                     <div class="tab-content">
-                        <!-- 기본 정보 탭 -->
+                        <!-- 기본 정보 탭 - 읽기 모드 -->
                         <div class="tab-panel active" id="basicTab">
-                            <div class="info-grid">
+                            <!-- 읽기 모드 -->
+                            <div class="info-grid" id="readOnlyInfo">
                                 <div class="info-item">
                                     <label>회원 ID</label>
-                                    <span id="detailMemberId">M2024001234</span>
+                                    <span id="detailMemberId">M0000001</span>
                                 </div>
                                 <div class="info-item">
                                     <label>닉네임</label>
                                     <span id="detailNickname">환경지킴이</span>
                                 </div>
                                 <div class="info-item">
-                                    <label>휴대폰</label>
-                                    <span id="detailPhone">010-1234-5678</span>
-                                </div>
-                                <div class="info-item">
                                     <label>생년월일</label>
-                                    <span id="detailBirthdate">1990-01-01</span>
+                                    <span id="detailBirthdate">1995년</span>
                                 </div>
                                 <div class="info-item">
                                     <label>성별</label>
-                                    <span id="detailGender">남성</span>
+                                    <span id="detailGender">여성</span>
                                 </div>
                                 <div class="info-item">
                                     <label>주소</label>
-                                    <span id="detailAddress">서울시 강남구 역삼동</span>
+                                    <span id="detailAddress">서울</span>
                                 </div>
                                 <div class="info-item">
                                     <label>가입일</label>
                                     <span id="detailJoinDate">2024-01-15</span>
                                 </div>
                                 <div class="info-item">
-                                    <label>최종 로그인</label>
-                                    <span id="detailLastLogin">2024-07-23 14:30</span>
+                                    <label>최근 방문</label>
+                                    <span id="detailLastVisit">2024-07-25 14:30</span>
                                 </div>
+                            </div>
+
+                            <!-- 편집 모드 -->
+                            <div class="info-grid edit-mode" id="editableInfo" style="display: none;">
+                                <div class="info-item">
+                                    <label>회원 ID</label>
+                                    <input type="text" id="editMemberId" class="form-input" readonly>
+                                </div>
+                                <div class="info-item">
+                                    <label>닉네임 *</label>
+                                    <input type="text" id="editNickname" class="form-input" placeholder="닉네임을 입력하세요">
+                                </div>
+                                <div class="info-item">
+                                    <label>생년월일</label>
+                                    <select id="editBirthdate" class="form-select">
+                                        <option value="">선택</option>
+                                        <!-- 년도 옵션은 JavaScript에서 동적 생성 -->
+                                    </select>
+                                </div>
+                                <div class="info-item">
+                                    <label>성별</label>
+                                    <select id="editGender" class="form-select">
+                                        <option value="">선택</option>
+                                        <option value="male">남성</option>
+                                        <option value="female">여성</option>
+                                        <option value="other">기타</option>
+                                    </select>
+                                </div>
+                                <div class="info-item">
+                                    <label>주소</label>
+                                    <select id="editAddress" class="form-select">
+                                        <option value="">선택</option>
+                                        <option value="seoul">서울</option>
+                                        <option value="busan">부산</option>
+                                        <option value="daegu">대구</option>
+                                        <option value="incheon">인천</option>
+                                        <option value="gwangju">광주</option>
+                                        <option value="daejeon">대전</option>
+                                        <option value="ulsan">울산</option>
+                                    </select>
+                                </div>
+                                <div class="info-item">
+                                    <label>가입일</label>
+                                    <input type="text" id="editJoinDate" class="form-input" readonly>
+                                </div>
+                                <div class="info-item">
+                                    <label>최근 방문</label>
+                                    <input type="text" id="editLastVisit" class="form-input" readonly>
+                                </div>
+                            </div>
+
+                            <!-- 편집 모드 시 표시되는 위험 구역 -->
+                            <div class="danger-zone" id="dangerZone" style="display: none;">
+                                <h4>⚠️ 위험한 작업</h4>
+                                <p class="danger-warning">
+                                    아래 작업은 되돌릴 수 없습니다. 신중하게 결정해 주세요.
+                                </p>
+                                <button class="btn btn-danger-zone" onclick="deleteCurrentMember()">
+                                    🗑️ 회원 계정 완전 삭제
+                                </button>
+                                <p class="danger-description">
+                                    회원 계정을 완전히 삭제합니다. 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.<br>
+                                    삭제 시 회원의 모든 활동 내역, 포인트, 거래 정보가 함께 삭제됩니다.
+                                </p>
                             </div>
                         </div>
 
@@ -368,7 +447,18 @@
                             <div class="activity-timeline">
                                 <h4>최근 활동</h4>
                                 <div class="timeline-list" id="activityTimeline">
-                                    <!-- 활동 타임라인은 JavaScript로 동적 로드 -->
+                                    <div class="timeline-item">
+                                        <div class="timeline-date">2024-07-25</div>
+                                        <div class="timeline-content">플라스틱 분리배출 완료 (+50P)</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-date">2024-07-24</div>
+                                        <div class="timeline-content">에코마켓에서 친환경 세제 구매</div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-date">2024-07-23</div>
+                                        <div class="timeline-content">무료나눔 글 등록 (+30P)</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -389,9 +479,6 @@
                                     <span class="summary-value" id="averageOrderAmount">₩18,028</span>
                                 </div>
                             </div>
-                            <div class="transaction-list" id="transactionList">
-                                <!-- 거래 내역은 JavaScript로 동적 로드 -->
-                            </div>
                         </div>
 
                         <!-- 포인트 내역 탭 -->
@@ -402,12 +489,13 @@
                                     <span class="points-value" id="currentPoints">15,420P</span>
                                 </div>
                                 <div class="points-total">
-                                    <span class="points-label">누적 포인트</span>
+                                    <span class="points-label">누적 적립 포인트</span>
                                     <span class="points-value" id="totalPoints">127,850P</span>
                                 </div>
-                            </div>
-                            <div class="points-list" id="pointsList">
-                                <!-- 포인트 내역은 JavaScript로 동적 로드 -->
+                                <div class="points-used">
+                                    <span class="points-label">사용한 포인트</span>
+                                    <span class="points-value" id="usedPoints">112,430P</span>
+                                </div>
                             </div>
                         </div>
 
@@ -416,7 +504,7 @@
                             <div class="support-summary">
                                 <div class="support-stat">
                                     <span class="stat-number" id="totalInquiries">3</span>
-                                    <span class="stat-label">문의 건수</span>
+                                    <span class="stat-label">총 문의 건수</span>
                                 </div>
                                 <div class="support-stat">
                                     <span class="stat-number" id="completedInquiries">2</span>
@@ -427,42 +515,162 @@
                                     <span class="stat-label">처리 중</span>
                                 </div>
                             </div>
-                            <div class="support-list" id="supportList">
-                                <!-- 고객 지원 내역은 JavaScript로 동적 로드 -->
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
+            <!-- 모달 푸터 -->
+            <div class="modal-footer" id="modalFooter">
+                <button class="btn btn-secondary" id="cancelBtn" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" id="saveBtn" onclick="saveCurrentMember()" style="display: none;">변경사항 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================
+         권한 수정 모달
+    ======================================== -->
+    <div class="modal-overlay" id="roleModal">
+        <div class="modal-container role-modal">
+            <!-- 모달 헤더 -->
+            <div class="modal-header">
+                <h2>권한 등급 수정</h2>
+                <button class="modal-close" onclick="closeRoleModal()">✕</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="role-edit-section">
+                    <!-- 현재 회원 정보 -->
+                    <div class="current-member-info">
+                        <div class="member-summary">
+                            <div class="member-avatar-small">👤</div>
+                            <div class="member-details">
+                                <h4 id="roleMemberName">안영이</h4>
+                                <p id="roleMemberEmail">anyoung@example.com</p>
+                                <span class="current-role">현재 등급: <span id="currentRoleDisplay">새싹</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 권한 등급 선택 -->
+                    <div class="role-selection">
+                        <h3>새로운 권한 등급 선택</h3>
+                        <div class="role-options">
+                            <!-- 새싹 등급 -->
+                            <div class="role-option" data-role="SEEDLING">
+                                <div class="role-card">
+                                    <div class="role-icon">🌱</div>
+                                    <div class="role-info">
+                                        <h4>새싹</h4>
+                                        <p>신규 가입 회원</p>
+                                        <ul class="role-benefits">
+                                            <li>기본 서비스 이용</li>
+                                            <li>포인트 적립 5%</li>
+                                            <li>월 3회 무료나눔 참여</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 일반회원 등급 -->
+                            <div class="role-option" data-role="REGULAR">
+                                <div class="role-card">
+                                    <div class="role-icon">🌿</div>
+                                    <div class="role-info">
+                                        <h4>일반회원</h4>
+                                        <p>활동이 활발한 회원</p>
+                                        <ul class="role-benefits">
+                                            <li>모든 서비스 이용</li>
+                                            <li>포인트 적립 7%</li>
+                                            <li>무제한 무료나눔 참여</li>
+                                            <li>할인 쿠폰 제공</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 우수회원 등급 -->
+                            <div class="role-option" data-role="EXCELLENT">
+                                <div class="role-card">
+                                    <div class="role-icon">🌳</div>
+                                    <div class="role-info">
+                                        <h4>우수회원</h4>
+                                        <p>환경 보호에 기여하는 회원</p>
+                                        <ul class="role-benefits">
+                                            <li>프리미엄 서비스 이용</li>
+                                            <li>포인트 적립 10%</li>
+                                            <li>우선 배송 서비스</li>
+                                            <li>전용 고객센터</li>
+                                            <li>특별 이벤트 초대</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- VIP회원 등급 -->
+                            <div class="role-option" data-role="VIP">
+                                <div class="role-card">
+                                    <div class="role-icon">👑</div>
+                                    <div class="role-info">
+                                        <h4>VIP회원</h4>
+                                        <p>최상위 등급 회원</p>
+                                        <ul class="role-benefits">
+                                            <li>모든 프리미엄 혜택</li>
+                                            <li>포인트 적립 15%</li>
+                                            <li>무료 배송 (무제한)</li>
+                                            <li>전담 매니저 배정</li>
+                                            <li>연간 특별 선물</li>
+                                            <li>신제품 우선 체험</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 권한 변경 사유 -->
+                    <div class="role-reason">
+                        <h3>권한 변경 사유</h3>
+                        <textarea id="roleChangeReason" class="form-textarea" 
+                                  placeholder="권한 변경 사유를 입력하세요... (선택사항)" 
+                                  rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 모달 푸터 -->
             <div class="modal-footer">
-                <button class="btn btn-secondary" id="cancelBtn">취소</button>
-                <button class="btn btn-danger" id="deleteBtn" onclick="deleteCurrentMember()">회원 탈퇴</button>
-                <button class="btn btn-primary" id="saveBtn" onclick="saveCurrentMember()">변경사항 저장</button>
+                <button class="btn btn-secondary" onclick="closeRoleModal()">취소</button>
+                <button class="btn btn-primary" onclick="saveRoleChange()">권한 변경</button>
             </div>
         </div>
     </div>
 
     <!-- JavaScript 파일 로드 -->
-    <script src="/js/admin-members.js"></script>
+    <script src="/js/member-management.js"></script>
 
-    <!-- 서버 데이터를 JavaScript에 전달 -->
+    <!-- 타임리프로 서버 데이터를 JavaScript에 전달 -->
     <script th:inline="javascript">
         /*<![CDATA[*/
         // 서버에서 전달받은 데이터를 JavaScript 변수로 설정
         window.SERVER_DATA = {
             memberStats: /*[[${memberStats}]]*/ {},
-            cri : /*[[${memberPage.cri}]]*/ {},
             memberPage: {
-                content: /*[[${memberPage.content}]]*/ [],
+                content: /*[[${memberList}]]*/ [],
                 totalElements: /*[[${memberPage.totalElements}]]*/ 0,
                 totalPages: /*[[${memberPage.totalPages}]]*/ 0,
                 number: /*[[${memberPage.number}]]*/ 0,
-                size: /*[[${memberPage.size}]]*/ 25
-            }
+                size: /*[[${memberPage.size}]]*/ 25,
+                cri: /*[[${memberPage.cri}]]*/ {}
+            },
+            // 현재 로그인한 관리자 정보
+            currentAdmin: /*[[${session.admin}]]*/ {},
+            // CSRF 토큰 (보안을 위해)
+            csrfToken: /*[[${_csrf.token}]]*/ null,
+            csrfHeader: /*[[${_csrf.headerName}]]*/ null
         };
         /*]]>*/
     </script>
-
 </body>
 </html>

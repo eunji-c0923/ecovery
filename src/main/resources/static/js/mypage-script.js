@@ -11,7 +11,6 @@ let animationObserver;                    // 스크롤 애니메이션 관찰자
 let isInitialized = false;               // 초기화 상태 플래그
 
 // DOM 요소들
-const header = document.getElementById('header');
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 const cartIcon = document.getElementById('cartIcon');
@@ -59,43 +58,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// ==========================================================================
-// 헤더 기능 초기화
-// ==========================================================================
-/**
- * 헤더 기능 초기화
- * 스크롤 효과, 모바일 메뉴 토글 등을 설정합니다
- */
-function initializeHeader() {
-    // 스크롤 시 헤더 효과 (디바운싱 적용)
-    let scrollTimeout;
-    window.addEventListener('scroll', () => {
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            if (window.scrollY > 100) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        }, 10);
-    });
-    
-    // 모바일 메뉴 토글 기능
-    if (hamburger && navMenu) {
-        hamburger.addEventListener('click', toggleMobileMenu);
-        
-        // 메뉴 링크 클릭 시 메뉴 닫기
-        document.querySelectorAll('.nav-menu a').forEach(link => {
-            link.addEventListener('click', closeMobileMenu);
-        });
-        
-        // 메뉴 외부 클릭 시 닫기
-        document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
-                closeMobileMenu();
-            }
-        });
-    }
     
     console.log('✅ 헤더 기능이 초기화되었습니다.');
 }

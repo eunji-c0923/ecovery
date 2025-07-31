@@ -5,151 +5,223 @@
       layout:decorate="~{layouts/layout1}">
 
 <head th:with="pageTitle='무료나눔'">
-    <title>무료나눔</title>
+    <title>무료나눔 상세보기 - ECOVERY</title>
     <th:block layout:fragment="css">
-        <!-- 추가 CSS (필요시만) -->
+        <!-- 무료나눔 상세페이지 전용 CSS 파일 로드 -->
         <link rel="stylesheet" th:href="@{/css/free-sharing-detail.css}">
     </th:block>
 </head>
 
+<!-- 헤더 영역 포함 -->
 <th:block layout:fragment="header" th:replace="~{fragments/header :: header}"></th:block>
 
-<!-- 메인 내용 -->
+<!-- 메인 콘텐츠 영역 -->
 <div layout:fragment="content">
-    
-    <!-- 🔥 수정: 목록으로 돌아가는 버튼 추가 -->
-            <div class="back-to-list">
-                <a th:href="@{/free/list}" class="back-btn">
-                    <span class="icon">←</span>
-                    목록보기
-                </a>
-            </div>
 
-    <!-- 현재 위치 표시 (빵부스러기) -->
+    <!-- 브레드크럼 네비게이션 (현재 위치 표시) -->
     <section class="breadcrumb">
         <div class="container">
             <nav class="breadcrumb-nav">
-                <a th:href="@{/}">🏠</a>
-                <span>></span>
+                <a th:href="@{/}">🏠 홈</a>
+                <span class="breadcrumb-separator">></span>
                 <a th:href="@{/free/list}">무료나눔</a>
-                <span>></span>
-                <span class="current">상세보기</span>
+                <span class="breadcrumb-separator">></span>
+                <span class="current-page">상세보기</span>
             </nav>
         </div>
     </section>
 
-    <!-- 상세보기 내용 -->
-    <section class="detail-section">
+    <!-- 메인 상세 정보 섹션 -->
+    <section class="detail-main-section">
         <div class="container">
-            
-            <div class="detail-container">
-                <!-- 상품 이미지 섹션 -->
-                <div class="image-section">
-                    <!-- 메인 이미지 -->
-                    <div class="main-image">
-                        <!-- src는 JS에서 설정하므로 비워둠 -->
-                        <img id="mainImage" alt="대표 이미지">
+            <!-- 상세 정보 래퍼 (좌우 2열 레이아웃) -->
+            <div class="detail-wrapper fade-in">
+                
+                <!-- 왼쪽: 이미지 갤러리 + 상세설명 섹션 -->
+                <div class="image-gallery">
+                    <!-- 메인 이미지 컨테이너 -->
+                    <div class="main-image-container">
+                        <img id="mainImage" class="main-image" alt="상품 대표 이미지">
                     </div>
-                    <!-- 썸네일 이미지 컨테이너 -->
-                    <div class="thumbnail-images" id="thumbnailImages">
-                        <!-- JS에서 이미지 썸네일 <img> 요소들을 여기에 동적으로 삽입 -->
+                    
+                    <!-- 썸네일 이미지 갤러리 -->
+                    <div class="thumbnail-gallery" id="thumbnailImages">
+                        <!-- JavaScript로 동적 생성될 썸네일들 -->
+                    </div>
+
+                    <!-- 상세설명 섹션 (왼쪽으로 이동) -->
+                    <div class="description-section-inline">
+                        <h2>📝 상세설명</h2>
+                        <div class="description-content" id="detailContent">
+                            <!-- JavaScript로 상품 설명 내용이 렌더링됩니다 -->
+                        </div>
                     </div>
                 </div>
 
-                <!-- 상품 정보 섹션 -->
-                <div class="info-section">
-                    <!-- 상품 헤더 (제목과 관리 버튼) -->
+                <!-- 오른쪽: 상품 정보 섹션 -->
+                <div class="product-info">
+                    
+                    <!-- 상품 헤더 (상태 배지 + 제목) -->
                     <div class="product-header">
-                        <div class="product-title-area">
-                            <!-- 상태 배지 -->
-                            <div class="status-badge" id="itemStatus">나눔 상태</div>
-                            <!-- 상품 제목 -->
-                            <h1 class="product-title" id="itemTitle">제목</h1>
-                        </div>
-             
+                        <div class="status-badge" id="itemStatus">나눔중</div>
+                        <h1 class="product-title" id="itemTitle">상품 제목</h1>
+                    </div>
 
-                    <!-- 작성자 정보 -->
-                    <div class="author-info">
+                    <!-- 작성자 정보 카드 -->
+                    <div class="author-card">
+                        <div class="author-avatar">
+                            <span class="avatar-icon">👤</span>
+                        </div>
                         <div class="author-details">
                             <div class="author-name" id="authorNickname">작성자</div>
-                            <div class="author-meta">
+                            <div class="post-meta">
                                 <span class="view-count" id="viewCount">👀 0</span>
                                 <span class="post-date" id="createdAt">방금 전</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 상품 상세 정보 -->
-                    <div class="product-details">
-                        <div class="detail-row">
-                            <span class="detail-label">카테고리</span>
-                            <span class="detail-value" id="detailCategory">가구</span>
+                    <!-- 상품 상세 정보 테이블 -->
+                    <div class="info-table">
+                        <div class="info-row">
+                            <span class="info-label">상품상태</span>
+                            <span class="info-value" id="detailCondition">새 상품</span>
                         </div>
-                        <div class="detail-row">
-                            <span class="detail-label">제목</span>
-                            <span class="detail-value" id="detailTitle">나눔 제목</span>
+                        <div class="info-row">
+                            <span class="info-label">사이즈</span>
+                            <span class="info-value" id="detailSize">280mm</span>
                         </div>
-                        <div class="detail-row">
-                            <span class="detail-label">작성자</span>
-                            <span class="detail-value" id="detailAuthor">작성자 닉네임</span>
+                        <div class="info-row">
+                            <span class="info-label">카테고리</span>
+                            <span class="info-value" id="detailCategory">신발/운동화</span>
                         </div>
-                        <div class="detail-row">
-                            <span class="detail-label">등록일</span>
-                            <span class="detail-value" id="detailDate">2025.07.29</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">상품 상태</span>
-                            <span class="detail-value" id="detailCondition">상 (매우좋음)</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">나눔 지역</span>
-                            <span class="detail-value">
-                                <span id="regionGu">강남구</span>
-                                <span id="regionDong">역삼동</span>
+                        <div class="info-row">
+                            <span class="info-label">나눔 지역</span>
+                            <span class="info-value">
+                                <span id="regionGu">강남구</span> <span id="regionDong">역삼동</span>
                             </span>
                         </div>
+                        <div class="info-row">
+                            <span class="info-label">등록일</span>
+                            <span class="info-value" id="detailDate">2025.07.31</span>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-                
+                    <!-- 작성자 전용 액션 버튼 (수정/삭제) - 동적으로 표시/숨김 -->
+                    <div class="action-buttons" id="authorActions" style="display: none;">
+                        <button class="action-btn btn-edit" id="editBtn">수정하기</button>
+                        <button class="action-btn btn-delete" id="deleteBtn">삭제하기</button>
+                    </div>
 
-
-            <!-- 💬 댓글 전체 블록은 로그인 여부 관계없이 항상 렌더링 -->
-            <div class="comment">
-                <h2>💬 댓글</h2>
-
-                <!-- 댓글 정렬 드롭다운 -->
-                <div class="comment-sort">
-                    <label for="sortSelect">정렬:</label>
-                    <select id="sortSelect">
-                        <option value="recent">최신순</option>
-                        <option value="oldest">등록순</option>
-                    </select>
-                </div>
-
-                <!-- 댓글 목록은 로그인 여부 관계없이 항상 보여야 함 -->
-                <div class="comment-list" id="commentList">
-                    <!-- 댓글 아이템들이 JavaScript로 렌더링됨 -->
-                </div>
-
-                <!-- 댓글 작성 폼 (로그인한 사용자만 보이게) -->
-                <div th:if="${loginMemberNickname != null}" class="comment-form">
-                    <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
-                    <button id="submitCommentBtn">등록</button>
-                </div>
-
-                <!-- 로그인하지 않은 경우 안내 문구 -->
-                <div th:if="${loginMemberNickname == null}" class="comment-form-disabled">
-                    <p>✏️ 댓글을 작성하려면 <a th:href="@{/member/login}">로그인</a> 해주세요.</p>
+                    <!-- 일반 사용자용 버튼들 (찜하기/채팅하기) -->
+                    <div class="contact-buttons" id="userActions">
+                        <button class="contact-btn btn-wishlist" onclick="handleWishlist()">♥ 찜하기</button>
+                        <button class="contact-btn btn-primary" onclick="handleChat()">💬 채팅하기</button>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- 댓글 섹션 -->
+    <section class="comment-section">
+        <div class="container">
+            <div class="comment-card">
+                <!-- 댓글 헤더 (제목 + 정렬 옵션) -->
+                <div class="comment-header">
+                    <h2 class="comment-title">💬 댓글 <span id="commentCount">0</span></h2>
+                    <div class="comment-sort">
+                        <label for="sortSelect">정렬:</label>
+                        <select id="sortSelect">
+                            <option value="recent">최신순</option>
+                            <option value="oldest">등록순</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 댓글 목록 -->
+                <div class="comment-list" id="commentList">
+                    <!-- JavaScript로 댓글들이 동적으로 렌더링됩니다 -->
+                </div>
+
+                <!-- 댓글 페이징 -->
+                <div class="comment-pagination" id="commentPagination">
+                    <!-- JavaScript로 페이징 UI가 동적으로 렌더링됩니다 -->
+                </div>
+
+                <!-- 댓글 작성 폼 -->
+                <div class="comment-form" id="commentForm">
+                    <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
+                    <button id="submitCommentBtn">댓글 등록</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 채팅 모달 창 -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💬 채팅</h3>
+                <button class="modal-close" onclick="closeModal('chatModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message received">
+                            <div class="message-content">안녕하세요! 크록스 아직 나눔 가능한가요?</div>
+                            <div class="message-time">14:30</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="메시지를 입력하세요...">
+                        <button class="chat-send" onclick="sendMessage()">전송</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로그인 확인 모달 -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔐 로그인이 필요합니다</h3>
+                <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="login-notice">
+                    <p>해당 기능을 사용하려면 로그인이 필요합니다.</p>
+                    <div class="login-actions">
+                        <button class="contact-btn btn-primary" onclick="goToLogin()">로그인하기</button>
+                        <button class="contact-btn btn-secondary" onclick="closeModal('loginModal')">취소</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 서버 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // 서버에서 전달받은 데이터를 JavaScript 전역 변수로 설정
+        window.serverData = {
+            // 게시글 정보
+            item: /*[[${free}]]*/ null,
+            // 로그인한 사용자 닉네임
+            loginMemberNickname: /*[[${loginMemberNickname}]]*/ null,
+            // 이미지 목록
+            imageList: /*[[${free != null ? free.imgList : null}]]*/ null
+        };
+        /*]]>*/
+    </script>
+
 </div>
 
+<!-- JavaScript 파일 로드 -->
 <th:block layout:fragment="script">
-    <!-- 메인 JS 파일 -->
+    <!-- 무료나눔 상세페이지 전용 JavaScript 파일 -->
     <script th:src="@{/js/free-sharing-detail.js}"></script>
 </th:block>
+
 </html>

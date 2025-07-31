@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='무료나눔'">
+    <title>무료나눔</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" th:href="@{/css/free-sharing-detail.css}">
+    </th:block>
+</head>
+
+<th:block layout:fragment="header" th:replace="~{fragments/header :: header}"></th:block>
+
+<!-- 메인 내용 -->
+<div layout:fragment="content">
+    
+    <!-- 🔥 수정: 목록으로 돌아가는 버튼 추가 -->
+            <div class="back-to-list">
+                <a th:href="@{/free/list}" class="back-btn">
+                    <span class="icon">←</span>
+                    목록보기
+                </a>
+            </div>
+
+    <!-- 현재 위치 표시 (빵부스러기) -->
+    <section class="breadcrumb">
+        <div class="container">
+            <nav class="breadcrumb-nav">
+                <a th:href="@{/}">🏠</a>
+                <span>></span>
+                <a th:href="@{/free/list}">무료나눔</a>
+                <span>></span>
+                <span class="current">상세보기</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- 상세보기 내용 -->
+    <section class="detail-section">
+        <div class="container">
+            
+            <div class="detail-container">
+                <!-- 상품 이미지 섹션 -->
+                <div class="image-section">
+                    <!-- 메인 이미지 -->
+                    <div class="main-image">
+                        <!-- src는 JS에서 설정하므로 비워둠 -->
+                        <img id="mainImage" alt="대표 이미지">
+                    </div>
+                    <!-- 썸네일 이미지 컨테이너 -->
+                    <div class="thumbnail-images" id="thumbnailImages">
+                        <!-- JS에서 이미지 썸네일 <img> 요소들을 여기에 동적으로 삽입 -->
+                    </div>
+                </div>
+
+                <!-- 상품 정보 섹션 -->
+                <div class="info-section">
+                    <!-- 상품 헤더 (제목과 관리 버튼) -->
+                    <div class="product-header">
+                        <div class="product-title-area">
+                            <!-- 상태 배지 -->
+                            <div class="status-badge" id="itemStatus">나눔 상태</div>
+                            <!-- 상품 제목 -->
+                            <h1 class="product-title" id="itemTitle">제목</h1>
+                        </div>
+             
+
+                    <!-- 작성자 정보 -->
+                    <div class="author-info">
+                        <div class="author-details">
+                            <div class="author-name" id="authorNickname">작성자</div>
+                            <div class="author-meta">
+                                <span class="view-count" id="viewCount">👀 0</span>
+                                <span class="post-date" id="createdAt">방금 전</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 상품 상세 정보 -->
+                    <div class="product-details">
+                        <div class="detail-row">
+                            <span class="detail-label">카테고리</span>
+                            <span class="detail-value" id="detailCategory">가구</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">제목</span>
+                            <span class="detail-value" id="detailTitle">나눔 제목</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">작성자</span>
+                            <span class="detail-value" id="detailAuthor">작성자 닉네임</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">등록일</span>
+                            <span class="detail-value" id="detailDate">2025.07.29</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">상품 상태</span>
+                            <span class="detail-value" id="detailCondition">상 (매우좋음)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">나눔 지역</span>
+                            <span class="detail-value">
+                                <span id="regionGu">강남구</span>
+                                <span id="regionDong">역삼동</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                
+
+
+            <!-- 💬 댓글 전체 블록은 로그인 여부 관계없이 항상 렌더링 -->
+            <div class="comment">
+                <h2>💬 댓글</h2>
+
+                <!-- 댓글 정렬 드롭다운 -->
+                <div class="comment-sort">
+                    <label for="sortSelect">정렬:</label>
+                    <select id="sortSelect">
+                        <option value="recent">최신순</option>
+                        <option value="oldest">등록순</option>
+                    </select>
+                </div>
+
+                <!-- 댓글 목록은 로그인 여부 관계없이 항상 보여야 함 -->
+                <div class="comment-list" id="commentList">
+                    <!-- 댓글 아이템들이 JavaScript로 렌더링됨 -->
+                </div>
+
+                <!-- 댓글 작성 폼 (로그인한 사용자만 보이게) -->
+                <div th:if="${loginMemberNickname != null}" class="comment-form">
+                    <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
+                    <button id="submitCommentBtn">등록</button>
+                </div>
+
+                <!-- 로그인하지 않은 경우 안내 문구 -->
+                <div th:if="${loginMemberNickname == null}" class="comment-form-disabled">
+                    <p>✏️ 댓글을 작성하려면 <a th:href="@{/member/login}">로그인</a> 해주세요.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<th:block layout:fragment="script">
+    <!-- 메인 JS 파일 -->
+    <script th:src="@{/js/free-sharing-detail.js}"></script>
+</th:block>
+</html>

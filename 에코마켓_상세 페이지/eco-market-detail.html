@@ -1,0 +1,204 @@
+<!--
+    에코마켓 상품 상세 페이지
+    @author : sehui
+    @fileName : eco-market-detail.html
+    @since : 250730
+    @history
+     - 250730 | sehui | 에코마켓 상품 상세 페이지 일부 수정(th:* 수정, 공통 레이아웃 추가)
+     - 250731 | sehui | 장바구니, 구매하기 버튼에 로그인 여부 data 속성으로 추가
+     - 250731 | sehui | 헤더/푸터 충돌 방지를 위한 클래스명 변경 및 구조 개선
+-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='에코마켓'">
+    <title>에코마켓 상품 상세보기</title>
+
+    <!-- 추가 css -->
+    <th:block layout:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/eco-market-detail.css}">
+    </th:block>
+
+</head>
+<body>
+    <!-- 본문 fragment -->
+    <div layout:fragment="content" class="product-detail-page">
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="product-main-content">
+
+            <!-- JS에서 사용하기 위해 추가 -->
+            <input type="hidden" id="itemId" th:value="${itemId}" />
+
+            <!-- 브레드크럼 네비게이션 (현재 위치 표시) -->
+            <section class="product-breadcrumb-section">
+                <div class="product-container">
+                    <nav class="product-breadcrumb">
+                        <a th:href="@{/}">홈</a>
+                        <span class="product-breadcrumb-separator">></span>
+                        <a th:href="@{/eco/list}">에코마켓</a>
+                        <span class="product-breadcrumb-separator">></span>
+                        <span id="breadcrumbCategory">카테고리명</span>
+                        <span class="product-breadcrumb-separator">></span>
+                        <span class="product-breadcrumb-current">상품 상세보기</span>
+                    </nav>
+                </div>
+            </section>
+
+            <!-- 상품 상세 정보 섹션 -->
+            <section class="product-detail-section">
+                <div class="product-container">
+                    <div class="product-detail-container">
+                        <!-- 왼쪽: 상품 이미지 영역 -->
+                        <div class="product-images">
+                            <!-- 메인 이미지 -->
+                            <div class="main-image-container">
+                                <div class="main-image" id="mainImage">
+                                    <img id="mainImageTag" alt="mainImage" style="display: none;">
+                                    <!-- 메인 이미지 JS로 삽입 -->
+                                </div>
+                                <!-- 이미지 확대 버튼 -->
+                                <button class="image-zoom-btn" id="imageZoomBtn">🔍</button>
+                            </div>
+
+                            <!-- 썸네일 이미지 목록 - 반복문으로 출력 -->
+                            <div class="thumbnail-container" id="thumbnailContainer">
+                                <div class="thumbnail-list" id="thumbnailList">
+                                <!-- 썸네일 이미지 JS로 삽입 -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 오른쪽: 상품 정보 영역 -->
+                        <div class="product-info">
+                            <!-- 상품 기본 정보 -->
+                            <div class="product-header">
+                                <!-- 상품 판매 상태 배지 -->
+                                <div class="product-status-badge available" id="productStatus">판매 상태</div>
+
+                                <!-- 상품 제목 -->
+                                <h1 class="product-title" id="productTitle">상품명</h1>
+
+                                <!-- 상품 메뉴 (관리자일 경우만 표시) -->
+                                <div class="product-menu" style="display: none;">
+                                    <button class="menu-toggle" id="menuToggle">⋯</button>
+                                    <div class="menu-dropdown" id="menuDropdown">
+                                        <button class="menu-item" id="editProduct" 
+                                                th:onclick="'location.href=\'/eco/modify/\' + ' + ${itemId}"
+                                                sec:authorize="hasAnyAuthority('ROLE_ADMIN')">수정하기</button>
+                                    </div>
+                                </div>
+
+                                <!-- 상품 메타 정보 -->
+                                <div class="product-meta">
+                                    <span class="product-category" id="productCategory">카테고리</span>
+                                </div>
+                            </div>
+
+                            <!-- 가격 정보 -->
+                            <div class="price-section">
+                                <div class="current-price" id="currentPrice">가격</div>
+                            </div>
+
+                            <!-- 재고 수량 정보 -->
+                            <div class="stock-section">
+                                <h3>재고 수량</h3>
+                                <div class="stock-info">
+                                    <div class="stock-number" id="stockNumber">재고수량</div>
+                                </div>
+                            </div>
+
+                            <!-- 거래 정보 -->
+                            <div class="transaction-section">
+                                <div class="transaction-info">
+                                    <div class="info-item" id="shippingFeeContainer">
+                                        <span class="info-label">배송비</span>
+                                        <span class="info-value" id="shippingFee">무료 배송</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 액션 버튼 영역 -->
+                            <div class="action-buttons" id="actionButtons" th:data-logged-in="${#authentication.principal != null}">
+                                <!-- 장바구니 버튼 -->
+                                <button class="btn btn-cart" id="cartBtn">🛒 장바구니</button>
+                                <!-- 구매하기 버튼 -->
+                                <button class="btn btn-buy" id="buyBtn">💰 구매하기</button>
+                                <!-- 에코마켓과 구매하기 버튼 -->
+                                <button class="btn btn-eco-buy" id="ecoBuyBtn">🌱 에코마켓과 구매하기</button>
+                            </div>
+
+                            <!-- 공유 버튼 -->
+                            <div class="share-section">
+                                <span class="share-label">공유하기</span>
+                                <div class="share-buttons">
+                                    <button class="share-btn" data-type="link" title="링크 복사" onclick="shareProduct('link')">🔗</button>
+                                    <button class="share-btn" data-type="kakao" title="카카오톡" onclick="shareProduct('kakao')">💬</button>
+                                    <button class="share-btn" data-type="facebook" title="페이스북" onclick="shareProduct('facebook')">📘</button>
+                                    <button class="share-btn" data-type="twitter" title="트위터" onclick="shareProduct('twitter')">🐦</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 상품 상세 설명 섹션 -->
+            <section class="product-description-section">
+                <div class="product-container">
+                    <div class="description-container">
+                        <h2>상품 상세 설명</h2>
+                        <!-- 상품 설명 내용 - HTML 태그가 포함될 수 있으므로 utext 사용 -->
+                        <div class="description-content" id="productDescription">
+                            <!-- JS로 동적으로 기본 설명 내용 삽입 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 연관 상품 섹션 -->
+            <section class="related-products-section">
+                <div class="product-container">
+                    <h2>이런 상품은 어떠세요?</h2>
+                    <div class="related-products-grid" id="relatedProductsGrid">
+                        <!-- JS가 여기 안에 관련 상품 카드 넣음 -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 이미지 확대 모달 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content image-modal-content">
+            <div class="modal-header">
+                <h3>상품 이미지</h3>
+                <button class="modal-close" id="closeImageModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-image-container">
+                    <div class="modal-main-image" id="modalMainImage">
+                        <img src="" alt="상품 이미지" style="display: none;">
+                    </div>
+                    <div class="modal-image-controls" id="modalImageControls">
+                        <button class="image-nav-btn" id="prevImageBtn">‹</button>
+                        <span class="image-counter" id="imageCounter">1 / 1</span>
+                        <button class="image-nav-btn" id="nextImageBtn">›</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일 연결 - Thymeleaf 정적 리소스 경로 -->
+    <th:block layout:fragment="script">
+        <script th:src="@{/js/eco-market-detail.js}"></script>
+        <script th:src="@{/js/eco-market-detail-request.js}"></script>
+    </th:block>
+
+</body>
+</html>

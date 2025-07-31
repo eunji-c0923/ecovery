@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout1}">
+
+<head th:with="pageTitle='무료나눔'">
+    <title>무료나눔</title>
+    <th:block layout:fragment="css">
+        <!-- 추가 CSS (필요시만) -->
+        <link rel="stylesheet" th:href="@{/css/freesharing.css}">
+    </th:block>
+</head>
+
+<!--<div class="hamburger" id="hamburger">-->
+<!--    <span></span>-->
+<!--    <span></span>-->
+<!--    <span></span>-->
+<!--</div>-->
+
+<th:block layout:fragment="header" th:replace="~{fragments/header :: header}"></th:block>
+
+<!-- Main Content -->
+<div layout:fragment="content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1>🤝 무료나눔 커뮤니티</h1>
+                <p>사용하지 않는 물건을 이웃과 나누며 자원 순환을 실현하세요</p>
+                <!-- 통계 표시 영역 - 서버에서 전달받은 통계 데이터 -->
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="todayCompleted">1,247</span>
+                        <span class="stat-label">오늘 나눔 완료</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalShared">15,382</span>
+                        <span class="stat-label">총 나눔 건수</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="activeMembers">8,941</span>
+                        <span class="stat-label">활성 회원</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter and Actions -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-header">
+                <div class="filter-left">
+                    <h2>우리 동네 나눔</h2>
+                </div>
+                <div class="filter-right">
+                    <!-- 로그인한 사용자만 보이는 버튼 -->
+                    <a th:href="@{/free/register}"
+                       class="btn btn-primary"
+                       sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')">
+                        <span>+</span> 나눔 등록
+                    </a>
+
+                    <!-- 비로그인 사용자에게만 보이는 버튼 -->
+                    <a href="/member/login"
+                       class="btn btn-primary"
+                       sec:authorize="isAnonymous()">
+                        <span>+</span> 로그인 후 나눔 등록
+                    </a>
+                </div>
+            </div>
+
+            <!-- 필터 컨트롤 영역 - 폼으로 감싸서 서버에 전송 -->
+            <div class="filter-controls" id="filterControls">
+                <div class="filter-group">
+                    <label>카테고리</label>
+                    <select id="categoryFilter" name="type">
+                        <option value="TCR">전체</option>
+                        <option value="T">제목</option>
+                        <option value="R">지역</option>
+                        <option value="C">내용</option>
+                    </select>
+                </div>
+
+                <div class="search-group">
+                    <input type="text" id="searchInput" name="keyword" placeholder="원하는 검색어를 검색하세요...">
+                    <button type="button" class="search-btn" id="searchBtn">🔍</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Items Grid -->
+    <section class="items-section">
+        <div class="container">
+            <div class="items-header">
+                <div class="items-count">
+                    <!-- 검색 결과 개수 표시 -->
+                    <span id="totalItems">총 0건</span>의 나눔 물건
+                </div>
+            </div>
+
+            <!-- 나눔 아이템 그리드 -->
+            <!-- ✅ 개선사항: 페이지 전환 애니메이션을 위한 fade-container 클래스 추가 -->
+            <div class="items-grid fade-container" id="itemsGrid">
+                <!-- JS가 이 안에 카드와 '결과 없음' 메시지를 동적으로 추가할 예정 -->
+            </div>
+
+            <!-- 더보기 버튼 (JS가 사용함) -->
+            <div class="load-more">
+                <button class="btn btn-secondary" id="loadMoreBtn">더 보기</button>
+            </div>
+
+            <!-- 페이지네이션 영역 (JS가 내부 버튼을 생성함) -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </section>
+
+    <th:block layout:fragment="script">
+        <!-- 추가 JS (필요시만) -->
+        <script th:src="@{/js/freesharing.js}"></script>
+    </th:block>
+
+</div>
+</html>

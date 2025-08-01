@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>GreenCycle - 구매상세</title>
+    <!-- 기존 order-detail CSS 파일 연결 (재사용) -->
+    <link rel="stylesheet" th:href="@{/css/order-detail.css}">
+    <!-- 폰트 연결 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 헤더 영역 -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main id="mainContent">
+        <!-- 브레드크럼 네비게이션 -->
+        <section class="breadcrumb-section">
+            <div class="container">
+                <nav class="breadcrumb">
+                    <a th:href="@{/}">홈</a>
+                    <span class="breadcrumb-separator">></span>
+                    <a th:href="@{/mypage}">마이페이지</a>
+                    <span class="breadcrumb-separator">></span>
+                    <a th:href="@{/orders/history}">구매이력</a>
+                    <span class="breadcrumb-separator">></span>
+                    <span class="current-page">구매상세</span>
+                </nav>
+            </div>
+        </section>
+
+        <!-- 주문 상세 헤더 -->
+        <section class="order-header">
+            <div class="container">
+                <div class="order-header-content">
+                    <div class="order-title-section">
+                        <h1>📋 구매상세</h1>
+                        <p class="order-subtitle">주문하신 상품의 상세 정보를 확인하세요</p>
+                    </div>
+                    <button class="btn-back" onclick="goBack()">
+                        <span class="back-icon">←</span>
+                        <span class="back-text">뒤로가기</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 주문 상세 정보 섹션 -->
+        <section class="order-details">
+            <div class="container">
+                <!-- 주문 기본 정보 카드 -->
+                <div class="order-info-card">
+                    <div class="card-header">
+                        <h2 class="card-title">📋 주문 정보</h2>
+                        <div class="order-status-badge" id="orderStatusBadge">
+                            <!--<span class="status-text" th:text="${order.orderStatus.name() == 'PAID' ? '결제완료' :
+                                                                (order.orderStatus.name() == 'PREPARING' ? '상품준비중' :
+                                                                (order.orderStatus.name() == 'SHIPPED' ? '배송중' :
+                                                                (order.orderStatus.name() == 'DELIVERED' ? '배송완료' :
+                                                                (order.orderStatus.name() == 'CANCELLED' ? '주문취소' : '상태미확인'))))}">
+                                배송완료
+                            </span>-->
+                        </div>
+                    </div>
+                    <div class="order-basic-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">주문번호</span>
+                                <span class="info-value" id="orderNumber" th:text="${order.orderUuid}">ORD-2025010001</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">주문일자</span>
+                                <span class="info-value" id="orderDate"
+                                      th:text="${#dates.format(order.createdAt, 'yyyy년 M월 d일')}">2025년 1월 15일</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">주문자</span>
+                                <span class="info-value키" id="orderName" th:text="${order.name}">김환경</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">연락처</span>
+                                <span class="info-value" id="orderPhone" th:text="${order.phoneNumber}">010-****-1234</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주문 상품 정보 카드 -->
+                <div class="order-product-card">
+                    <div class="card-header">
+                        <h2 class="card-title">📦 주문 상품</h2>
+                        <span class="product-count" id="productCount" 
+                              th:text="'총 ' + ${order.orderItems.size()} + '개 상품'">총 2개 상품</span>
+                    </div>
+                    <div class="product-list" id="productList">
+                        <!-- 주문 상품 목록 반복 -->
+                        <div th:each="item : ${order.orderItems}" class="product-item">
+                            <div class="product-image">
+                                <img th:src="@{'/api/images/' + ${item.itemImgId}}"
+                                     th:alt="${item.itemName}"
+                                     onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><rect fill=\'%23e3f2fd\' width=\'100\' height=\'100\'/><text x=\'50\' y=\'55\' font-size=\'40\' text-anchor=\'middle\'>📦</text></svg>'">
+                            </div>
+                            <div class="product-details">
+                                <h3 class="product-name" th:text="${item.itemName}">상품명</h3>
+                                <p class="product-description" th:text="${item.itemName}">상품 설명</p>
+                                <div class="product-options">
+                                    <!-- 실제 상품 옵션이 있다면 여기에 표시 -->
+                                    <span class="option-item">기본 옵션</span>
+                                </div>
+                            </div>
+                            <div class="product-quantity">
+                                <span class="quantity-label">수량</span>
+                                <span class="quantity-value" th:text="${item.count} + '개'">1개</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="unit-price" 
+                                      th:text="${#numbers.formatInteger(item.orderPrice / item.count, 3)} + '원'">15,000원</span>
+                                <span class="total-price" 
+                                      th:text="${#numbers.formatInteger(item.orderPrice, 3)} + '원'">15,000원</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 배송 정보 카드 -->
+                <div class="delivery-info-card">
+                    <div class="card-header">
+                        <h2 class="card-title">🚚 배송 정보</h2>
+                        <button class="btn-track-delivery" onclick="trackDelivery()">
+                                <!--th:if="${order.orderStatus.name() == 'SHIPPED' or order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="track-icon">🔍</span>
+                            <span class="track-text">배송조회</span>
+                        </button>
+                    </div>
+                    <div class="delivery-details">
+                        <!-- 배송 상태 타임라인 -->
+                        <div class="status-timeline">
+                            <!-- JavaScript로 동적 생성됩니다 -->
+                        </div>
+                        
+                        <!-- 배송지 정보 -->
+                        <div class="delivery-address">
+                            <h3 class="address-title">배송지 정보</h3>
+                            <div class="address-details">
+                                <div class="address-item">
+                                    <span class="address-label">받는분</span>
+                                    <span class="address-value" th:text="${order.name}">받는분 이름</span>
+                                </div>
+                                <div class="address-item">
+                                    <span class="address-label">연락처</span>
+                                    <span class="address-value" th:text="${order.phoneNumber}">연락처</span>
+                                </div>
+                                <div class="address-item">
+                                    <span class="address-label">주소</span>
+                                    <span class="address-value">
+                                        <span th:text="${order.roadAddress}">주소</span><br>
+                                        <span th:text="${order.detailAddress}" th:if="${order.detailAddress}">상세주소</span>
+                                    </span>
+                                </div>
+                                <div class="address-item">
+                                    <span class="address-label">배송요청사항</span>
+                                    <span class="address-value">부재 시 경비실에 맡겨주세요</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 결제 정보 카드 -->
+                <div class="payment-info-card">
+                    <div class="card-header">
+                        <h2 class="card-title">💳 결제 정보</h2>
+                    </div>
+                    <div class="payment-details">
+                        <!-- 결제 요약 -->
+                        <div class="payment-summary">
+                            <div class="summary-row">
+                                <span class="summary-label">상품금액</span>
+                                <span class="summary-value" 
+                                      th:text="${#numbers.formatInteger(order.payAmount, 3)} + '원'">상품금액</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">배송비</span>
+                                <span class="summary-value">0원</span>
+                                <span class="summary-note">(50,000원 이상 무료배송)</span>
+                            </div>
+                            <div class="summary-row discount">
+                                <span class="summary-label">할인금액</span>
+                                <span class="summary-value">0원</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span class="summary-label">최종결제금액</span>
+                                <span class="summary-value" 
+                                      th:text="${#numbers.formatInteger(order.payAmount, 3)} + '원'">최종결제금액</span>
+                            </div>
+                        </div>
+
+                        <!-- 결제 방법 -->
+                        <div class="payment-method">
+                            <h3 class="method-title">결제 방법</h3>
+                            <div class="method-details">
+                                <div class="method-item">
+                                    <span class="method-icon">💳</span>
+                                    <div class="method-info">
+                                        <span class="method-name" th:text="${order.payMethod}">결제방법</span>
+                                        <span class="method-detail">결제카드 정보</span>
+                                        <span class="method-date" 
+                                              th:text="'결제일시: ' + ${#temporals.format(order.paidAt, 'yyyy.MM.dd HH:mm')}">결제일시</span>
+                                    </div>
+                                    <span class="method-amount" 
+                                          th:text="${#numbers.formatInteger(order.payAmount, 3)} + '원'">결제금액</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주문 관리 카드 -->
+                <div class="order-actions-card">
+                    <div class="card-header">
+                        <h2 class="card-title">⚙️ 주문 관리</h2>
+                    </div>
+                    
+                    <!-- 액션 버튼들 -->
+                    <div class="action-buttons">
+                        <!-- 상품후기 작성 (배송완료시에만) -->
+                        <button class="btn-action btn-review" onclick="writeReview()">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="btn-icon">⭐</span>
+                            <span class="btn-text">상품후기 작성</span>
+                        </button>
+
+                        <!-- 재주문 버튼 (배송완료시에만) -->
+                        <button class="btn-action btn-reorder" onclick="reorder()">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">재주문</span>
+                        </button>
+
+                        <!-- 주문취소 (결제완료, 상품준비중일 때만) -->
+                        <button class="btn-action btn-cancel" onclick="cancelOrder()">
+                                <!--th:if="${order.orderStatus.name() == 'PAID' or order.orderStatus.name() == 'PREPARING'}">-->
+                            <span class="btn-icon">❌</span>
+                            <span class="btn-text">주문취소</span>
+                        </button>
+
+                        <!-- 교환/반품 (배송완료시에만) -->
+                        <button class="btn-action btn-exchange" onclick="requestExchange()">
+                                <!--th:if="${order.orderStatus.name() == 'DELIVERED'}">-->
+                            <span class="btn-icon">🔄</span>
+                            <span class="btn-text">교환/반품</span>
+                        </button>
+
+                        <!-- 주문문의 -->
+                        <a th:href="@{/support/orders/{id}(id=${order.orderId})}" class="btn-action btn-inquiry">
+                            <span class="btn-icon">❓</span>
+                            <span class="btn-text">주문문의</span>
+                        </a>
+
+                        <!-- 영수증 다운로드 -->
+                        <button class="btn-action btn-receipt" onclick="downloadReceipt()">
+                            <span class="btn-icon">📄</span>
+                            <span class="btn-text">영수증 다운로드</span>
+                        </button>
+                    </div>
+
+                    <!-- 주의사항 -->
+                    <div class="order-notes">
+                        <h3 class="notes-title">📌 주문 관련 안내</h3>
+                        <ul class="notes-list">
+                            <li>배송완료 후 7일 이내에 교환/반품 신청이 가능합니다.</li>
+                            <li>상품후기 작성 시 추가 포인트를 적립해드립니다.</li>
+                            <li>친환경 포장재 사용으로 지구를 보호합니다. 🌍</li>
+                            <li>문의사항은 고객센터(1588-1234) 또는 온라인으로 접수 가능합니다.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 주문취소 모달 -->
+    <div class="modal-overlay" id="cancelOrderModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>❌ 주문 취소</h3>
+                <button class="modal-close" onclick="closeCancelModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>정말로 주문을 취소하시겠습니까?</p>
+                <div class="cancel-reason-section">
+                    <h4>취소 사유를 선택해주세요</h4>
+                    <select id="cancelReason" class="form-select">
+                        <option value="">취소 사유 선택</option>
+                        <option value="change_mind">단순 변심</option>
+                        <option value="wrong_order">잘못 주문</option>
+                        <option value="found_cheaper">더 저렴한 곳 발견</option>
+                        <option value="delivery_delay">배송 지연</option>
+                        <option value="other">기타</option>
+                    </select>
+                    <textarea id="cancelNote" placeholder="기타 사유를 입력해주세요 (선택사항)" rows="3"></textarea>
+                </div>
+                <div class="refund-info">
+                    <h4>환불 안내</h4>
+                    <p>결제하신 금액은 결제수단에 따라 3-7일 내에 환불처리됩니다.</p>
+                    <p>사용하신 포인트는 즉시 복원됩니다.</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeCancelModal()">취소</button>
+                <button class="btn btn-danger" onclick="confirmCancelOrder()">주문 취소</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 교환/반품 모달 -->
+    <div class="modal-overlay" id="exchangeModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔄 교환/반품 신청</h3>
+                <button class="modal-close" onclick="closeExchangeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="exchangeForm">
+                    <div class="form-group">
+                        <label>신청 유형</label>
+                        <div class="radio-group">
+                            <label class="radio-item">
+                                <input type="radio" name="exchangeType" value="exchange">
+                                <span>교환</span>
+                            </label>
+                            <label class="radio-item">
+                                <input type="radio" name="exchangeType" value="return">
+                                <span>반품</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>사유</label>
+                        <select name="reason" required>
+                            <option value="">사유를 선택해주세요</option>
+                            <option value="defective">상품 불량</option>
+                            <option value="different">주문과 다른 상품</option>
+                            <option value="damaged">배송 중 파손</option>
+                            <option value="size_issue">사이즈 문제</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>상세 내용</label>
+                        <textarea name="description" placeholder="자세한 사유를 입력해주세요" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>첨부 사진 (선택)</label>
+                        <input type="file" name="attachments" multiple accept="image/*">
+                        <small>상품 상태를 확인할 수 있는 사진을 첨부해주세요</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeExchangeModal()">취소</button>
+                <button class="btn btn-primary" onclick="submitExchangeRequest()">신청하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 영역 -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- JavaScript 파일 연결 (기존 order-detail.js 재사용) -->
+    <script th:src="@{/js/order-detail.js}"></script>
+
+    <!-- Thymeleaf 데이터를 JavaScript로 전달 -->
+    <script th:inline="javascript">
+        // 서버에서 전달받은 주문 상세 데이터
+        var orderData = /*[[${order}]]*/ null;
+        var user = /*[[${session.user}]]*/ null;
+        <!-- var csrfToken = /*[[${_csrf.token}]]*/ ''; -->
+        var csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+
+        // API URL 설정
+        var orderCancelUrl = /*[[@{/api/orders/{id}/cancel}]]*/ '/api/orders/{id}/cancel';
+        var exchangeRequestUrl = /*[[@{/api/orders/{id}/exchange}]]*/ '/api/orders/{id}/exchange';
+        var reviewWriteUrl = /*[[@{/orders/{id}/review}]]*/ '/orders/{id}/review';
+        var reorderUrl = /*[[@{/api/orders/{id}/reorder}]]*/ '/api/orders/{id}/reorder';
+        var receiptDownloadUrl = /*[[@{/api/orders/{id}/receipt}]]*/ '/api/orders/{id}/receipt';
+        var trackingUrl = /*[[@{/api/delivery/tracking/}]]*/ '/api/delivery/tracking/';
+
+        // 주문 ID 설정 (기존 order-detail.js에서 사용)
+        var currentOrderId = orderData ? orderData.orderUuid : null;
+
+        // 메시지 설정
+        var messages = {
+            cancelSuccess: '주문이 성공적으로 취소되었습니다.',
+            cancelError: '주문 취소 중 오류가 발생했습니다.',
+            exchangeSuccess: '교환/반품 신청이 완료되었습니다.',
+            exchangeError: '교환/반품 신청 중 오류가 발생했습니다.',
+            reorderSuccess: '장바구니에 상품이 추가되었습니다.',
+            reorderError: '재주문 중 오류가 발생했습니다.'
+        };
+
+        // 페이지 로드 후 주문 데이터로 화면 업데이트
+        document.addEventListener('DOMContentLoaded', function() {
+            if (orderData) {
+                // 기존 order-detail.js의 displayOrderData 함수 호출
+                displayOrderData(orderData);
+            }
+        });
+
+        // 모달 관련 함수들 (기존 코드와 호환성을 위해 추가)
+        function closeCancelModal() {
+            document.getElementById('cancelOrderModal').style.display = 'none';
+        }
+
+        function closeExchangeModal() {
+            document.getElementById('exchangeModal').style.display = 'none';
+        }
+
+        function confirmCancelOrder() {
+            // 실제 취소 처리 로직
+            closeCancelModal();
+            cancelOrder();
+        }
+
+        function submitExchangeRequest() {
+            // 실제 교환/반품 신청 로직
+            closeExchangeModal();
+            showNotification('교환/반품 신청이 완료되었습니다.', 'success');
+        }
+
+        function requestExchange() {
+            document.getElementById('exchangeModal').style.display = 'flex';
+        }
+
+        function cancelOrder() {
+            document.getElementById('cancelOrderModal').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>

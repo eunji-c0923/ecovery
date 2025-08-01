@@ -1,0 +1,1005 @@
+/* ==========================================================================
+   GreenCycle 주문상세 페이지 CSS
+   마이페이지와 동일한 디자인 시스템을 사용하여 일관성 유지
+   ========================================================================== */
+
+/* CSS 변수 정의 (마이페이지와 동일) */
+:root {
+    --primary-green: #2d5a3d;
+    --accent-green: #6fa776;
+    --light-green: #a8d5b7;
+    --dark-green: #1e3d2a;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --medium-gray: #6c757d;
+    --dark-gray: #343a40;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --font-family: 'Noto Sans KR', sans-serif;
+    --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
+    --border-radius: 12px;
+    --container-max-width: 1200px;
+    --container-padding: 20px;
+}
+
+/* ==========================================================================
+   기본 스타일 초기화
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--dark-gray);
+    background: var(--light-gray);
+}
+
+.container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 var(--container-padding);
+}
+
+/* ==========================================================================
+   메인 콘텐츠 영역
+   ========================================================================== */
+#mainContent {
+    margin-top: 80px; /* 헤더 높이만큼 여백 */
+    min-height: calc(100vh - 80px);
+}
+
+/* ==========================================================================
+   브레드크럼(breadcrumb) 네비게이션
+   ========================================================================== */
+.breadcrumb-section {
+    background: var(--white);
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(45, 90, 61, 0.1);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.breadcrumb a {
+    color: var(--medium-gray);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+    color: var(--primary-green);
+}
+
+.breadcrumb-separator {
+    color: var(--medium-gray);
+    font-weight: 300;
+}
+
+.current-page {
+    color: var(--primary-green);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   페이지 헤더 섹션
+   ========================================================================== */
+.page-header {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+    padding: 40px 0;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 배경 패턴 */
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle fill="rgba(255,255,255,0.1)" cx="20" cy="20" r="2"/><circle fill="rgba(255,255,255,0.05)" cx="80" cy="80" r="3"/></svg>');
+    opacity: 0.3;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.title-section h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.page-subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* 통계 섹션 */
+.stats-section {
+    display: flex;
+    gap: 30px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   구매이력 목록 섹션
+   ========================================================================== */
+.order-history-section {
+    padding: 40px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* ==========================================================================
+   필터 및 검색 영역
+   ========================================================================== */
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    background: var(--white);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.filter-left {
+    display: flex;
+    gap: 15px;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 1px solid rgba(45, 90, 61, 0.2);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--dark-gray);
+    appearance: none; /* 기본 화살표 제거 */
+    background: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%232d5a3d"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>') no-repeat right 12px center;
+    background-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 140px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.2);
+}
+
+.filter-right {
+    display: flex;
+    gap: 15px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 10px 40px 10px 15px;
+    border: 1px solid rgba(45, 90, 61, 0.2);
+    border-radius: 8px;
+    font-size: 15px;
+    color: var(--dark-gray);
+    width: 250px;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(45, 90, 61, 0.2);
+}
+
+.search-btn {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--primary-green);
+    padding: 5px;
+    transition: color 0.3s ease;
+}
+
+.search-btn:hover {
+    color: var(--dark-green);
+}
+
+.search-icon {
+    display: flex;
+}
+
+/* ==========================================================================
+   주문이 없을 경우 메시지
+   ========================================================================== */
+.no-orders-message {
+    text-align: center;
+    padding: 50px 20px;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.empty-icon {
+    font-size: 60px;
+    margin-bottom: 10px;
+}
+
+.no-orders-message h3 {
+    font-size: 24px;
+    color: var(--primary-green);
+    margin-bottom: 10px;
+}
+
+.no-orders-message p {
+    font-size: 16px;
+    color: var(--medium-gray);
+    margin-bottom: 20px;
+}
+
+.btn-shop-now {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 25px;
+    background: var(--primary-green);
+    color: var(--white);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+}
+
+.btn-shop-now:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(45, 90, 61, 0.4);
+}
+
+.btn-icon {
+    font-size: 18px;
+}
+
+.btn-text {
+    margin-top: 2px;
+}
+
+/* ==========================================================================
+   주문 목록 테이블 (데스크탑용) - 개선된 버전
+   ========================================================================== */
+.order-table-container {
+    overflow-x: auto;
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+}
+
+.order-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px; /* 최소 너비 증가로 버튼이 잘리지 않도록 */
+}
+
+.order-table th,
+.order-table td {
+    padding: 18px 15px; /* 패딩 증가 */
+    text-align: left;
+    border-bottom: 1px solid var(--light-gray);
+    vertical-align: middle; /* 수직 정렬 */
+}
+
+.order-table th {
+    background: rgba(45, 90, 61, 0.05);
+    color: var(--primary-green);
+    font-weight: 600;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap; /* 헤더 텍스트 줄바꿈 방지 */
+}
+
+.order-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.order-table tbody tr:hover {
+    background: rgba(45, 90, 61, 0.03);
+    transition: background-color 0.2s ease;
+}
+
+/* 컬럼별 너비 및 정렬 최적화 */
+.col-order-num { 
+    width: 16%; 
+    min-width: 140px;
+}
+
+.col-order-date { 
+    width: 12%; 
+    min-width: 100px;
+}
+
+.col-order-items { 
+    width: 32%; 
+    min-width: 250px;
+}
+
+.col-order-amount { 
+    width: 12%; 
+    min-width: 100px;
+    text-align: right; 
+}
+
+.col-order-status { 
+    width: 10%; 
+    min-width: 90px;
+    text-align: center;
+}
+
+.col-order-action { 
+    width: 18%; /* 너비 증가 */
+    min-width: 160px; /* 최소 너비 증가 */
+    text-align: center; 
+}
+
+/* ==========================================================================
+   테이블 내 요소 스타일
+   ========================================================================== */
+
+/* 주문번호 스타일 */
+.order-number {
+    font-family: 'Courier New', monospace; /* 고정폭 폰트 */
+}
+
+.order-number-text {
+    color: var(--primary-green);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* 주문일자 스타일 */
+.order-date {
+    font-size: 14px;
+}
+
+.date-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.date-main {
+    color: var(--dark-gray);
+    font-weight: 500;
+}
+
+.date-time {
+    color: var(--medium-gray);
+    font-size: 12px;
+}
+
+/* 주문상품 스타일 */
+.order-items {
+    padding: 12px 15px; /* 상품 영역 패딩 조정 */
+}
+
+.items-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.first-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.item-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--light-gray);
+    flex-shrink: 0; /* 이미지 크기 고정 */
+}
+
+.item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0; /* flex 자식 요소의 최소 너비 설정 */
+}
+
+.item-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* 최대 두 줄 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.item-count {
+    font-size: 13px;
+    color: var(--medium-gray);
+}
+
+/* 결제금액 스타일 */
+.order-amount {
+    text-align: right;
+}
+
+.amount {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+/* 주문상태 스타일 */
+.order-status {
+    text-align: center;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+}
+
+/* 주문 상태별 색상 */
+.status-processing { /* '결제완료', '상품준비중' */
+    background: rgba(255, 193, 7, 0.15);
+    color: var(--warning-color);
+}
+
+.status-shipping { /* '배송중' */
+    background: rgba(23, 162, 184, 0.15);
+    color: var(--info-color);
+}
+
+.status-delivered { /* '배송완료' */
+    background: rgba(40, 167, 69, 0.15);
+    color: var(--success-color);
+}
+
+.status-cancelled { /* '주문취소' */
+    background: rgba(220, 53, 69, 0.15);
+    color: var(--danger-color);
+}
+
+/* ==========================================================================
+   주문관리 버튼 영역 - 개선된 버전
+   ========================================================================== */
+.order-actions {
+    text-align: center;
+    padding: 15px 10px; /* 패딩 조정 */
+}
+
+.action-buttons-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px; /* 최소 높이 설정 */
+}
+
+.btn-action {
+    padding: 8px 14px; /* 패딩 조정 */
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    background: transparent;
+    width: 85px; /* 버튼 너비 통일 */
+    text-align: center;
+    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+    display: inline-block;
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 각 버튼별 색상 스타일 */
+.btn-detail {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    font-weight: 600; /* 상세보기 버튼 강조 */
+}
+
+.btn-detail:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.btn-review {
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+.btn-review:hover {
+    background: var(--warning-color);
+    color: var(--white);
+}
+
+.btn-reorder {
+    border-color: var(--info-color);
+    color: var(--info-color);
+}
+
+.btn-reorder:hover {
+    background: var(--info-color);
+    color: var(--white);
+}
+
+.btn-cancel {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+.btn-cancel:hover {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+/* ==========================================================================
+   주문 목록 카드 (모바일용)
+   ========================================================================== */
+.order-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.order-card {
+    background: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid rgba(45, 90, 61, 0.1);
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 45px rgba(45, 90, 61, 0.12);
+}
+
+/* 카드 헤더 */
+.order-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--light-gray);
+    padding-bottom: 15px;
+    margin-bottom: 0;
+}
+
+.order-card .order-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-card .order-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-green);
+    font-family: 'Courier New', monospace;
+}
+
+.order-card .order-date {
+    font-size: 13px;
+    color: var(--medium-gray);
+}
+
+/* 모바일 카드 상태 배지 */
+.order-card .status-badge {
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+/* 카드 본문 */
+.order-card .card-body {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.order-card .items-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.order-card .item-image {
+    width: 70px;
+    height: 70px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--light-gray);
+}
+
+.order-card .item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.order-card .item-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark-gray);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.order-card .item-count {
+    font-size: 13px;
+    color: var(--medium-gray);
+}
+
+.order-card .amount-section {
+    text-align: right;
+    min-width: 80px;
+}
+
+.order-card .amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-green);
+}
+
+/* 카드 푸터 */
+.order-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--light-gray);
+}
+
+.order-card .btn-detail {
+    padding: 8px 15px;
+    border: 1px solid var(--primary-green);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--primary-green);
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.order-card .btn-detail:hover {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.quick-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-quick {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.btn-quick:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 각 빠른 액션 버튼별 색상 */
+.btn-quick.btn-review {
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+.btn-quick.btn-review:hover {
+    background: var(--warning-color);
+    color: var(--white);
+}
+
+.btn-quick.btn-reorder {
+    border-color: var(--info-color);
+    color: var(--info-color);
+}
+
+.btn-quick.btn-reorder:hover {
+    background: var(--info-color);
+    color: var(--white);
+}
+
+.btn-quick.btn-cancel {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+.btn-quick.btn-cancel:hover {
+    background: var(--danger-color);
+    color: var(--white);
+}
+
+/* ==========================================================================
+   페이지네이션 스타일
+   ========================================================================== */
+.pagination-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-btn {
+    padding: 10px 15px;
+    border: 1px solid var(--light-green);
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--primary-green);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: var(--primary-green);
+    color: var(--white);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.page-number {
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: var(--white);
+    color: var(--dark-gray);
+    cursor: pointer;
+    font-weight: 400;
+    transition: all 0.2s ease;
+}
+
+.page-number:hover:not(.active) {
+    background: var(--light-gray);
+}
+
+.page-number.active {
+    background: var(--primary-green);
+    color: var(--white);
+    font-weight: 600;
+    border-color: var(--primary-green);
+}
+
+/* ==========================================================================
+   반응형 디자인
+   ========================================================================== */
+
+/* 데스크탑에서만 보이기 */
+.desktop-only {
+    display: block;
+}
+
+/* 모바일에서만 보이기 */
+.mobile-only {
+    display: none;
+}
+
+/* 태블릿 화면 (768px - 1199px) */
+@media (max-width: 1199px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .order-table {
+        min-width: 800px; /* 태블릿에서는 조금 더 작게 */
+    }
+
+    .col-order-action {
+        width: 20%; /* 태블릿에서 액션 컬럼 너비 증가 */
+        min-width: 170px;
+    }
+}
+
+/* 모바일 화면 (767px 이하) */
+@media (max-width: 767px) {
+    .desktop-only {
+        display: none; /* 모바일에서는 데스크탑 테이블 숨김 */
+    }
+
+    .mobile-only {
+        display: block; /* 모바일에서는 카드 형식 보이기 */
+    }
+
+    .page-header {
+        padding: 30px 0;
+    }
+
+    .title-section h1 {
+        font-size: 24px;
+    }
+
+    .order-history-section {
+        padding: 30px 0;
+        gap: 20px;
+    }
+
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .filter-left,
+    .filter-right {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .filter-select,
+    .search-input {
+        width: 100%;
+    }
+
+    .search-btn {
+        right: 5px;
+    }
+}
+
+/* 초소형 화면 (480px 이하) */
+@media (max-width: 480px) {
+    :root {
+        --container-padding: 15px;
+    }
+
+    .breadcrumb {
+        font-size: 12px;
+    }
+
+    .title-section h1 {
+        font-size: 20px;
+    }
+}
+
+/* ==========================================================================
+   접근성 및 애니메이션
+   ========================================================================== */
+
+/* 스크롤 애니메이션 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 포커스 상태 개선 */
+button:focus,
+input:focus,
+select:focus,
+a:focus {
+    outline: 2px solid var(--accent-green);
+    outline-offset: 2px;
+}
+
+/* 애니메이션 감소 모드 지원 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ==========================================================================
+   인쇄 스타일
+   ========================================================================== */
+@media print {
+    .filter-section,
+    .pagination-section {
+        display: none;
+    }
+    
+    .order-table-container,
+    .order-cards-container {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .order-table th,
+    .order-table td {
+        border-color: #eee;
+    }
+    
+    .page-header {
+        background: var(--primary-green) !important;
+        color: white !important;
+    }
+}

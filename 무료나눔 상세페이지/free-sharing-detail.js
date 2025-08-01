@@ -1,4 +1,8 @@
 /* =========================
+   개선된 댓글 시스템 JavaScript
+   ========================= */
+
+/* =========================
    전역 변수 및 상수 정의
    ========================= */
 
@@ -12,6 +16,10 @@ let loginMemberNickname = null;
 let currentPage = 1;        // 현재 페이지 (1부터 시작)
 let totalPages = 1;         // 전체 페이지 수
 let pageSize = 10;          // 페이지당 댓글 수
+
+// 댓글 수정 모드 관리
+let editingCommentId = null;
+let editingChildCommentId = null;
 
 /* =========================
    유틸리티 함수들 (데이터 변환)
@@ -166,7 +174,7 @@ function changeMainImage(thumbnail) {
 }
 
 /* =========================
-   페이지 렌더링 함수들
+   페이지 렌더링 함수들 (기존 함수들 유지)
    ========================= */
 
 /**
@@ -304,11 +312,35 @@ function checkAuthorPermissions(itemData) {
 }
 
 /* =========================
-   댓글 관련 함수들
+   개선된 댓글 관련 함수들
    ========================= */
 
 /**
- * 댓글을 등록하는 함수
+ * 댓글 입력창의 글자수를 실시간으로 업데이트하는 함수
+ */
+function updateCharCount() {
+    const textarea = document.getElementById('commentContent');
+    const charCount = document.getElementById('charCount');
+    
+    if (textarea && charCount) {
+        const currentLength = textarea.value.length;
+        const maxLength = 500;
+        
+        charCount.textContent = currentLength;
+        
+        // 글자수에 따른 색상 변경
+        if (currentLength > maxLength * 0.9) {
+            charCount.style.color = 'var(--error-red)';
+        } else if (currentLength > maxLength * 0.7) {
+            charCount.style.color = 'var(--warning-orange)';
+        } else {
+            charCount.style.color = 'var(--medium-gray)';
+        }
+    }
+}
+
+/**
+ * 댓글을 등록하는 함수 (개선된 버전)
  * @param {Event} e - 이벤트 객체 (폼 제출 방지용)
  * @param {number} freeId - 게시글 ID
  */
@@ -316,10 +348,11 @@ function submitComment(e, freeId) {
     if (e) e.preventDefault(); // 폼 기본 제출 동작 방지
 
     const textarea = document.getElementById('commentContent');
+    const submitBtn = document.getElementById('submitCommentBtn');
     
     // 댓글 입력창이 없으면 로그인 필요 알림
     if (!textarea) {
-        alert('로그인 후 댓글을 작성할 수 있습니다.');
+        showNotification('로그인 후 댓글을 작성할 수 있습니다.', 'info');
         return;
     }
 
@@ -327,9 +360,22 @@ function submitComment(e, freeId) {
     
     // 빈 댓글 체크
     if (content === '') {
-        alert('댓글 내용을 입력해주세요.');
+        showNotification('댓글 내용을 입력해주세요.', 'warning');
         textarea.focus();
         return;
+    }
+
+    // 글자수 체크
+    if (content.length > 500) {
+        showNotification('댓글은 500자 이내로 작성해주세요.', 'warning');
+        textarea.focus();
+        return;
+    }
+
+    // 버튼 비활성화 및 로딩 표시
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="btn-icon">⏳</span> 등록중...';
     }
 
     // 서버에 댓글 등록 요청
@@ -352,23 +398,41 @@ function submitComment(e, freeId) {
     .then(data => {
         // 성공 시 입력창 초기화 및 댓글 목록 새로고침 (첫 페이지로)
         textarea.value = '';
+        updateCharCount(); // 글자수 초기화
         currentPage = 1; // 첫 페이지로 리셋
         loadComments(freeId, 'recent', 1);
+        
+        // 성공 애니메이션
+        if (submitBtn) {
+            submitBtn.classList.add('success');
+            setTimeout(() => {
+                submitBtn.classList.remove('success');
+            }, 600);
+        }
+        
         showNotification('댓글이 등록되었습니다.', 'success');
         console.log('✅ 댓글 등록 성공');
     })
     .catch(error => {
         console.error('❌ 댓글 등록 실패:', error);
         showNotification('댓글 등록 중 오류가 발생했습니다.', 'error');
+    })
+    .finally(() => {
+        // 버튼 활성화 및 원래 텍스트로 복구
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="btn-icon">📝</span> 댓글 등록';
+        }
     });
 }
 
 /**
- * 대댓글을 등록하는 함수
+ * 대댓글을 등록하는 함수 (개선된 버전)
  * @param {number} parentId - 부모 댓글 ID
  */
 function submitChildComment(parentId) {
     const input = document.getElementById(`childCommentInput-${parentId}`);
+    const submitBtn = document.querySelector(`#reply-form-${parentId} .reply-submit-btn`);
     
     if (!input) {
         console.error('대댓글 입력창을 찾을 수 없습니다.');
@@ -380,15 +444,21 @@ function submitChildComment(parentId) {
 
     // 빈 대댓글 체크
     if (!content) {
-        alert('대댓글 내용을 입력해주세요.');
+        showNotification('대댓글 내용을 입력해주세요.', 'warning');
         input.focus();
         return;
     }
 
     // 게시글 ID 체크
     if (!freeId) {
-        alert('게시글 정보를 찾을 수 없습니다.');
+        showNotification('게시글 정보를 찾을 수 없습니다.', 'error');
         return;
+    }
+
+    // 버튼 비활성화 및 로딩 표시
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '⏳ 등록중...';
     }
 
     // 서버에 대댓글 등록 요청
@@ -421,6 +491,13 @@ function submitChildComment(parentId) {
     .catch(error => {
         console.error('❌ 대댓글 등록 실패:', error);
         showNotification('대댓글 등록 중 오류가 발생했습니다.', 'error');
+    })
+    .finally(() => {
+        // 버튼 활성화 및 원래 텍스트로 복구
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '📝 답글등록';
+        }
     });
 }
 
@@ -436,6 +513,9 @@ function loadComments(freeId, sortType = 'recent', page = 1) {
         console.error('❌ freeId가 유효하지 않아 댓글을 불러올 수 없습니다.');
         return;
     }
+
+    // 로딩 표시
+    showCommentLoading(true);
 
     // 서버에서 부모 댓글 목록 가져오기 (페이징 포함)
     fetch(`/api/replies/parent/${freeId}?sortType=${sortType}&page=${page}&size=${pageSize}`)
@@ -453,6 +533,9 @@ function loadComments(freeId, sortType = 'recent', page = 1) {
             // 댓글 목록 렌더링
             renderCommentList(data.list);
             
+            // 댓글 개수 업데이트
+            updateCommentCount(data.totalElements || data.list.length);
+            
             // 페이징 UI 렌더링
             renderPagination();
             
@@ -461,15 +544,75 @@ function loadComments(freeId, sortType = 'recent', page = 1) {
         .catch(error => {
             console.error('❌ 댓글 로드 오류:', error);
             showNotification('댓글을 불러오는 중 오류가 발생했습니다.', 'error');
+        })
+        .finally(() => {
+            // 로딩 표시 제거
+            showCommentLoading(false);
         });
 }
 
+/**
+ * 댓글 로딩 상태를 표시하는 함수
+ * @param {boolean} isLoading - 로딩 중인지 여부
+ */
+function showCommentLoading(isLoading) {
+    const commentList = document.getElementById('commentList');
+    
+    if (!commentList) return;
+    
+    if (isLoading) {
+        commentList.innerHTML = `
+            <div class="comment-loading">
+                <div class="loading-spinner"></div>
+                <p>댓글을 불러오는 중...</p>
+            </div>
+        `;
+        
+        // CSS로 로딩 스피너 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            .comment-loading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 40px;
+                color: var(--medium-gray);
+            }
+            .loading-spinner {
+                width: 40px;
+                height: 40px;
+                border: 4px solid var(--light-gray);
+                border-top: 4px solid var(--primary-green);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 15px;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+/**
+ * 댓글 개수를 업데이트하는 함수
+ * @param {number} count - 댓글 개수
+ */
+function updateCommentCount(count) {
+    const commentCount = document.getElementById('commentCount');
+    if (commentCount) {
+        commentCount.textContent = count || 0;
+    }
+}
+
 /* =========================
-   댓글 페이징 관련 함수들
+   개선된 댓글 페이징 관련 함수들
    ========================= */
 
 /**
- * 페이징 UI를 렌더링하는 함수
+ * 개선된 페이징 UI를 렌더링하는 함수
  */
 function renderPagination() {
     const paginationContainer = document.getElementById('commentPagination');
@@ -489,7 +632,11 @@ function renderPagination() {
 
     // 이전 페이지 버튼
     if (currentPage > 1) {
-        paginationHTML += `<button class="page-btn prev-btn" onclick="goToPage(${currentPage - 1})">이전</button>`;
+        paginationHTML += `
+            <button class="page-btn prev-btn" onclick="goToPage(${currentPage - 1})" aria-label="이전 페이지">
+                <span>← 이전</span>
+            </button>
+        `;
     }
 
     // 페이지 번호들
@@ -498,7 +645,11 @@ function renderPagination() {
 
     // 첫 페이지 (... 표시용)
     if (startPage > 1) {
-        paginationHTML += `<button class="page-btn page-number" onclick="goToPage(1)">1</button>`;
+        paginationHTML += `
+            <button class="page-btn page-number" onclick="goToPage(1)" aria-label="1페이지로 이동">
+                <span>1</span>
+            </button>
+        `;
         if (startPage > 2) {
             paginationHTML += '<span class="page-dots">...</span>';
         }
@@ -507,7 +658,12 @@ function renderPagination() {
     // 현재 페이지 주변 번호들
     for (let i = startPage; i <= endPage; i++) {
         const activeClass = i === currentPage ? 'active' : '';
-        paginationHTML += `<button class="page-btn page-number ${activeClass}" onclick="goToPage(${i})">${i}</button>`;
+        const ariaLabel = i === currentPage ? `현재 페이지 ${i}` : `${i}페이지로 이동`;
+        paginationHTML += `
+            <button class="page-btn page-number ${activeClass}" onclick="goToPage(${i})" aria-label="${ariaLabel}">
+                <span>${i}</span>
+            </button>
+        `;
     }
 
     // 마지막 페이지 (... 표시용)
@@ -515,12 +671,20 @@ function renderPagination() {
         if (endPage < totalPages - 1) {
             paginationHTML += '<span class="page-dots">...</span>';
         }
-        paginationHTML += `<button class="page-btn page-number" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+        paginationHTML += `
+            <button class="page-btn page-number" onclick="goToPage(${totalPages})" aria-label="${totalPages}페이지로 이동">
+                <span>${totalPages}</span>
+            </button>
+        `;
     }
 
     // 다음 페이지 버튼
     if (currentPage < totalPages) {
-        paginationHTML += `<button class="page-btn next-btn" onclick="goToPage(${currentPage + 1})">다음</button>`;
+        paginationHTML += `
+            <button class="page-btn next-btn" onclick="goToPage(${currentPage + 1})" aria-label="다음 페이지">
+                <span>다음 →</span>
+            </button>
+        `;
     }
 
     paginationHTML += '</div>';
@@ -528,7 +692,7 @@ function renderPagination() {
 }
 
 /**
- * 특정 페이지로 이동하는 함수
+ * 특정 페이지로 이동하는 함수 (개선된 버전)
  * @param {number} page - 이동할 페이지 번호
  */
 function goToPage(page) {
@@ -539,6 +703,13 @@ function goToPage(page) {
     const sortSelect = document.getElementById('sortSelect');
     const sortType = sortSelect ? sortSelect.value : 'recent';
     
+    // 페이지 이동 시 부드러운 애니메이션
+    const commentList = document.getElementById('commentList');
+    if (commentList) {
+        commentList.style.opacity = '0.5';
+        commentList.style.transform = 'translateY(20px)';
+    }
+    
     loadComments(item.freeId, sortType, page);
     
     // 댓글 영역으로 스크롤 (부드럽게)
@@ -547,25 +718,19 @@ function goToPage(page) {
         commentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     
+    // 애니메이션 복구
+    setTimeout(() => {
+        if (commentList) {
+            commentList.style.opacity = '1';
+            commentList.style.transform = 'translateY(0)';
+        }
+    }, 300);
+    
     console.log(`📄 페이지 이동: ${page}페이지로 이동`);
 }
 
 /**
- * 첫 페이지로 이동하는 함수
- */
-function goToFirstPage() {
-    goToPage(1);
-}
-
-/**
- * 마지막 페이지로 이동하는 함수
- */
-function goToLastPage() {
-    goToPage(totalPages);
-}
-
-/**
- * 댓글 목록을 화면에 렌더링하는 함수
+ * 개선된 댓글 목록을 화면에 렌더링하는 함수
  * @param {Array} comments - 댓글 배열
  */
 function renderCommentList(comments) {
@@ -579,20 +744,89 @@ function renderCommentList(comments) {
     // 기존 댓글 목록 초기화
     commentList.innerHTML = '';
 
+    // 댓글이 없는 경우
+    if (!comments || comments.length === 0) {
+        commentList.innerHTML = `
+            <div class="no-comments">
+                <div class="no-comments-icon">💬</div>
+                <p class="no-comments-text">아직 댓글이 없습니다.</p>
+                <p class="no-comments-subtext">첫 번째 댓글을 작성해보세요!</p>
+            </div>
+        `;
+        
+        // 스타일 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            .no-comments {
+                text-align: center;
+                padding: 60px 20px;
+                color: var(--medium-gray);
+            }
+            .no-comments-icon {
+                font-size: 48px;
+                margin-bottom: 20px;
+                opacity: 0.6;
+            }
+            .no-comments-text {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 8px;
+                color: var(--dark-gray);
+            }
+            .no-comments-subtext {
+                font-size: 14px;
+                opacity: 0.8;
+            }
+        `;
+        document.head.appendChild(style);
+        return;
+    }
+
     // 각 부모 댓글에 대해 렌더링
-    comments.forEach(parent => {
+    comments.forEach((parent, index) => {
         const parentDiv = document.createElement('div');
         parentDiv.className = 'comment-item';
+        parentDiv.style.animationDelay = `${index * 0.1}s`; // 순차적 애니메이션
         
         // 부모 댓글 HTML 구조 생성
+        const isAuthor = loginMemberNickname === parent.nickname;
+        const editDeleteButtons = isAuthor ? `
+            <div class="comment-actions">
+                <button class="comment-edit-btn" onclick="editComment(${parent.replyId})" title="댓글 수정">
+                    ✏️ 수정
+                </button>
+                <button class="comment-delete-btn" onclick="deleteComment(${parent.replyId})" title="댓글 삭제">
+                    🗑️ 삭제
+                </button>
+            </div>
+        ` : '';
+        
         parentDiv.innerHTML = `
-            <p class="comment-author">${escapeHtml(parent.nickname)}</p>
-            <p class="comment-content">${escapeHtml(parent.content)}</p>
-            <p class="comment-date">${formatTimeAgo(parent.createdAt)}</p>
+            <div class="comment-header-info">
+                <div class="comment-meta-left">
+                    <p class="comment-author">${escapeHtml(parent.nickname)}</p>
+                    <p class="comment-date">${formatTimeAgo(parent.createdAt)}</p>
+                </div>
+                ${editDeleteButtons}
+            </div>
+            <div class="comment-content" id="comment-content-${parent.replyId}">
+                ${escapeHtml(parent.content)}
+            </div>
             <div class="child-comments" id="child-${parent.replyId}"></div>
-            <div class="reply-form">
-                <textarea id="childCommentInput-${parent.replyId}" placeholder="대댓글을 입력하세요..."></textarea>
-                <button onclick="submitChildComment(${parent.replyId})">답글등록</button>
+            <div class="reply-form" id="reply-form-${parent.replyId}">
+                <div class="reply-form-header">
+                    <h4>💭 답글 작성</h4>
+                </div>
+                <div class="reply-form-content">
+                    <textarea 
+                        id="childCommentInput-${parent.replyId}" 
+                        placeholder="답글을 입력하세요..."
+                        maxlength="300"
+                    ></textarea>
+                    <button class="reply-submit-btn" onclick="submitChildComment(${parent.replyId})">
+                        📝 답글등록
+                    </button>
+                </div>
             </div>
         `;
         
@@ -604,7 +838,7 @@ function renderCommentList(comments) {
 }
 
 /**
- * 특정 부모 댓글의 대댓글들을 불러오는 함수
+ * 특정 부모 댓글의 대댓글들을 불러오는 함수 (개선된 버전)
  * @param {number} parentId - 부모 댓글 ID
  */
 function loadChildComments(parentId) {
@@ -615,13 +849,34 @@ function loadChildComments(parentId) {
             
             if (childContainer && childReplies.length > 0) {
                 // 각 대댓글 렌더링
-                childReplies.forEach(child => {
+                childReplies.forEach((child, index) => {
                     const childDiv = document.createElement('div');
                     childDiv.className = 'child-comment-item';
+                    childDiv.style.animationDelay = `${index * 0.05}s`; // 순차적 애니메이션
+                    
+                    const isAuthor = loginMemberNickname === child.nickname;
+                    const editDeleteButtons = isAuthor ? `
+                        <div class="child-comment-actions">
+                            <button class="child-comment-edit-btn" onclick="editChildComment(${child.replyId})" title="답글 수정">
+                                ✏️
+                            </button>
+                            <button class="child-comment-delete-btn" onclick="deleteChildComment(${child.replyId})" title="답글 삭제">
+                                🗑️
+                            </button>
+                        </div>
+                    ` : '';
+                    
                     childDiv.innerHTML = `
-                        <p class="child-author">↳ ${escapeHtml(child.nickname)}</p>
-                        <p class="child-content">${escapeHtml(child.content)}</p>
-                        <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
+                        <div class="child-comment-header">
+                            <div class="child-comment-meta">
+                                <p class="child-author">${escapeHtml(child.nickname)}</p>
+                                <p class="child-date">${formatTimeAgo(child.createdAt)}</p>
+                            </div>
+                            ${editDeleteButtons}
+                        </div>
+                        <div class="child-content" id="child-content-${child.replyId}">
+                            ${escapeHtml(child.content)}
+                        </div>
                     `;
                     childContainer.appendChild(childDiv);
                 });
@@ -635,7 +890,339 @@ function loadChildComments(parentId) {
 }
 
 /* =========================
-   게시글 관리 함수들 (수정/삭제)
+   댓글 수정/삭제 함수들 (새로 추가)
+   ========================= */
+
+/**
+ * 댓글을 수정 모드로 전환하는 함수
+ * @param {number} commentId - 댓글 ID
+ */
+function editComment(commentId) {
+    // 이미 다른 댓글이 수정 중이면 취소
+    if (editingCommentId && editingCommentId !== commentId) {
+        cancelEditComment(editingCommentId);
+    }
+    
+    editingCommentId = commentId;
+    const contentDiv = document.getElementById(`comment-content-${commentId}`);
+    
+    if (!contentDiv) return;
+    
+    const currentContent = contentDiv.textContent;
+    
+    // 수정 모드 UI로 변경
+    contentDiv.innerHTML = `
+        <textarea class="comment-edit-textarea" id="edit-textarea-${commentId}" maxlength="500">${escapeHtml(currentContent)}</textarea>
+        <div class="comment-edit-actions">
+            <button class="comment-save-btn" onclick="saveComment(${commentId})">
+                💾 저장
+            </button>
+            <button class="comment-cancel-btn" onclick="cancelEditComment(${commentId})">
+                ❌ 취소
+            </button>
+        </div>
+    `;
+    
+    // 부모 댓글 아이템에 수정 모드 클래스 추가
+    const commentItem = contentDiv.closest('.comment-item');
+    if (commentItem) {
+        commentItem.classList.add('comment-edit-mode');
+    }
+    
+    // 텍스트영역에 포커스
+    const textarea = document.getElementById(`edit-textarea-${commentId}`);
+    if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }
+}
+
+/**
+ * 댓글 수정을 저장하는 함수
+ * @param {number} commentId - 댓글 ID
+ */
+function saveComment(commentId) {
+    const textarea = document.getElementById(`edit-textarea-${commentId}`);
+    
+    if (!textarea) return;
+    
+    const newContent = textarea.value.trim();
+    
+    if (!newContent) {
+        showNotification('댓글 내용을 입력해주세요.', 'warning');
+        textarea.focus();
+        return;
+    }
+    
+    if (newContent.length > 500) {
+        showNotification('댓글은 500자 이내로 작성해주세요.', 'warning');
+        textarea.focus();
+        return;
+    }
+    
+    // 저장 버튼 비활성화
+    const saveBtn = document.querySelector(`#comment-content-${commentId} .comment-save-btn`);
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '⏳ 저장중...';
+    }
+    
+    // 서버에 수정 요청
+    fetch(`/api/replies/modify/${commentId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: newContent
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('댓글 수정에 실패했습니다.');
+        }
+        return response.text();
+    })
+    .then(() => {
+        // 수정 모드 해제
+        cancelEditComment(commentId);
+        
+        // 댓글 목록 새로고침
+        const sortSelect = document.getElementById('sortSelect');
+        const sortType = sortSelect ? sortSelect.value : 'recent';
+        loadComments(item.freeId, sortType, currentPage);
+        
+        showNotification('댓글이 수정되었습니다.', 'success');
+        console.log('✅ 댓글 수정 성공');
+    })
+    .catch(error => {
+        console.error('❌ 댓글 수정 실패:', error);
+        showNotification('댓글 수정 중 오류가 발생했습니다.', 'error');
+        
+        // 버튼 활성화
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 저장';
+        }
+    });
+}
+
+/**
+ * 댓글 수정을 취소하는 함수
+ * @param {number} commentId - 댓글 ID
+ */
+function cancelEditComment(commentId) {
+    editingCommentId = null;
+    
+    // 댓글 목록 새로고침하여 원래 상태로 복구
+    const sortSelect = document.getElementById('sortSelect');
+    const sortType = sortSelect ? sortSelect.value : 'recent';
+    loadComments(item.freeId, sortType, currentPage);
+}
+
+/**
+ * 댓글을 삭제하는 함수
+ * @param {number} commentId - 댓글 ID
+ */
+function deleteComment(commentId) {
+    if (!confirm('정말로 이 댓글을 삭제하시겠습니까?\n삭제된 댓글은 복구할 수 없습니다.')) {
+        return;
+    }
+    
+    // 서버에 삭제 요청
+    fetch(`/api/replies/remove/${commentId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('댓글 삭제에 실패했습니다.');
+        }
+        return response.text();
+    })
+    .then(() => {
+        // 댓글 목록 새로고침
+        const sortSelect = document.getElementById('sortSelect');
+        const sortType = sortSelect ? sortSelect.value : 'recent';
+        loadComments(item.freeId, sortType, currentPage);
+        
+        showNotification('댓글이 삭제되었습니다.', 'success');
+        console.log('✅ 댓글 삭제 성공');
+    })
+    .catch(error => {
+        console.error('❌ 댓글 삭제 실패:', error);
+        showNotification('댓글 삭제 중 오류가 발생했습니다.', 'error');
+    });
+}
+
+/**
+ * 대댓글을 수정 모드로 전환하는 함수
+ * @param {number} childCommentId - 대댓글 ID
+ */
+function editChildComment(childCommentId) {
+    // 이미 다른 대댓글이 수정 중이면 취소
+    if (editingChildCommentId && editingChildCommentId !== childCommentId) {
+        cancelEditChildComment(editingChildCommentId);
+    }
+    
+    editingChildCommentId = childCommentId;
+    const contentDiv = document.getElementById(`child-content-${childCommentId}`);
+    
+    if (!contentDiv) return;
+    
+    const currentContent = contentDiv.textContent;
+    
+    // 수정 모드 UI로 변경
+    contentDiv.innerHTML = `
+        <textarea class="comment-edit-textarea" id="edit-child-textarea-${childCommentId}" maxlength="300">${escapeHtml(currentContent)}</textarea>
+        <div class="comment-edit-actions">
+            <button class="comment-save-btn" onclick="saveChildComment(${childCommentId})">
+                💾 저장
+            </button>
+            <button class="comment-cancel-btn" onclick="cancelEditChildComment(${childCommentId})">
+                ❌ 취소
+            </button>
+        </div>
+    `;
+    
+    // 대댓글 아이템에 수정 모드 클래스 추가
+    const childItem = contentDiv.closest('.child-comment-item');
+    if (childItem) {
+        childItem.classList.add('comment-edit-mode');
+    }
+    
+    // 텍스트영역에 포커스
+    const textarea = document.getElementById(`edit-child-textarea-${childCommentId}`);
+    if (textarea) {
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+    }
+}
+
+/**
+ * 대댓글 수정을 저장하는 함수
+ * @param {number} childCommentId - 대댓글 ID
+ */
+function saveChildComment(childCommentId) {
+    const textarea = document.getElementById(`edit-child-textarea-${childCommentId}`);
+    
+    if (!textarea) return;
+    
+    const newContent = textarea.value.trim();
+    
+    if (!newContent) {
+        showNotification('답글 내용을 입력해주세요.', 'warning');
+        textarea.focus();
+        return;
+    }
+    
+    if (newContent.length > 300) {
+        showNotification('답글은 300자 이내로 작성해주세요.', 'warning');
+        textarea.focus();
+        return;
+    }
+    
+    // 저장 버튼 비활성화
+    const saveBtn = document.querySelector(`#child-content-${childCommentId} .comment-save-btn`);
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '⏳ 저장중...';
+    }
+    
+    // 서버에 수정 요청
+    fetch(`/api/replies/modify/${childCommentId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: newContent
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('답글 수정에 실패했습니다.');
+        }
+        return response.text();
+    })
+    .then(() => {
+        // 수정 모드 해제
+        cancelEditChildComment(childCommentId);
+        
+        // 댓글 목록 새로고침
+        const sortSelect = document.getElementById('sortSelect');
+        const sortType = sortSelect ? sortSelect.value : 'recent';
+        loadComments(item.freeId, sortType, currentPage);
+        
+        showNotification('답글이 수정되었습니다.', 'success');
+        console.log('✅ 대댓글 수정 성공');
+    })
+    .catch(error => {
+        console.error('❌ 대댓글 수정 실패:', error);
+        showNotification('답글 수정 중 오류가 발생했습니다.', 'error');
+        
+        // 버튼 활성화
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '💾 저장';
+        }
+    });
+}
+
+/**
+ * 대댓글 수정을 취소하는 함수
+ * @param {number} childCommentId - 대댓글 ID
+ */
+function cancelEditChildComment(childCommentId) {
+    editingChildCommentId = null;
+    
+    // 댓글 목록 새로고침하여 원래 상태로 복구
+    const sortSelect = document.getElementById('sortSelect');
+    const sortType = sortSelect ? sortSelect.value : 'recent';
+    loadComments(item.freeId, sortType, currentPage);
+}
+
+/**
+ * 대댓글을 삭제하는 함수
+ * @param {number} childCommentId - 대댓글 ID
+ */
+function deleteChildComment(childCommentId) {
+    if (!confirm('정말로 이 답글을 삭제하시겠습니까?\n삭제된 답글은 복구할 수 없습니다.')) {
+        return;
+    }
+    
+    // 서버에 삭제 요청
+    fetch(`/api/replies/remove/${childCommentId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('답글 삭제에 실패했습니다.');
+        }
+        return response.text();
+    })
+    .then(() => {
+        // 댓글 목록 새로고침
+        const sortSelect = document.getElementById('sortSelect');
+        const sortType = sortSelect ? sortSelect.value : 'recent';
+        loadComments(item.freeId, sortType, currentPage);
+        
+        showNotification('답글이 삭제되었습니다.', 'success');
+        console.log('✅ 대댓글 삭제 성공');
+    })
+    .catch(error => {
+        console.error('❌ 대댓글 삭제 실패:', error);
+        showNotification('답글 삭제 중 오류가 발생했습니다.', 'error');
+    });
+}
+
+/* =========================
+   게시글 관리 함수들 (수정/삭제) - 기존 함수 유지
    ========================= */
 
 /**
@@ -701,7 +1288,7 @@ function deletePost(freeId) {
 }
 
 /* =========================
-   모달 관련 함수들
+   모달 관련 함수들 - 기존 함수 유지
    ========================= */
 
 /**
@@ -790,25 +1377,40 @@ function sendMessage() {
 }
 
 /* =========================
-   알림 메시지 함수
+   개선된 알림 메시지 함수
    ========================= */
 
 /**
- * 알림 메시지를 표시하는 함수
+ * 개선된 알림 메시지를 표시하는 함수
  * @param {string} message - 알림 메시지
- * @param {string} type - 알림 타입 ('success', 'error', 'info')
+ * @param {string} type - 알림 타입 ('success', 'error', 'info', 'warning')
  */
 function showNotification(message, type = 'success') {
     // 기존 알림 제거
-    const existingNotification = document.querySelector('.notification');
-    if (existingNotification) {
-        existingNotification.remove();
-    }
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => {
+        notification.remove();
+    });
 
     // 새 알림 요소 생성
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.textContent = message;
+    
+    // 타입별 아이콘 설정
+    const icons = {
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️',
+        warning: '⚠️'
+    };
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-icon">${icons[type] || icons.info}</span>
+            <span class="notification-message">${message}</span>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+    `;
 
     // 페이지에 추가
     document.body.appendChild(notification);
@@ -818,7 +1420,8 @@ function showNotification(message, type = 'success') {
         notification.classList.add('show');
     }, 100);
 
-    // 3초 후 자동 제거
+    // 5초 후 자동 제거 (에러는 7초)
+    const autoCloseTime = type === 'error' ? 7000 : 5000;
     setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -826,7 +1429,94 @@ function showNotification(message, type = 'success') {
                 notification.parentNode.removeChild(notification);
             }
         }, 300);
-    }, 3000);
+    }, autoCloseTime);
+
+    // 알림 스타일 추가 (한 번만)
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: var(--white);
+                color: var(--dark-gray);
+                padding: 16px 20px;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+                z-index: 10000;
+                transform: translateX(400px);
+                transition: transform 0.3s ease;
+                max-width: 350px;
+                font-weight: 500;
+                border-left: 4px solid;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 15px;
+            }
+            .notification.show {
+                transform: translateX(0);
+            }
+            .notification.success {
+                border-left-color: var(--success-green);
+                background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+            }
+            .notification.error {
+                border-left-color: var(--error-red);
+                background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.05) 100%);
+            }
+            .notification.info {
+                border-left-color: var(--primary-green);
+                background: linear-gradient(135deg, rgba(45, 90, 61, 0.1) 0%, rgba(45, 90, 61, 0.05) 100%);
+            }
+            .notification.warning {
+                border-left-color: var(--warning-orange);
+                background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+            }
+            .notification-content {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex: 1;
+            }
+            .notification-icon {
+                font-size: 18px;
+            }
+            .notification-message {
+                font-size: 14px;
+                line-height: 1.4;
+            }
+            .notification-close {
+                background: none;
+                border: none;
+                font-size: 18px;
+                cursor: pointer;
+                color: var(--medium-gray);
+                padding: 2px 6px;
+                border-radius: 50%;
+                transition: all 0.2s ease;
+                flex-shrink: 0;
+            }
+            .notification-close:hover {
+                background: rgba(0, 0, 0, 0.1);
+                color: var(--dark-gray);
+            }
+            @media (max-width: 480px) {
+                .notification {
+                    right: 10px;
+                    left: 10px;
+                    max-width: none;
+                    transform: translateY(-100px);
+                }
+                .notification.show {
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
 
     console.log(`🔔 알림 표시: [${type}] ${message}`);
 }
@@ -869,12 +1559,19 @@ function setupCommentEventListeners() {
     // 댓글 입력창에서 Enter 키로 등록 (Shift+Enter는 줄바꿈)
     const commentTextarea = document.getElementById('commentContent');
     if (commentTextarea) {
+        // 글자수 카운터 이벤트
+        commentTextarea.addEventListener('input', updateCharCount);
+        
+        // 키보드 이벤트
         commentTextarea.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 submitComment(null, item.freeId);
             }
         });
+        
+        // 초기 글자수 설정
+        updateCharCount();
     }
 
     // 댓글 정렬 변경
@@ -946,12 +1643,27 @@ function setupKeyboardEventListeners() {
         // ESC 키로 모달 닫기
         if (event.key === 'Escape') {
             closeAllModals();
+            
+            // 댓글 수정 모드도 취소
+            if (editingCommentId) {
+                cancelEditComment(editingCommentId);
+            }
+            if (editingChildCommentId) {
+                cancelEditChildComment(editingChildCommentId);
+            }
         }
         
         // 알림 메시지도 ESC로 닫기
-        const notification = document.querySelector('.notification.show');
-        if (notification && event.key === 'Escape') {
-            notification.classList.remove('show');
+        const notifications = document.querySelectorAll('.notification.show');
+        if (notifications.length > 0 && event.key === 'Escape') {
+            notifications.forEach(notification => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            });
         }
     });
 }
@@ -1003,7 +1715,7 @@ async function loadItemData(freeId) {
  * 페이지가 로드되면 실행되는 메인 초기화 함수
  */
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🚀 무료나눔 상세페이지 로드 시작');
+    console.log('🚀 개선된 무료나눔 상세페이지 로드 시작');
     
     try {
         // 서버에서 전달받은 데이터 처리
@@ -1042,21 +1754,33 @@ document.addEventListener('DOMContentLoaded', async function() {
         // 페이드인 애니메이션
         setTimeout(() => {
             const detailWrapper = document.querySelector('.detail-wrapper');
+            const commentCard = document.querySelector('.comment-card');
+            
             if (detailWrapper) {
                 detailWrapper.classList.add('fade-in');
             }
+            if (commentCard) {
+                commentCard.style.opacity = '0';
+                commentCard.style.transform = 'translateY(30px)';
+                commentCard.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    commentCard.style.opacity = '1';
+                    commentCard.style.transform = 'translateY(0)';
+                }, 300);
+            }
         }, 200);
         
-        console.log('✅ 페이지 초기화 완료');
+        console.log('✅ 개선된 페이지 초기화 완료');
         
     } catch (error) {
         console.error('❌ 페이지 초기화 실패:', error);
-        alert(error.message || '페이지를 불러오는 중 오류가 발생했습니다.');
+        showNotification(error.message || '페이지를 불러오는 중 오류가 발생했습니다.', 'error');
         
         // 오류 발생 시 목록 페이지로 이동
         setTimeout(() => {
             window.location.href = '/free/list';
-        }, 2000);
+        }, 3000);
     }
 });
 
@@ -1074,10 +1798,17 @@ window.editPost = editPost;
 window.deletePost = deletePost;
 window.submitComment = submitComment;
 window.submitChildComment = submitChildComment;
+window.editComment = editComment;
+window.saveComment = saveComment;
+window.cancelEditComment = cancelEditComment;
+window.deleteComment = deleteComment;
+window.editChildComment = editChildComment;
+window.saveChildComment = saveChildComment;
+window.cancelEditChildComment = cancelEditChildComment;
+window.deleteChildComment = deleteChildComment;
 window.showNotification = showNotification;
 window.goToPage = goToPage;
-window.goToFirstPage = goToFirstPage;
-window.goToLastPage = goToLastPage;
+window.updateCharCount = updateCharCount;
 
 /* =========================
    에러 처리
@@ -1095,18 +1826,17 @@ window.addEventListener('error', function(event) {
     showNotification('페이지에서 오류가 발생했습니다.', 'error');
 });
 
-/* =========================
-   최종 로그
-   ========================= */
-
-console.log('🎯 무료나눔 상세페이지 JavaScript 로드 완료');
-console.log('📋 주요 기능:');
-console.log('   ✓ 이미지 갤러리 (썸네일 클릭으로 메인 이미지 변경)');
-console.log('   ✓ 작성자 권한별 수정/삭제 버튼');
-console.log('   ✓ 댓글 등록 및 대댓글 기능');
-console.log('   ✓ 댓글 페이징 처리 (페이지 번호 방식)');
-console.log('   ✓ 연락처/채팅 모달');
-console.log('   ✓ 반응형 디자인');
-console.log('   ✓ 알림 메시지 시스템');
-console.log('   ✓ 키보드 단축키 지원');
-console.log('   ✓ 에러 처리 및 로깅');
+console.log('🎯 개선된 무료나눔 상세페이지 JavaScript 로드 완료');
+console.log('📋 주요 개선사항:');
+console.log('   ✓ 댓글 섹션 전폭 확장 (1400px)');
+console.log('   ✓ 댓글 작성 폼 상단 배치');
+console.log('   ✓ 댓글 입력창 크기 고정 (resize 방지)');
+console.log('   ✓ 실시간 글자수 카운터');
+console.log('   ✓ 댓글/대댓글 수정/삭제 기능');
+console.log('   ✓ 개선된 버튼 디자인 및 애니메이션');
+console.log('   ✓ 향상된 페이징 UI');
+console.log('   ✓ 로딩 상태 표시');
+console.log('   ✓ 개선된 알림 시스템');
+console.log('   ✓ 반응형 디자인 최적화');
+console.log('   ✓ 접근성 개선 (키보드 단축키, 포커스 관리)');
+console.log('   ✓ 에러 처리 및 사용자 피드백 강화');

@@ -1,0 +1,63 @@
+<!--
+GreenCycle 공통 푸터 프래그먼트
+모든 페이지의 하단에 포함되는 공통 footer 영역
+Thymeleaf layout:fragment="footer"로 정의되어 layout 템플릿에서 사용
+회사 정보, 서비스 소개, 고객 지원, 이용약관 및 저작권 정보 포함
+
+@author : yukyeong
+@fileName : footer.html
+@since : 250718
+@history
+    - 250718 | yukyeong | 공통 푸터 프래그먼트 작성
+    - 250725 | 방희경 | main.html에 있는 코드로 수정
+-->
+<footer class="footer" th:fragment="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="logo" style="margin-bottom: 20px;">
+                    <img src="/img/logo.png" alt="GreenCycle 로고" class="logo-img">
+                </div>
+                <p>첨단 기술로 실현하는 스마트하고 지속 가능한 환경 플랫폼</p>
+            </div>
+
+            <div class="footer-section">
+                <h4>서비스</h4>
+                <ul>
+                    <li><a href="#">스마트 분리배출</a></li>
+                    <li><a href="#">무료나눔</a></li>
+                    <li><a href="#">에코마켓</a></li>
+                    <li><a href="#">환경톡톡</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>회사정보</h4>
+                <ul>
+                    <li><a href="#">회사소개</a></li>
+                    <li><a href="#">기술 특허</a></li>
+                    <li><a href="#">연구개발</a></li>
+                    <li><a href="#">채용정보</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>고객지원</h4>
+                <ul>
+                    <li><a href="#">문의하기</a></li>
+                    <li><a href="#">이용가이드</a></li>
+                    <li><a href="#">기술지원</a></li>
+                    <li><a href="#">고객센터</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 GreenCycle. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">개인정보처리방침</a>
+                <a href="#">이용약관</a>
+            </div>
+        </div>
+    </div>
+</footer>

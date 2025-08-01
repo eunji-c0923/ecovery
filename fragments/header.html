@@ -1,0 +1,61 @@
+<!--
+GreenCycle 공통 헤더 프래그먼트
+모든 페이지에서 상단 네비게이션으로 포함되는 공통 header 영역
+Thymeleaf layout:fragment="header"로 정의되어 layout에서 포함하여 사용
+로그인/회원가입, 주요 메뉴 링크(홈, 서비스, 분리배출, 무료나눔, 에코마켓 등) 포함
+
+@author : yukyeong
+@fileName : header.html
+@since : 250718
+@history
+    - 250718 | yukyeong | 공통 헤더 프래그먼트 작성
+    - 250725 | 방희경 | main.html에 있는 코드로 수정
+    - 250718 | yukyeong | 공지사항 이동경로 추가, 모바일 메뉴(햄버거 버튼)를 추가
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<header class="header" id="header" th:fragment="header">
+    <div class="container">
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="/main" class="logo">
+                    <img src="/img/logo.png" alt="GreenCycle 로고" class="logo-img">
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="/main">홈</a></li>
+                    <li><a href="#services">서비스</a></li>
+                    <a th:href="@{/disposal/disposalMain}">분리배출</a>
+                    <a th:href="@{/free/list}">무료나눔</a>
+                    <a th:href="@{/eco/list}">에코마켓</a>
+                    <a th:href="@{/env/list}">환경톡톡</a>
+                    <a th:href="@{/notice/list}">공지사항</a>
+                </ul>
+
+                <div class="auth-buttons">
+                    <div sec:authorize="isAnonymous()">
+                        <a th:href="@{/member/login}" class="btn-login">로그인</a>
+                        <a th:href="@{/member/signup}" class="btn-signup">회원가입</a>
+                    </div>
+                    <div sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/main}" class="btn-login">관리자 페이지</a>
+                    </div>
+                    <div sec:authorize="hasRole('USER')">
+                        <a th:href="@{/mypage}" class="btn-login">마이페이지</a>
+                    </div>
+                    <div sec:authorize="isAuthenticated()">
+                        <a th:href="@{/member/logout}" class="btn-signup">로그아웃</a>
+                    </div>
+                    <div class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+</html>

@@ -12,9 +12,6 @@
     </th:block>
 </head>
 
-<!-- 헤더 영역 포함 -->
-<th:block layout:fragment="header" th:replace="~{fragments/header :: header}"></th:block>
-
 <!-- 메인 콘텐츠 영역 -->
 <div layout:fragment="content">
 
@@ -123,36 +120,62 @@
         </div>
     </section>
 
-    <!-- 댓글 섹션 -->
+    <!-- 개선된 댓글 섹션 -->
     <section class="comment-section">
-        <div class="container">
+        <!-- 전체 너비 컨테이너 사용 -->
+        <div class="comment-full-container">
+            <!-- 댓글 카드 -->
             <div class="comment-card">
+                
                 <!-- 댓글 헤더 (제목 + 정렬 옵션) -->
                 <div class="comment-header">
-                    <h2 class="comment-title">💬 댓글 <span id="commentCount">0</span></h2>
+                    <div class="comment-title-area">
+                        <h2 class="comment-title">💬 댓글</h2>
+                        <span class="comment-count" id="commentCount">0</span>
+                    </div>
                     <div class="comment-sort">
                         <label for="sortSelect">정렬:</label>
-                        <select id="sortSelect">
+                        <select id="sortSelect" class="sort-select">
                             <option value="recent">최신순</option>
                             <option value="oldest">등록순</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- 댓글 목록 -->
-                <div class="comment-list" id="commentList">
-                    <!-- JavaScript로 댓글들이 동적으로 렌더링됩니다 -->
+                <!-- 댓글 작성 폼 (상단으로 이동) -->
+                <div class="comment-write-section" id="commentWriteSection">
+                    <div class="comment-write-header">
+                        <h3>✍️ 댓글 작성</h3>
+                    </div>
+                    <div class="comment-form" id="commentForm">
+                        <textarea 
+                            id="commentContent" 
+                            class="comment-textarea"
+                            placeholder="댓글을 입력하세요..."
+                            maxlength="500"
+                        ></textarea>
+                        <div class="comment-form-footer">
+                            <div class="comment-char-count">
+                                <span id="charCount">0</span> / 500
+                            </div>
+                            <button id="submitCommentBtn" class="comment-submit-btn">
+                                <span class="btn-icon">📝</span>
+                                댓글 등록
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 댓글 페이징 -->
+                <!-- 댓글 목록 -->
+                <div class="comment-list-section">
+                    <div class="comment-list" id="commentList">
+                        <!-- JavaScript로 댓글들이 동적으로 렌더링됩니다 -->
+                    </div>
+                </div>
+
+                <!-- 개선된 페이징 -->
                 <div class="comment-pagination" id="commentPagination">
                     <!-- JavaScript로 페이징 UI가 동적으로 렌더링됩니다 -->
-                </div>
-
-                <!-- 댓글 작성 폼 -->
-                <div class="comment-form" id="commentForm">
-                    <textarea id="commentContent" placeholder="댓글을 입력하세요..."></textarea>
-                    <button id="submitCommentBtn">댓글 등록</button>
                 </div>
             </div>
         </div>

@@ -23,7 +23,7 @@
 <!-- 메인 콘텐츠 영역 -->
 <div layout:fragment="content">
     <main id="mainContent">
-        <!-- 브레드크럼 네비게이션 섹션 -->
+        <!-- 브레드크럼 네비게이션 -->
         <section class="breadcrumb-section">
             <div class="container">
                 <nav class="breadcrumb">
@@ -62,9 +62,8 @@
             <div class="container">
                 <!-- 필터 및 검색 영역 -->
                 <div class="filter-section">
-                    <!-- 왼쪽 필터 영역 -->
                     <div class="filter-left">
-                        <!-- 주문상태 필터 -->
+                        <!-- 주문 상태 필터 -->
                         <select id="statusFilter" class="filter-select">
                             <option value="">전체 주문상태</option>
                             <option value="PAID">결제완료</option>
@@ -84,8 +83,8 @@
                         </select>
                     </div>
                     
-                    <!-- 오른쪽 검색 영역 -->
                     <div class="filter-right">
+                        <!-- 검색 박스 -->
                         <div class="search-box">
                             <input type="text" id="searchInput" placeholder="주문번호, 상품명으로 검색..." class="search-input">
                             <button class="search-btn" onclick="searchOrders()">
@@ -106,7 +105,7 @@
                     </a>
                 </div>
 
-                <!-- 주문 목록 테이블 (데스크탑용) -->
+                <!-- 주문 목록 테이블 (데스크탑) -->
                 <div th:if="${!#lists.isEmpty(orderSummaries)}" class="order-table-container desktop-only">
                     <table class="order-table">
                         <thead>
@@ -120,25 +119,28 @@
                             </tr>
                         </thead>
                         <tbody id="orderTableBody">
-                            <!-- 주문 목록 반복 출력 -->
-                            <tr th:each="order : ${orderSummaries}" class="order-row" th:data-order-id="${order.orderUuid}">
+                            <!-- 주문 목록 반복 -->
+                            <tr th:each="order : ${orderSummaries}" class="order-row"
+                                th:data-order-id="${order.orderUuid}">
+
                                 <!-- 주문번호 컬럼 -->
                                 <td class="order-number">
-                                    <span class="order-number-text" th:text="${order.orderUuid}">ORD-2025010001</span>
+                                    <a th:href="@{/orders/{orderId}/detail(orderId=${order.orderId})}" 
+                                       class="order-link" 
+                                       th:text="${order.orderUuid}">ORD-2025010001</a>
                                 </td>
 
                                 <!-- 주문일자 컬럼 -->
                                 <td class="order-date">
-                                    <div class="date-info">
-                                        <span class="date-main" th:text="${#dates.format(order.createdAt, 'yyyy.MM.dd')}">2025.01.15</span>
-                                        <small class="date-time" th:text="${#dates.format(order.createdAt, 'HH:mm')}">14:30</small>
+                                    <div class="date-wrapper">
+                                        <span class="date" th:text="${#dates.format(order.createdAt, 'yyyy.MM.dd')}">2025.01.15</span>
+                                        <small class="time" th:text="${#dates.format(order.createdAt, 'HH:mm')}">14:30</small>
                                     </div>
                                 </td>
 
                                 <!-- 주문상품 컬럼 -->
                                 <td class="order-items">
                                     <div class="items-info">
-                                        <!-- 첫 번째 상품 정보 -->
                                         <div class="first-item" th:if="${order.orderItems != null and !order.orderItems.isEmpty()}">
                                             <img th:src="@{'/api/images/' + ${order.orderItems[0].itemImgId}}"
                                                  th:alt="${order.orderItems[0].itemName}"
@@ -146,13 +148,11 @@
                                                  onerror="this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 50 50\'><rect fill=\'%23e3f2fd\' width=\'50\' height=\'50\'/><text x=\'25\' y=\'30\' font-size=\'20\' text-anchor=\'middle\'>📦</text></svg>'">
                                             <div class="item-details">
                                                 <span class="item-name" th:text="${order.orderItems[0].itemName}">상품명</span>
-                                                <!-- 추가 상품이 있는 경우 표시 -->
                                                 <span th:if="${order.orderItems.size() > 1}"
                                                       class="item-count"
                                                       th:text="'외 ' + (${order.orderItems.size()} - 1) + '개'">외 1개</span>
                                             </div>
                                         </div>
-                                        <!-- 상품 정보가 없는 경우 -->
                                         <div class="first-item" th:unless="${order.orderItems != null and !order.orderItems.isEmpty()}">
                                             <span class="item-name">상품 정보 없음</span>
                                         </div>
@@ -182,25 +182,25 @@
                                 <!-- 주문관리 컬럼 -->
                                 <td class="order-actions">
                                     <div class="action-buttons-wrapper">
-                                        <!-- 상세보기 버튼 (항상 표시) -->
+                                        <!-- 주문상세 보기 버튼 -->
                                         <a th:href="@{/orders/{orderId}/detail(orderId=${order.orderId})}" 
                                            class="btn-action btn-detail">상세보기</a>
 
-                                        <!-- 상품후기 작성 버튼 (배송완료시에만 표시) -->
+                                        <!-- 상품후기 작성 (배송완료시에만) -->
                                         <button th:if="${order.orderStatus.name() == 'DELIVERED'}"
                                                 class="btn-action btn-review"
                                                 th:onclick="'writeReview(\'' + ${order.orderUuid} + '\')'">
                                             후기작성
                                         </button>
 
-                                        <!-- 재주문 버튼 (배송완료시에만 표시) -->
+                                        <!-- 재주문 버튼 (배송완료시에만) -->
                                         <button th:if="${order.orderStatus.name() == 'DELIVERED'}"
                                                 class="btn-action btn-reorder"
                                                 th:onclick="'reorderItems(\'' + ${order.orderUuid} + '\')'">
                                             재주문
                                         </button>
 
-                                        <!-- 주문취소 버튼 (결제완료, 상품준비중일 때만 표시) -->
+                                        <!-- 주문취소 (결제완료, 상품준비중일 때만) -->
                                         <button th:if="${order.orderStatus.name() == 'PAID' or order.orderStatus.name() == 'PREPARING'}"
                                                 class="btn-action btn-cancel"
                                                 th:onclick="'cancelOrder(\'' + ${order.orderUuid} + '\')'">
@@ -213,10 +213,11 @@
                     </table>
                 </div>
 
-                <!-- 주문 목록 카드 (모바일용) -->
+                <!-- 주문 목록 카드 (모바일) -->
                 <div th:if="${!#lists.isEmpty(orderSummaries)}" class="order-cards-container mobile-only">
-                    <!-- 각 주문별 카드 반복 출력 -->
-                    <div th:each="order : ${orderSummaries}" class="order-card" th:data-order-id="${order.orderUuid}">
+                    <div th:each="order : ${orderSummaries}" class="order-card"
+                         th:data-order-id="${order.orderUuid}">
+
                         <!-- 카드 헤더 -->
                         <div class="card-header">
                             <div class="order-info">
@@ -228,17 +229,16 @@
                                                      (order.orderStatus.name() == 'DELIVERED' ? 'status-delivered' :
                                                      (order.orderStatus.name() == 'SHIPPED' ? 'status-shipping' : 'status-processing'))}"
                                   th:text="${order.orderStatus.name() == 'PAID' ? '결제완료' :
-                                           (order.orderStatus.name() == 'PREPARING' ? '상품준비중' :
-                                           (order.orderStatus.name() == 'SHIPPED' ? '배송중' :
-                                           (order.orderStatus.name() == 'DELIVERED' ? '배송완료' :
-                                           (order.orderStatus.name() == 'CANCELLED' ? '주문취소' : '상태미확인'))))}">
-                                배송완료
-                            </span>
+                                               (order.orderStatus.name() == 'PREPARING' ? '상품준비중' :
+                                               (order.orderStatus.name() == 'SHIPPED' ? '배송중' :
+                                               (order.orderStatus.name() == 'DELIVERED' ? '배송완료' :
+                                               (order.orderStatus.name() == 'CANCELLED' ? '주문취소' : '상태미확인'))))}">
+                                    배송완료
+                                </span>
                         </div>
 
                         <!-- 카드 본문 -->
                         <div class="card-body">
-                            <!-- 상품 정보 섹션 -->
                             <div class="items-section" th:if="${order.orderItems != null and !order.orderItems.isEmpty()}">
                                 <img th:src="@{'/api/images/' + ${order.orderItems[0].itemImgId}}"
                                      th:alt="${order.orderItems[0].itemName}"
@@ -251,12 +251,9 @@
                                           th:text="'외 ' + (${order.orderItems.size()} - 1) + '개'">외 1개</span>
                                 </div>
                             </div>
-                            <!-- 상품 정보가 없는 경우 -->
                             <div class="items-section" th:unless="${order.orderItems != null and !order.orderItems.isEmpty()}">
                                 <span class="item-name">상품 정보 없음</span>
                             </div>
-                            
-                            <!-- 금액 정보 섹션 -->
                             <div class="amount-section">
                                 <span class="amount" th:text="${#numbers.formatInteger(order.payAmount, 3)} + '원'">30,000원</span>
                             </div>
@@ -264,24 +261,19 @@
 
                         <!-- 카드 푸터 -->
                         <div class="card-footer">
-                            <!-- 상세보기 버튼 -->
                             <a th:href="@{/orders/{orderId}/detail(orderId=${order.orderId})}" class="btn-detail">상세보기</a>
 
-                            <!-- 빠른 액션 버튼들 -->
                             <div class="quick-actions">
-                                <!-- 후기 작성 버튼 -->
                                 <button th:if="${order.orderStatus.name() == 'DELIVERED'}"
                                         class="btn-quick btn-review"
                                         th:onclick="'writeReview(\'' + ${order.orderUuid} + '\')'">
                                     후기
                                 </button>
-                                <!-- 재주문 버튼 -->
                                 <button th:if="${order.orderStatus.name() == 'DELIVERED'}"
                                         class="btn-quick btn-reorder"
                                         th:onclick="'reorderItems(\'' + ${order.orderUuid} + '\')'">
                                     재주문
                                 </button>
-                                <!-- 주문취소 버튼 -->
                                 <button th:if="${order.orderStatus.name() == 'PAID' or order.orderStatus.name() == 'PREPARING'}"
                                         class="btn-quick btn-cancel"
                                         th:onclick="'cancelOrder(\'' + ${order.orderUuid} + '\')'">
@@ -292,12 +284,12 @@
                     </div>
                 </div>
 
-                <!-- 페이지네이션 섹션 -->
+                <!-- 페이지네이션 -->
                 <div th:if="${!#lists.isEmpty(orderSummaries)}" class="pagination-section">
                     <nav class="pagination">
                         <button class="page-btn prev-btn" onclick="previousPage()">이전</button>
                         <div class="page-numbers" id="pageNumbers">
-                            <!-- 페이지 번호는 JavaScript에서 동적으로 생성됩니다 -->
+                            <!-- JavaScript로 동적 생성 -->
                         </div>
                         <button class="page-btn next-btn" onclick="nextPage()">다음</button>
                     </nav>
@@ -312,15 +304,18 @@
 
 <!-- Thymeleaf 데이터를 JavaScript로 전달 -->
 <script th:inline="javascript">
-    // 서버에서 전달받은 주문 목록 데이터를 JavaScript 전역 변수로 설정
+    // 서버에서 전달받은 주문 목록 데이터 (변수명 통일)
     var orderSummaries = /*[[${orderSummaries}]]*/ [];
+    
+    // 콘솔에서 디버깅용
+    console.log('📋 주문 데이터 로드:', orderSummaries);
 
-    // API URL 설정 (실제 백엔드 API 엔드포인트에 맞게 수정 필요)
+    // API URL 설정
     var orderCancelUrl = /*[[@{/api/orders/{id}/cancel}]]*/ '/api/orders/{id}/cancel';
     var reviewWriteUrl = /*[[@{/orders/{id}/review}]]*/ '/orders/{id}/review';
     var orderDetailUrl = /*[[@{/orders/{id}/detail}]]*/ '/orders/{id}/detail';
 
-    // 사용자에게 표시할 메시지 설정
+    // 메시지 설정
     var messages = {
         cancelSuccess: '주문이 성공적으로 취소되었습니다.',
         cancelError: '주문 취소 중 오류가 발생했습니다.',

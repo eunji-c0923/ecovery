@@ -1,25 +1,45 @@
-/* ==========================================================================
-   GreenCycle 주문상세 페이지 CSS
-   마이페이지와 동일한 디자인 시스템을 사용하여 일관성 유지
-   ========================================================================== */
+/**
+ * GreenCycle 구매이력 페이지 CSS
+ * 마이페이지와 동일한 디자인 시스템을 사용하여 일관성 유지
+ * 
+ * 주요 기능:
+ * 1. 반응형 디자인 (데스크탑/태블릿/모바일)
+ * 2. 주문 목록 테이블 및 카드 레이아웃
+ * 3. 필터링 및 검색 UI
+ * 4. 페이지네이션
+ * 5. 접근성 개선
+ */
 
-/* CSS 변수 정의 (마이페이지와 동일) */
+/* ==========================================================================
+   CSS 변수 정의 (마이페이지와 동일)
+   ========================================================================== */
 :root {
-    --primary-green: #2d5a3d;
-    --accent-green: #6fa776;
-    --light-green: #a8d5b7;
-    --dark-green: #1e3d2a;
-    --white: #ffffff;
-    --light-gray: #f8f9fa;
-    --medium-gray: #6c757d;
-    --dark-gray: #343a40;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
-    --info-color: #17a2b8;
+    /* 메인 컬러 */
+    --primary-green: #2d5a3d;      /* 주색상 - 진한 녹색 */
+    --accent-green: #6fa776;       /* 보조색상 - 밝은 녹색 */
+    --light-green: #a8d5b7;        /* 연한 녹색 */
+    --dark-green: #1e3d2a;         /* 어두운 녹색 */
+    
+    /* 기본 컬러 */
+    --white: #ffffff;              /* 흰색 */
+    --light-gray: #f8f9fa;         /* 연한 회색 */
+    --medium-gray: #6c757d;        /* 중간 회색 */
+    --dark-gray: #343a40;          /* 진한 회색 */
+    
+    /* 상태 컬러 */
+    --success-color: #28a745;      /* 성공 (초록) */
+    --warning-color: #ffc107;      /* 경고 (노랑) */
+    --danger-color: #dc3545;       /* 위험 (빨강) */
+    --info-color: #17a2b8;         /* 정보 (파랑) */
+    
+    /* 타이포그래피 */
     --font-family: 'Noto Sans KR', sans-serif;
+    
+    /* 그림자 및 테두리 */
     --card-shadow: 0 8px 32px rgba(45, 90, 61, 0.1);
     --border-radius: 12px;
+    
+    /* 레이아웃 */
     --container-max-width: 1200px;
     --container-padding: 20px;
 }
@@ -40,6 +60,7 @@ body {
     background: var(--light-gray);
 }
 
+/* 컨테이너 */
 .container {
     max-width: var(--container-max-width);
     margin: 0 auto;
@@ -47,7 +68,7 @@ body {
 }
 
 /* ==========================================================================
-   메인 콘텐츠 영역
+   메인 콘텐츠 레이아웃
    ========================================================================== */
 #mainContent {
     margin-top: 80px; /* 헤더 높이만큼 여백 */
@@ -194,7 +215,7 @@ body {
     background-size: 12px;
     cursor: pointer;
     transition: all 0.2s ease;
-    min-width: 140px;
+    min-width: 150px;
 }
 
 .filter-select:focus {
@@ -312,7 +333,7 @@ body {
 }
 
 /* ==========================================================================
-   주문 목록 테이블 (데스크탑용) - 개선된 버전
+   주문 목록 테이블 (데스크탑) - 수정된 부분
    ========================================================================== */
 .order-table-container {
     overflow-x: auto;
@@ -324,15 +345,15 @@ body {
 .order-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1000px; /* 최소 너비 증가로 버튼이 잘리지 않도록 */
+    min-width: 1000px; /* 최소 너비 증가로 버튼 잘림 방지 */
 }
 
 .order-table th,
 .order-table td {
-    padding: 18px 15px; /* 패딩 증가 */
+    padding: 15px 10px; /* 좌우 패딩 조정 */
     text-align: left;
     border-bottom: 1px solid var(--light-gray);
-    vertical-align: middle; /* 수직 정렬 */
+    vertical-align: middle; /* 세로 정렬 */
 }
 
 .order-table th {
@@ -351,22 +372,21 @@ body {
 
 .order-table tbody tr:hover {
     background: rgba(45, 90, 61, 0.03);
-    transition: background-color 0.2s ease;
 }
 
-/* 컬럼별 너비 및 정렬 최적화 */
+/* 컬럼별 너비 조정 - 상세보기 버튼이 잘리지 않도록 수정 */
 .col-order-num { 
-    width: 16%; 
-    min-width: 140px;
+    width: 18%; 
+    min-width: 180px; /* 최소 너비 설정 */
 }
 
 .col-order-date { 
     width: 12%; 
-    min-width: 100px;
+    min-width: 120px;
 }
 
 .col-order-items { 
-    width: 32%; 
+    width: 30%; 
     min-width: 250px;
 }
 
@@ -377,14 +397,14 @@ body {
 }
 
 .col-order-status { 
-    width: 10%; 
-    min-width: 90px;
+    width: 12%; 
+    min-width: 100px;
     text-align: center;
 }
 
 .col-order-action { 
-    width: 18%; /* 너비 증가 */
-    min-width: 160px; /* 최소 너비 증가 */
+    width: 16%; 
+    min-width: 140px; /* 버튼들이 들어갈 충분한 공간 확보 */
     text-align: center; 
 }
 
@@ -392,53 +412,61 @@ body {
    테이블 내 요소 스타일
    ========================================================================== */
 
-/* 주문번호 스타일 */
-.order-number {
-    font-family: 'Courier New', monospace; /* 고정폭 폰트 */
-}
-
-.order-number-text {
+/* 주문번호 링크 */
+.order-number .order-link {
     color: var(--primary-green);
     font-weight: 500;
-    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    display: block;
+    word-break: break-all; /* 긴 주문번호 줄바꿈 */
 }
 
-/* 주문일자 스타일 */
+.order-number .order-link:hover {
+    color: var(--dark-green);
+    text-decoration: underline;
+}
+
+/* 주문일자 */
 .order-date {
     font-size: 14px;
+    color: var(--dark-gray);
 }
 
-.date-info {
+.order-date .date-wrapper {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.date-main {
-    color: var(--dark-gray);
+.order-date .date {
     font-weight: 500;
 }
 
-.date-time {
+.order-date .time {
     color: var(--medium-gray);
     font-size: 12px;
 }
 
-/* 주문상품 스타일 */
+/* 주문상품 */
 .order-items {
-    padding: 12px 15px; /* 상품 영역 패딩 조정 */
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
 .items-info {
     display: flex;
     align-items: center;
     gap: 15px;
+    width: 100%;
 }
 
 .first-item {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex: 1;
 }
 
 .item-image {
@@ -453,12 +481,12 @@ body {
 .item-details {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    min-width: 0; /* flex 자식 요소의 최소 너비 설정 */
+    gap: 2px;
+    min-width: 0; /* overflow 방지 */
 }
 
 .item-name {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--dark-gray);
     display: -webkit-box;
@@ -470,22 +498,19 @@ body {
 }
 
 .item-count {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--medium-gray);
 }
 
-/* 결제금액 스타일 */
-.order-amount {
-    text-align: right;
-}
-
-.amount {
+/* 결제금액 */
+.order-amount .amount {
     font-size: 16px;
     font-weight: 700;
     color: var(--primary-green);
+    white-space: nowrap; /* 금액 줄바꿈 방지 */
 }
 
-/* 주문상태 스타일 */
+/* 주문상태 */
 .order-status {
     text-align: center;
 }
@@ -496,7 +521,7 @@ body {
     font-size: 12px;
     font-weight: 600;
     display: inline-block;
-    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+    white-space: nowrap; /* 상태 텍스트 줄바꿈 방지 */
 }
 
 /* 주문 상태별 색상 */
@@ -521,36 +546,36 @@ body {
 }
 
 /* ==========================================================================
-   주문관리 버튼 영역 - 개선된 버전
+   주문관리 버튼들 - 수정된 부분
    ========================================================================== */
 .order-actions {
     text-align: center;
-    padding: 15px 10px; /* 패딩 조정 */
+    padding: 8px 5px; /* 패딩 조정 */
 }
 
 .action-buttons-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
     justify-content: center;
     min-height: 60px; /* 최소 높이 설정 */
 }
 
 .btn-action {
-    padding: 8px 14px; /* 패딩 조정 */
+    padding: 6px 12px; /* 패딩 조정 */
     border: 1px solid transparent;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 12px; /* 폰트 크기 조정 */
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     text-decoration: none;
     background: transparent;
-    width: 85px; /* 버튼 너비 통일 */
+    width: 80px; /* 버튼 너비 통일 */
     text-align: center;
-    white-space: nowrap; /* 텍스트 줄바꿈 방지 */
-    display: inline-block;
+    white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
+    line-height: 1.2;
 }
 
 .btn-action:hover {
@@ -558,11 +583,9 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 각 버튼별 색상 스타일 */
 .btn-detail {
     border-color: var(--primary-green);
     color: var(--primary-green);
-    font-weight: 600; /* 상세보기 버튼 강조 */
 }
 
 .btn-detail:hover {
@@ -601,7 +624,7 @@ body {
 }
 
 /* ==========================================================================
-   주문 목록 카드 (모바일용)
+   주문 목록 카드 (모바일)
    ========================================================================== */
 .order-cards-container {
     display: flex;
@@ -646,18 +669,11 @@ body {
     font-size: 16px;
     font-weight: 600;
     color: var(--primary-green);
-    font-family: 'Courier New', monospace;
 }
 
 .order-card .order-date {
     font-size: 13px;
     color: var(--medium-gray);
-}
-
-/* 모바일 카드 상태 배지 */
-.order-card .status-badge {
-    padding: 6px 10px;
-    font-size: 12px;
 }
 
 /* 카드 본문 */
@@ -762,7 +778,7 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* 각 빠른 액션 버튼별 색상 */
+/* 각 버튼별 색상 (모바일 카드) */
 .btn-quick.btn-review {
     border-color: var(--warning-color);
     color: var(--warning-color);
@@ -794,7 +810,7 @@ body {
 }
 
 /* ==========================================================================
-   페이지네이션 스타일
+   페이지네이션
    ========================================================================== */
 .pagination-section {
     display: flex;
@@ -882,10 +898,13 @@ body {
         min-width: 800px; /* 태블릿에서는 조금 더 작게 */
     }
 
-    .col-order-action {
-        width: 20%; /* 태블릿에서 액션 컬럼 너비 증가 */
-        min-width: 170px;
-    }
+    /* 테이블 컬럼 너비 조정 */
+    .col-order-num { min-width: 150px; }
+    .col-order-date { min-width: 100px; }
+    .col-order-items { min-width: 200px; }
+    .col-order-amount { min-width: 80px; }
+    .col-order-status { min-width: 80px; }
+    .col-order-action { min-width: 120px; }
 }
 
 /* 모바일 화면 (767px 이하) */
@@ -926,11 +945,11 @@ body {
 
     .filter-select,
     .search-input {
-        width: 100%;
+        width: 100%; /* 모바일에서 너비 꽉 채우기 */
     }
 
     .search-btn {
-        right: 5px;
+        right: 5px; /* 모바일에서 검색 버튼 위치 조정 */
     }
 }
 
@@ -984,22 +1003,22 @@ a:focus {
 @media print {
     .filter-section,
     .pagination-section {
-        display: none;
+        display: none; /* 필터와 페이지네이션은 인쇄 시 숨김 */
     }
-    
+
     .order-table-container,
     .order-cards-container {
         box-shadow: none;
         border: 1px solid #ddd;
     }
-    
+
     .order-table th,
     .order-table td {
         border-color: #eee;
     }
-    
-    .page-header {
-        background: var(--primary-green) !important;
-        color: white !important;
+
+    .btn-action,
+    .btn-quick {
+        display: none; /* 버튼들은 인쇄 시 숨김 */
     }
 }
